@@ -1,0 +1,658 @@
+openapi: 3.1.0
+info:
+  title: Simple Restaurant POS API
+  description: API spec for a simple SaaS restaurant Point of Sale system. Supports auth token and secret, with monthly usage limits.
+  version: 1.0.0
+servers:
+  - url: https://api.yourpossaas.com/v1
+    description: Production server
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: "API Key (auth secret) to identify the client."
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Bearer token for user authentication and authorization."
+
+  schemas:
+    Item:
+      type: object
+      required:
+        - id
+        - name
+        - price
+      properties:
+        id:
+          type: string
+          example: "item123"
+        name:
+          type: string
+          example: "Margherita Pizza"
+        description:
+          type: string
+          example: "Classic tomato, mozzarella, basil"
+        price:
+          type: number
+          format: float
+          example: 12.5
+        available:
+          type: boolean
+          default: true
+
+    OrderItem:
+      type: object
+      required:
+        - itemId
+        - quantity
+      properties:
+        itemId:
+          type: string
+          example: "item123"
+        quantity:
+          type: integer
+          example: 2
+
+    Order:
+      type: object
+      required:
+        - id
+        - items
+        - totalAmount
+        - status
+      properties:
+        id:
+          type: string
+          example: "order456"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        totalAmount:
+          type: number
+          format: float
+          example: 25.0
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          example: pending
+        createdAt:
+          type: string
+          format: date-time
+
+    Employee:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          example: "emp789"
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          example: "Waiter"
+        active:
+          type: boolean
+          default: true
+
+    Payment:
+      type: object
+      required:
+        - id
+        - orderId
+        - amount
+        - method
+        - status
+      properties:
+        id:
+          type: string
+          example: "pay001"
+        orderId:
+          type: string
+          example: "order456"
+        amount:
+          type: number
+          format: float
+          example: 25.0
+        method:
+          type: string
+          enum: [cash, card, tap]
+          example: card
+        status:
+          type: string
+          enum: [pending, completed, failed]
+          example: completed
+        paidAt:
+          type: string
+          format: date-time
+
+    Printer:
+      type: object
+      required:
+        - id
+        - name
+        - category
+      properties:
+        id:
+          type: string
+          example: "printer1"
+        name:
+          type: string
+          example: "Oven Printer #1"
+        category:
+          type: string
+          example: "oven"
+        description:
+          type: string
+          example: "Printer near the pizza oven"
+
+    PrintTemplate:
+      type: object
+      required:
+        - id
+        - printerCategory
+        - templateName
+        - content
+      properties:
+        id:
+          type: string
+          example: "template_oven_1"
+        printerCategory:
+          type: string
+          example: "oven"
+          description: "Category of printer this template is for"
+        templateName:
+          type: string
+          example: "Oven Order Simple"
+          description: "Human-readable template name"
+        content:
+          type: string
+          example: "{{orderNumber}} - {{items}}"
+          description: "Template content, using a placeholder syntax"
+
+    PrintJob:
+      type: object
+      required:
+        - id
+        - orderId
+        - printerId
+        - templateId
+        - status
+      properties:
+        id:
+          type: string
+          example: "printjob_123"
+        orderId:
+          type: string
+          example: "order456"
+          description: "Order id associated with this print job"
+        printerId:
+          type: string
+          example: "printer1"
+          description: "Target printer for this print job"
+        templateId:
+          type: string
+          example: "template_oven_1"
+          description: "Template used for this print"
+        status:
+          type: string
+          enum: [pending, printing, completed, failed]
+          example: pending
+        createdAt:
+          type: string
+          format: date-time
+
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+      description: Max number of items per page (pagination)
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /items:
+    get:
+      summary: List menu items
+      description: Get a paged list of menu items.
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+      security:
+        - ApiKeyAuth: []
+
+    post:
+      summary: Create a new menu item
+      requestBody:
+        description: Item object to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+      security:
+        - BearerAuth: []
+
+  /items/{itemId}:
+    get:
+      summary: Get item details
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+      security:
+        - ApiKeyAuth: []
+
+    put:
+      summary: Update an item
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated item object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+      security:
+        - BearerAuth: []
+
+    delete:
+      summary: Delete an item
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Item deleted
+      security:
+        - BearerAuth: []
+
+  /orders:
+    post:
+      summary: Place a new order
+      requestBody:
+        required: true
+        description: Order details
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - items
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OrderItem'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      security:
+        - ApiKeyAuth: []
+
+    get:
+      summary: List recent orders
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+      security:
+        - ApiKeyAuth: []
+
+  /orders/{orderId}:
+    get:
+      summary: Get order details
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      security:
+        - ApiKeyAuth: []
+
+    put:
+      summary: Update order status (e.g. complete or cancel)
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated order status
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [pending, completed, canceled]
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      security:
+        - BearerAuth: []
+
+  /employees:
+    get:
+      summary: List employees
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Employee list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+      security:
+        - BearerAuth: []
+
+    post:
+      summary: Add new employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '201':
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+      security:
+        - BearerAuth: []
+
+  /payments:
+    post:
+      summary: Record a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '201':
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+      security:
+        - ApiKeyAuth: []
+
+  /usage:
+    get:
+      summary: Get current API usage and limits
+      responses:
+        '200':
+          description: Usage details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monthlyLimit:
+                    type: integer
+                    example: 100000
+                  requestsMade:
+                    type: integer
+                    example: 10500
+                  resetDate:
+                    type: string
+                    format: date-time
+      security:
+        - ApiKeyAuth: []
+
+  /printers:
+    get:
+      summary: List all printers
+      responses:
+        '200':
+          description: List of registered printers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Printer'
+      security:
+        - BearerAuth: []
+
+    post:
+      summary: Register a new printer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Printer'
+      responses:
+        '201':
+          description: Printer registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Printer'
+      security:
+        - BearerAuth: []
+
+  /print-templates:
+    get:
+      summary: List print templates
+      responses:
+        '200':
+          description: List of print templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PrintTemplate'
+      security:
+        - BearerAuth: []
+
+    post:
+      summary: Create a new print template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrintTemplate'
+      responses:
+        '201':
+          description: Print template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrintTemplate'
+      security:
+        - BearerAuth: []
+
+  /print-jobs:
+    post:
+      summary: Create print jobs for an order
+      description: Create print jobs targeting specific printers with templates for an order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+                - jobs
+              properties:
+                orderId:
+                  type: string
+                  example: "order456"
+                jobs:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - printerId
+                      - templateId
+                    properties:
+                      printerId:
+                        type: string
+                        example: "printer1"
+                      templateId:
+                        type: string
+                        example: "template_oven_1"
+      responses:
+        '201':
+          description: Print jobs created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PrintJob'
+      security:
+        - ApiKeyAuth: []
+
+    get:
+      summary: List print jobs with optional filters by order or status
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: string
+          description: Filter jobs by order ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, printing, completed, failed]
+          description: Filter jobs by print status
+      responses:
+        '200':
+          description: List of print jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PrintJob'
+      security:
+        - ApiKeyAuth: []
+
+  /print-jobs/{printJobId}:
+    put:
+      summary: Update print job status
+      parameters:
+        - name: printJobId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [pending, printing, completed, failed]
+      responses:
+        '200':
+          description: Print job status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrintJob'
+      security:
+        - BearerAuth: []

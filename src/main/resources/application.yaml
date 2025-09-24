@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+logging:
+  file:
+    name: application.log
+
+possable:
+  security:
+    api-key: "changeme-api-key"
+    bearer-token-secret: "changeme-bearer-secret" 
