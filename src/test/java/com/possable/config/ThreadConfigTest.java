@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.task.TaskExecutor;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,10 +20,13 @@ public class ThreadConfigTest {
         assertNotNull(te);
 
         // ensure executor runs tasks
-        final boolean[] ran = {false};
-        te.execute(() -> ran[0] = true);
-        // small sleep to allow virtual thread to run
-        try { Thread.sleep(10); } catch (InterruptedException ignored) {}
-        assertTrue(ran[0]);
+        CountDownLatch latch = new CountDownLatch(1);
+        te.execute(latch::countDown);
+        try {
+            assertTrue(latch.await(1, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            fail("Interrupted while waiting for task to run");
+        }
     }
 } 
