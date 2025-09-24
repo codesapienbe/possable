@@ -1,6 +1,7 @@
 package com.possable.config;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -68,5 +69,27 @@ public class SecurityConfigTest {
         filter.doFilter(req, res, chain);
 
         assertEquals(200, res.getStatus());
+    }
+
+    @Test
+    public void authenticationFilter_handlesFilterChainExceptionAsInternalError() throws Exception {
+        SecurityConfig cfg = new SecurityConfig();
+        setConfigKeys(cfg);
+        var filter = cfg.authenticationFilter();
+
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        req.addHeader("X-API-KEY", "changeme-api-key");
+
+        FilterChain badChain = new FilterChain() {
+            @Override
+            public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response) throws java.io.IOException, jakarta.servlet.ServletException {
+                throw new jakarta.servlet.ServletException("boom");
+            }
+        };
+
+        filter.doFilter(req, res, badChain);
+
+        assertEquals(500, res.getStatus());
     }
 } 
