@@ -38,13 +38,13 @@ This project is a backend REST API for a simple restaurant Point of Sale (POS) s
 
 1. Clone the repository:
 
-   ```
+   ```bash
    git clone https://github.com/yourusername/simple-restaurant-pos.git
    ```
 
 2. Build the native image (optional for production):
 
-   ```
+   ```bash
    ./mvnw spring-boot:build-image
    ```
 
@@ -52,7 +52,7 @@ This project is a backend REST API for a simple restaurant Point of Sale (POS) s
 
 4. Run the application:
 
-   ```
+   ```bash
    ./mvnw spring-boot:run
    ```
    

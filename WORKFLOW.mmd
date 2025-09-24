@@ -1,0 +1,63 @@
+flowchart TD
+  subgraph User Authentication & Usage
+    A1[Client sends API Key] --> A2{Valid API Key?}
+    A2 -- No --> A3[Reject Request]
+    A2 -- Yes --> A4[Authenticate Bearer Token]
+    A4 --> A5{Token Valid?}
+    A5 -- No --> A3
+    A5 -- Yes --> A6[Check Monthly Usage Limit]
+    A6 -- Exceeded --> A7[Reject Request - Limit Hit]
+    A6 -- Ok --> A8[Proceed With API Request]
+  end
+
+  subgraph Menu Management
+    M1[Create Menu Item] --> M2[Save Item]
+    M3[List Menu Items] --> M4[Return Items List]
+    M5[Update Menu Item] --> M2
+    M6[Delete Menu Item] --> M7[Remove Item]
+  end
+
+  subgraph Order Processing
+    O1[Place New Order] --> O2[Validate Order Items]
+    O2 --> O3[Calculate Total]
+    O3 --> O4[Save Order in DB]
+    O4 --> O5[Generate Print Jobs]
+  end
+
+  subgraph Print Management
+    P1[Register Printer] --> P2[Save Printer Info]
+    P3[Create/Update Print Template] --> P4[Save Template]
+    
+    O5 --> P5[Assign Print Jobs to Printers with Templates]
+    P5 --> P6[Add Jobs to Print Queue]
+    P7[Printer Fetches Pending Jobs] --> P8[Print Content Using Template]
+    P8 --> P9[Update Job Status: Printing]
+    P9 --> P10[Update Job Status: Completed or Failed]
+  end
+
+  subgraph Payment Management
+    Pay1[Record Payment] --> Pay2[Validate Payment]
+    Pay2 --> Pay3[Save Payment Info]
+    Pay3 --> Pay4[Update Order Payment Status]
+  end
+
+  subgraph Employee Management
+    E1[Add Employee] --> E2[Save Employee Details]
+    E3[List Employees] --> E4[Return Employees List]
+  end
+
+  subgraph Customer Copy Workflow
+    O4 --> C1[Create Customer Copy Print Job]
+    C1 --> P5
+  end
+
+  %% Link main flow
+  A8 -->|Item APIs| M1
+  A8 --> M3
+  A8 -->|Order APIs| O1
+  A8 -->|Payment APIs| Pay1
+  A8 -->|Employee APIs| E1
+  A8 --> E3
+  A8 -->|Printer APIs| P1
+  A8 -->|Template APIs| P3
+  A8 -->|Print Jobs APIs| P7

@@ -53,4 +53,19 @@ public class PrintJobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].orderId").value("order-x"));
     }
+
+    @Test
+    public void updateStatusEndpoint() throws Exception {
+        // create job directly via service
+        var job = jobService.createJob("o-update", "p1", "t1");
+
+        String json = objectMapper.writeValueAsString(new Object() { public final String status = "printed"; });
+
+        mockMvc.perform(put("/print-jobs/" + job.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(job.id()))
+                .andExpect(jsonPath("$.status").value("printed"));
+    }
 } 
