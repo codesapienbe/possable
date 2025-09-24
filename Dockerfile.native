@@ -1,0 +1,13 @@
+# Stage 1: build with GraalVM + native-image available
+FROM ghcr.io/graalvm/native-image:java21-22 AS builder
+WORKDIR /workspace
+COPY pom.xml .
+COPY src ./src
+RUN mvn -DskipTests -B package -Pnative
+
+# Stage 2: minimal runtime image
+FROM gcr.io/distroless/cc-debian11
+COPY --from=builder /workspace/target/possable /usr/local/bin/possable
+EXPOSE 8080
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/possable"]
