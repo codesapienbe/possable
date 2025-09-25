@@ -1,23 +1,12 @@
 package com.possable.view;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.possable.service.ItemService;
-import com.possable.service.OrderService;
-import com.possable.service.PrinterService;
-import com.possable.service.PrintJobService;
-import com.possable.service.PrintTemplateService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -30,12 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @PreAuthorize("hasAnyRole('SERVICE','MANAGEMENT')")
 public class ServiceView extends VerticalLayout {
 
-	private final ItemService itemService;
-	private final OrderService orderService;
-
-	public ServiceView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
-		this.itemService = itemService;
-		this.orderService = orderService;
+	public ServiceView(RoleDashboardFactory factory) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
@@ -52,8 +36,8 @@ public class ServiceView extends VerticalLayout {
 		content.setWidthFull();
 
 		Map<Tab, Component> tabToContent = new HashMap<>();
-		tabToContent.put(menuTab, new ItemListComponent(itemService));
-		tabToContent.put(ordersTab, new OrdersComponent(orderService, printerService, printJobService, templateService));
+		tabToContent.put(menuTab, factory.createItemListComponent());
+		tabToContent.put(ordersTab, factory.createOrdersComponent());
 
 		tabs.addSelectedChangeListener(ev -> {
 			content.removeAll();
@@ -65,24 +49,4 @@ public class ServiceView extends VerticalLayout {
 		tabs.setSelectedTab(menuTab);
 		content.add(tabToContent.get(menuTab));
 	}
-
-	@Deprecated
-	private Component buildMenu() {
-		HorizontalLayout tiles = new HorizontalLayout();
-		tiles.setWidthFull();
-		tiles.getStyle().set("flex-wrap", "wrap").set("gap", "12px");
-		List<ItemService.Item> items = itemService.listItems(200);
-		for (var it : items) {
-			Button b = new Button(it.name() + "\n" + String.format("$%.2f", it.price()));
-			b.addClassName("pos-tile");
-			b.addClickListener(e -> {
-				// minimal add-to-cart feedback for service
-				Notification.show("Selected: " + it.name());
-			});
-			tiles.add(b);
-		}
-		return tiles;
-	}
-
-	// orders grid functionality moved to OrdersComponent
 } 
