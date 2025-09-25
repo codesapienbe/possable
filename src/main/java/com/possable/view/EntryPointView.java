@@ -1,5 +1,6 @@
 package com.possable.view;
 
+import com.possable.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -11,20 +12,22 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Entry")
 public class EntryPointView extends VerticalLayout {
 
-	private final AuthenticationManager authenticationManager;
+	private final UserService userService;
 
 	@Autowired
-	public EntryPointView(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
+	public EntryPointView(UserService userService) {
+		this.userService = userService;
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
@@ -64,10 +67,12 @@ public class EntryPointView extends VerticalLayout {
 		Button submit = new Button("Enter", evt -> {
 			String value = pin.getValue();
 			try {
-				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, value);
-				Authentication auth = authenticationManager.authenticate(token);
-				if (auth != null && auth.isAuthenticated()) {
-					SecurityContextHolder.getContext().setAuthentication(auth);
+				boolean ok = userService.authenticate(username, value);
+				if (ok) {
+					// set security context with username and mapped roles
+					var roles = userService.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
+					var token = new UsernamePasswordAuthenticationToken(username, null, roles);
+					SecurityContextHolder.getContext().setAuthentication(token);
 					dialog.close();
 					Notification.show("Welcome " + username);
 					// navigate depending on role/user
