@@ -10,10 +10,31 @@
 
     <encoder class="net.logstash.logback.encoder.LogstashEncoder">
       <customFields>{"component":"possable"}</customFields>
+      <includeMdc>true</includeMdc>
+    </encoder>
+  </appender>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <timestamp />
+        <version />
+        <loggerName />
+        <threadName />
+        <level />
+        <message />
+        <mdc>
+          <includeMdcKey>request_id</includeMdcKey>
+          <includeMdcKey>correlation_id</includeMdcKey>
+          <includeMdcKey>user_id</includeMdcKey>
+        </mdc>
+        <globalCustomFields>{"component":"possable"}</globalCustomFields>
+      </providers>
     </encoder>
   </appender>
 
   <root level="INFO">
     <appender-ref ref="FILE" />
+    <appender-ref ref="CONSOLE" />
   </root>
 </configuration> 

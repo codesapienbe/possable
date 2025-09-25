@@ -1,11 +1,10 @@
 package com.possable.config;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -38,7 +40,7 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(authenticationFilter(), AbstractPreAuthenticatedProcessingFilter.class)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/health", "/actuator/health", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers("/health", "/actuator/health", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
@@ -57,9 +59,11 @@ public class SecurityConfig {
                     String authHeader = request.getHeader("Authorization");
 
                     boolean valid = false;
+                    String userIdForMdc = null;
 
                     if (apiKey != null && apiKey.equals(configuredApiKey)) {
                         valid = true;
+                        userIdForMdc = "apiKey:***"; // mask actual key
                     }
 
                     if (!valid && authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -67,6 +71,7 @@ public class SecurityConfig {
                         // Simple constant comparison for starter implementation; replace with JWT or token service later
                         if (configuredBearerSecret != null && !configuredBearerSecret.isEmpty() && configuredBearerSecret.equals(token)) {
                             valid = true;
+                            userIdForMdc = "bearer:***"; // mask token
                         }
                     }
 
@@ -77,7 +82,15 @@ public class SecurityConfig {
                         return;
                     }
 
-                    filterChain.doFilter(request, response);
+                    if (userIdForMdc != null) {
+                        MDC.put("user_id", userIdForMdc);
+                    }
+
+                    try {
+                        filterChain.doFilter(request, response);
+                    } finally {
+                        if (userIdForMdc != null) MDC.remove("user_id");
+                    }
                 } catch (Exception ex) {
                     log.error("Authentication filter failure", ex);
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

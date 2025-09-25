@@ -8,4 +8,8 @@ logging:
 possable:
   security:
     api-key: "changeme-api-key"
-    bearer-token-secret: "changeme-bearer-secret" 
+    bearer-token-secret: "changeme-bearer-secret"
+
+app:
+  docs:
+    enabled: false 
