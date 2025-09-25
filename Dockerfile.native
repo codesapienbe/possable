@@ -1,36 +1,44 @@
-# Stage 1: base with tools, download GraalVM CE and build native image
-FROM ubuntu:22.04 AS builder
+# Stage 0: graal image with GraalVM and Maven (cacheable)
+ARG MAVEN_VERSION=3.8.6
+ARG GRAAL_IMAGE=ghcr.io/graalvm/graalvm-ce:21.2.0@sha256:3f9a165b80a6592d5609ed97d37201cbf1fc69e65027b6f7f0492967fe3550e2
+FROM ${GRAAL_IMAGE} AS graal
 
-# Versions (adjust GraalVM version when needed)
-ENV GRAALVM_VERSION=23.3.4 \
-    GRAALVM_VARIANT=java21 \
-    MAVEN_VERSION=3.9.6 \
-    PATH=/opt/graalvm/bin:/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH
+# Separate stage to install Maven so we don't need package tooling in the GraalVM image
+FROM ubuntu:22.04 AS maven
 
-# Install required packages for building
+ARG MAVEN_VERSION
+
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ca-certificates curl tar gzip build-essential libz-dev zlib1g-dev pkg-config && \
-    rm -rf /var/lib/apt/lists/*;
-
-# Download and extract GraalVM CE
-RUN set -eux; \
-    curl -fsSL -o /tmp/graal.tar.gz \
-      https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${GRAALVM_VERSION}/graalvm-ce-${GRAALVM_VARIANT}-linux-amd64-${GRAALVM_VERSION}.tar.gz && \
-    tar -xzf /tmp/graal.tar.gz -C /opt && \
-    mv /opt/graalvm-ce-${GRAALVM_VARIANT}-${GRAALVM_VERSION} /opt/graalvm && \
-    rm /tmp/graal.tar.gz
-
-# Install native-image using gu
-RUN set -eux; \
-    /opt/graalvm/bin/gu install native-image
-
-# Install Maven
-RUN set -eux; \
-    curl -fsSL -o /tmp/maven.tar.gz https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
-    tar -xzf /tmp/maven.tar.gz -C /opt && \
-    ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/bin/mvn && \
+    apt-get install -y --no-install-recommends curl tar gzip ca-certificates; \
+    rm -rf /var/lib/apt/lists/*; \
+    curl -fsSL -o /tmp/maven.tar.gz https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz; \
+    tar -xzf /tmp/maven.tar.gz -C /opt; \
     rm /tmp/maven.tar.gz
+
+# Stage 1: builder that uses cached Graal/Maven from `graal` and `maven` stages
+FROM ubuntu:22.04 AS builder
+
+ARG MAVEN_VERSION
+ENV MAVEN_VERSION=${MAVEN_VERSION} \
+    JAVA_HOME=/opt/graalvm \
+    PATH=/opt/graalvm/bin:/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends sed build-essential libz-dev zlib1g-dev pkg-config curl ca-certificates tar gzip; \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy GraalVM (whole /opt) and Maven from the cacheable stages
+COPY --from=graal /opt /opt
+COPY --from=maven /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven-${MAVEN_VERSION}
+# Ensure /opt/graalvm exists (some upstream images use different directory names)
+RUN set -eux; \
+    if [ ! -d "/opt/graalvm" ]; then \
+        GDIR=$(ls -d /opt/graalvm* 2>/dev/null | head -n1 || true); \
+        if [ -n "$GDIR" ]; then ln -sn "$GDIR" /opt/graalvm; fi; \
+    fi
+RUN [ -e /opt/apache-maven-${MAVEN_VERSION}/bin/mvn ] && ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/bin/mvn || true
 
 WORKDIR /workspace
 COPY pom.xml .
@@ -39,9 +47,10 @@ COPY src ./src
 # Build native image using the GraalVM native plugin
 RUN mvn -DskipTests -B org.graalvm.buildtools:native-maven-plugin:0.9.20:build
 
-# Stage 2: minimal runtime
+# Stage 2: minimal runtime image
 FROM gcr.io/distroless/cc-debian11
 COPY --from=builder /workspace/target/possable /usr/local/bin/possable
 EXPOSE 8080
 USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/possable"]
+
