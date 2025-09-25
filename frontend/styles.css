@@ -345,3 +345,25 @@ body {
 
 /* center role cards near top */
 .pos-root > .vaadin-horizontal-layout { margin-top: 12px; align-items: flex-start; } 
+
+/* Tab active indicator: underline with accent color and transition */
+.pos-menu vaadin-tab {
+	padding-bottom: 8px;
+	border-bottom: 3px solid transparent;
+	transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.pos-menu vaadin-tab[selected] {
+	border-bottom-color: var(--pos-accent);
+	color: var(--pos-accent);
+	transform: translateY(-2px);
+}
+
+.pos-menu vaadin-tab:hover {
+	color: var(--pos-accent);
+}
+
+/* Make labels slightly bolder for visibility */
+.pos-menu vaadin-tab::part(label) {
+	font-weight: 700;
+} 
