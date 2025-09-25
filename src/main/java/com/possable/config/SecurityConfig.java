@@ -60,6 +60,23 @@ public class SecurityConfig {
             @Override
             protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
                 try {
+                    String path = request.getRequestURI();
+                    String method = request.getMethod();
+
+                    // Allow public/static paths and preflight requests without authentication
+                    if ("OPTIONS".equalsIgnoreCase(method)
+                        || path.equals("/") || path.equals("/index.html") || path.equals("/favicon.ico")
+                        || path.equals("/sw.js") || path.equals("/manifest.json")
+                        || path.startsWith("/frontend/") || path.startsWith("/frontend-es5/") || path.startsWith("/frontend-es6/")
+                        || path.startsWith("/VAADIN/")
+                        || path.startsWith("/icons/") || path.startsWith("/images/") || path.startsWith("/styles/") || path.startsWith("/themes/")
+                        || path.equals("/health") || path.equals("/actuator/health")
+                        || path.startsWith("/v3/api-docs/") || path.startsWith("/swagger-ui/") || path.equals("/swagger-ui.html")
+                        || path.equals("/docs")) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
                     String apiKey = request.getHeader("X-API-KEY");
                     String authHeader = request.getHeader("Authorization");
 
