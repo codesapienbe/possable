@@ -76,6 +76,30 @@ body {
 	white-space: pre-wrap;
 }
 
+/* Tile hover and improved content styling */
+.pos-tile {
+	transition: transform 160ms ease, box-shadow 160ms ease;
+	cursor: pointer;
+	padding: 14px;
+}
+.pos-tile:hover {
+	transform: translateY(-6px) scale(1.02);
+	box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+.pos-tile .tile-title {
+	font-size: 1.05em;
+	font-weight: 700;
+	margin-bottom: 6px;
+}
+
+.empty-state {
+	padding: 24px;
+	text-align: center;
+	color: var(--pos-muted);
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	border-radius: 8px;
+}
+
 /* Cart */
 .pos-cart {
 	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
@@ -248,4 +272,19 @@ body {
 	0% { transform: scale(0.7) rotate(-8deg); opacity: 0; }
 	50% { transform: scale(1.05) rotate(6deg); opacity: 1; }
 	100% { transform: scale(1) rotate(0deg); opacity: 1; }
-} 
+}
+
+/* PIN indicator dots */
+.pin-dot {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: rgba(255,255,255,0.06);
+	border: 1px solid rgba(255,255,255,0.03);
+	display: inline-block;
+}
+.pin-dot.filled {
+	background: var(--pos-accent);
+	box-shadow: 0 4px 10px rgba(0,0,0,0.5) inset;
+}
+.pin-dot + .pin-dot { margin-left: 8px; } 

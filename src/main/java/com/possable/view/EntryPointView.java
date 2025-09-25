@@ -81,6 +81,28 @@ public class EntryPointView extends VerticalLayout {
 		pin.getElement().setAttribute("maxlength", "4");
 		pin.setValue("");
 		pin.setReadOnly(true); // force using on-screen keypad
+
+		// visual PIN indicator (four dots)
+		HorizontalLayout pinDots = new HorizontalLayout();
+		pinDots.getStyle().set("gap", "8px");
+		java.util.List<com.vaadin.flow.component.html.Span> dotSpans = new java.util.ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			com.vaadin.flow.component.html.Span s = new com.vaadin.flow.component.html.Span();
+			s.addClassName("pin-dot");
+			dotSpans.add(s);
+			pinDots.add(s);
+		}
+
+		java.lang.Runnable refreshDots = () -> {
+			String v = pin.getValue() == null ? "" : pin.getValue();
+			for (int i = 0; i < dotSpans.size(); i++) {
+				if (i < v.length()) {
+					dotSpans.get(i).getElement().getClassList().add("filled");
+				} else {
+					dotSpans.get(i).getElement().getClassList().remove("filled");
+				}
+			}
+		};
 		Button submit = new Button("Enter", evt -> {
 			String value = pin.getValue();
 			try {
@@ -132,20 +154,24 @@ public class EntryPointView extends VerticalLayout {
 			int digit = i;
 			Button d = new Button(Integer.toString(digit), e -> {
 				String v = pin.getValue();
-				if (v.length() < 4) pin.setValue(v + digit);
+				if (v.length() < 4) {
+					pin.setValue(v + digit);
+					refreshDots.run();
+					if (pin.getValue().length() == 4) submit.click();
+				}
 			});
 			d.addClassName("pos-button-large");
 			d.getStyle().set("width", "64px");
 			numpad.add(d);
 		}
-		Button zero = new Button("0", e -> { String v = pin.getValue(); if (v.length() < 4) pin.setValue(v + "0"); });
+		Button zero = new Button("0", e -> { String v = pin.getValue(); if (v.length() < 4) { pin.setValue(v + "0"); refreshDots.run(); if (pin.getValue().length() == 4) submit.click(); } });
 		zero.addClassName("pos-button-large"); zero.getStyle().set("width", "64px");
-		Button back = new Button("⌫", e -> { String v = pin.getValue(); if (!v.isEmpty()) pin.setValue(v.substring(0, v.length() - 1)); });
+		Button back = new Button("⌫", e -> { String v = pin.getValue(); if (!v.isEmpty()) { pin.setValue(v.substring(0, v.length() - 1)); refreshDots.run(); } });
 		back.addClassName("pos-button-large"); back.getStyle().set("width", "64px");
-		Button clearBtn = new Button("Clear", e -> pin.setValue(""));
+		Button clearBtn = new Button("Clear", e -> { pin.setValue(""); refreshDots.run(); });
 		clearBtn.addClassName("pos-button-large"); clearBtn.getStyle().set("width", "64px");
 		numpad.add(zero, back, clearBtn);
-		content.add(pin, numpad, new HorizontalLayout(submit, cancel));
+		content.add(pinDots, pin, numpad, new HorizontalLayout(submit, cancel));
 		dialog.add(content);
 		dialog.open();
 	}

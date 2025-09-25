@@ -126,17 +126,30 @@ public class ItemListView extends VerticalLayout {
 
 	private void renderTiles(List<ItemDto> items, String category) {
 		tiles.removeAll();
-		items.stream().filter(i -> category == null || category.isBlank() || category.equals(i.category()))
-			.forEach(i -> {
-				Button b = new Button(i.name() + "\n" + i.price().toString());
-				b.addClassName("pos-tile pos-tile-large");
-				b.getElement().setAttribute("aria-label", i.name());
-				b.addClickListener(evt -> {
-					addToCart(i);
-					Notification.show("Added to cart: " + i.name());
-				});
-				tiles.add(b);
-			});
+		List<ItemDto> filtered = items.stream().filter(i -> category == null || category.isBlank() || category.equals(i.category())).toList();
+		if (filtered.isEmpty()) {
+			com.vaadin.flow.component.html.Div empty = new com.vaadin.flow.component.html.Div();
+			empty.addClassName("empty-state");
+			empty.setText("No menu items available");
+			tiles.add(empty);
+			return;
+		}
+		for (ItemDto it : filtered) {
+			com.vaadin.flow.component.html.Div tile = new com.vaadin.flow.component.html.Div();
+			tile.addClassName("pos-tile"); tile.addClassName("pos-tile-large");
+			tile.getElement().setAttribute("aria-label", it.name());
+			tile.getElement().setAttribute("role", "button");
+			tile.getElement().setAttribute("tabindex", "0");
+			com.vaadin.flow.component.html.Span title = new com.vaadin.flow.component.html.Span(it.name());
+			title.addClassName("tile-title");
+			com.vaadin.flow.component.html.Span price = new com.vaadin.flow.component.html.Span(String.format("$%.2f", it.price().doubleValue()));
+			price.getStyle().set("font-weight", "700");
+			com.vaadin.flow.component.html.Span cat = new com.vaadin.flow.component.html.Span(it.category());
+			cat.addClassName("pos-role-badge");
+			tile.add(title, price, cat);
+			tile.addClickListener(evt -> { addToCart(it); Notification.show("Added to cart: " + it.name()); });
+			tiles.add(tile);
+		}
 	}
 
 	private void addToCart(ItemDto item) {
