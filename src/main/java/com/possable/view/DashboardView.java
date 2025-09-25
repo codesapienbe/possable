@@ -111,7 +111,7 @@ public class DashboardView extends VerticalLayout {
 			}
 
 			Notification.show("Demo order created: " + sampleOrder.getId() + " (print jobs created: " + created + ")", 3000, Notification.Position.TOP_END);
-			UI.getCurrent().navigate(com.possable.view.PrintJobsView.class);
+			UI.getCurrent().navigate("print-jobs-ui");
 		});
 
 		HorizontalLayout demoActions = new HorizontalLayout(createPrinters, runDemo);

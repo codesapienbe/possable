@@ -30,11 +30,13 @@ public class EntryPointView extends VerticalLayout {
 
 	private final UserService userService;
 	private final Div unlockOverlay;
+	private final Div unlockLock;
 
 	@Autowired
 	public EntryPointView(UserService userService) {
 		this.userService = userService;
 		this.unlockOverlay = new Div();
+		this.unlockLock = new Div();
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
@@ -53,13 +55,12 @@ public class EntryPointView extends VerticalLayout {
 		cards.add(createRoleCard(VaadinIcon.USERS, "SERVICE", () -> openPinDialog("service")));
 		cards.add(createRoleCard(VaadinIcon.CUTLERY, "KITCHEN", () -> openPinDialog("kitchen")));
 		cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
-		cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> UI.getCurrent().navigate(ItemListView.class)));
+		cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> UI.getCurrent().navigate("customer")));
 
 		add(cards);
 
 		// unlock overlay setup (hidden by default)
 		unlockOverlay.addClassName("unlock-overlay");
-		Div unlockLock = new Div();
 		unlockLock.addClassName("unlock-lock");
 		unlockLock.setText("UNLOCKING");
 		unlockOverlay.add(unlockLock);
@@ -131,6 +132,36 @@ public class EntryPointView extends VerticalLayout {
 				}
 				boolean ok = userService.authenticate(username, value);
 				if (ok) {
+					// prepare role-specific unlock display
+					unlockLock.getElement().getClassList().remove("role-service");
+					unlockLock.getElement().getClassList().remove("role-kitchen");
+					unlockLock.getElement().getClassList().remove("role-management");
+					unlockLock.getElement().getClassList().remove("role-customer");
+					unlockLock.removeAll();
+					Icon roleIcon;
+					Span roleLabel = new Span(username.toUpperCase());
+					switch (username) {
+					case "kitchen" -> {
+						unlockLock.getElement().getClassList().add("role-kitchen");
+						roleIcon = VaadinIcon.CUTLERY.create();
+					}
+					case "management" -> {
+						unlockLock.getElement().getClassList().add("role-management");
+						roleIcon = VaadinIcon.COG.create();
+					}
+					case "service" -> {
+						unlockLock.getElement().getClassList().add("role-service");
+						roleIcon = VaadinIcon.USERS.create();
+					}
+					default -> {
+						unlockLock.getElement().getClassList().add("role-customer");
+						roleIcon = VaadinIcon.SHOP.create();
+					}
+					}
+					roleIcon.getStyle().set("font-size", "42px");
+					roleLabel.getStyle().set("margin-top", "8px").set("font-weight", "800");
+					unlockLock.add(roleIcon, roleLabel);
+
 					// set security context with username and mapped roles
 					var roles = userService.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
 					var token = new UsernamePasswordAuthenticationToken(username, null, roles);
@@ -142,17 +173,19 @@ public class EntryPointView extends VerticalLayout {
 					UI ui = UI.getCurrent();
 					Thread animThread = new Thread(() -> {
 						try {
-							Thread.sleep(800); // duration matches CSS animation
+							Thread.sleep(900); // duration matches CSS animation
 						} catch (InterruptedException ignored) {}
 						ui.access(() -> {
-							unlockOverlay.setVisible(false);
-							// navigate depending on role/user
-							switch (username) {
-							case "kitchen" -> ui.navigate(OrderView.class);
-							case "management" -> ui.navigate(PrinterListView.class);
-							default -> ui.navigate(DashboardView.class);
-							}
-						});
+						unlockOverlay.setVisible(false);
+						// navigate depending on role/user (go to role landing pages by route)
+						String targetRoute = switch (username) {
+							case "kitchen" -> "kitchen";
+							case "management" -> "management";
+							case "service" -> "service";
+							default -> "customer";
+						};
+						ui.navigate(targetRoute);
+					});
 					});
 					animThread.setDaemon(true);
 					animThread.start();

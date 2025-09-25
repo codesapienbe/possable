@@ -21,14 +21,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.AfterNavigationEvent;
 
-@Route(value = "items", layout = MainLayout.class)
-@PageTitle("Items")
-public class ItemListView extends VerticalLayout implements AfterNavigationObserver {
+public class ItemListLayout extends VerticalLayout {
 
 	public static record ItemDto(String id, String name, BigDecimal price, String category) {}
 
@@ -46,7 +40,7 @@ public class ItemListView extends VerticalLayout implements AfterNavigationObser
 	private ComboBox<String> categoryFilter;
 	private List<ItemDto> currentItems = List.of();
 
-	public ItemListView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
+	public ItemListLayout(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		this.orderService = orderService;
 		this.printerService = printerService;
 		this.printJobService = printJobService;
@@ -113,12 +107,6 @@ public class ItemListView extends VerticalLayout implements AfterNavigationObser
 		addAttachListener(evt -> {
 			if (currentItems.isEmpty()) reloadMenu();
 		});
-	}
-
-	@Override
-	public void afterNavigation(AfterNavigationEvent event) {
-		// reload menu whenever this view becomes active to ensure fresh data
-		reloadMenu();
 	}
 
 	private void reloadMenu() {

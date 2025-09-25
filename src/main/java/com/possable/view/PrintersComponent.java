@@ -4,7 +4,7 @@ import com.possable.service.PrinterService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,18 +12,14 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 
-@Route(value = "printers", layout = MainLayout.class)
-@PageTitle("Printers")
-public class PrinterListView extends VerticalLayout {
+public class PrintersComponent extends VerticalLayout {
 
 	private final PrinterService printerService;
 	private final Grid<PrinterService.Printer> grid = new Grid<>(PrinterService.Printer.class, false);
 	private final com.vaadin.flow.component.orderedlayout.HorizontalLayout skeletonTiles = new com.vaadin.flow.component.orderedlayout.HorizontalLayout();
 
-	public PrinterListView(PrinterService printerService) {
+	public PrintersComponent(PrinterService printerService) {
 		this.printerService = printerService;
 		setPadding(true);
 		setSpacing(true);
@@ -37,6 +33,7 @@ public class PrinterListView extends VerticalLayout {
 		grid.addColumn(PrinterService.Printer::category).setHeader("Category").setAutoWidth(true);
 		grid.addColumn(PrinterService.Printer::description).setHeader("Description").setAutoWidth(true);
 		grid.setItems(printerService.listPrinters());
+
 		// skeleton tiles
 		skeletonTiles.setClassName("skeleton-tiles-container");
 		for (int i = 0; i < 3; i++) {
@@ -76,7 +73,7 @@ public class PrinterListView extends VerticalLayout {
 		addAttachListener(evt -> refresh());
 	}
 
-	private void refresh() {
+	public void refresh() {
 		// show skeletons while refreshing
 		skeletonTiles.setVisible(true);
 		grid.setVisible(false);
