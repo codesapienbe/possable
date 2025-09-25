@@ -30,7 +30,7 @@ public class ServiceView extends VerticalLayout {
 	private final ItemService itemService;
 	private final OrderService orderService;
 
-	public ServiceView(ItemService itemService, OrderService orderService) {
+	public ServiceView(ItemService itemService, OrderService orderService, com.possable.service.PrinterService printerService, com.possable.service.PrintJobService printJobService, com.possable.service.PrintTemplateService templateService) {
 		this.itemService = itemService;
 		this.orderService = orderService;
 		setPadding(true);
@@ -50,7 +50,7 @@ public class ServiceView extends VerticalLayout {
 
 		Map<Tab, Component> tabToContent = new HashMap<>();
 		tabToContent.put(menuTab, new ItemListComponent(itemService));
-		tabToContent.put(ordersTab, new OrdersComponent(orderService));
+		tabToContent.put(ordersTab, new OrdersComponent(orderService, printerService, printJobService, templateService));
 
 		tabs.addSelectedChangeListener(ev -> {
 			content.removeAll();

@@ -20,7 +20,7 @@ public class KitchenView extends VerticalLayout {
 
 	private final OrderService orderService;
 
-	public KitchenView(OrderService orderService) {
+	public KitchenView(OrderService orderService, com.possable.service.PrinterService printerService, com.possable.service.PrintJobService printJobService, com.possable.service.PrintTemplateService templateService) {
 		this.orderService = orderService;
 		setPadding(true);
 		setSpacing(true);
@@ -34,7 +34,7 @@ public class KitchenView extends VerticalLayout {
 		tabs.add(ordersTab);
 
 		Div content = new Div();
-		content.add(new OrdersComponent(orderService));
+		content.add(new OrdersComponent(orderService, printerService, printJobService, templateService));
 		add(tabs, content);
 	}
 

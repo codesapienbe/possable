@@ -7,6 +7,7 @@ import com.possable.service.ItemService;
 import com.possable.service.OrderService;
 import com.possable.service.PrinterService;
 import com.possable.service.PrintJobService;
+import com.possable.service.PrintTemplateService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -25,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @PreAuthorize("hasRole('MANAGEMENT')")
 public class ManagementView extends VerticalLayout {
 
-	public ManagementView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService) {
+	public ManagementView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
@@ -42,7 +43,7 @@ public class ManagementView extends VerticalLayout {
 
 		Map<Tab, Component> map = new HashMap<>();
 		map.put(itemsTab, new ItemListComponent(itemService));
-		map.put(ordersTab, new OrdersComponent(orderService));
+		map.put(ordersTab, new OrdersComponent(orderService, printerService, printJobService, templateService));
 		map.put(printersTab, new PrintersComponent(printerService));
 		map.put(jobsTab, new PrintJobsComponent(printJobService));
 
