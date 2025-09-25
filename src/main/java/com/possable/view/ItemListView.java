@@ -147,7 +147,10 @@ public class ItemListView extends VerticalLayout {
 			com.vaadin.flow.component.html.Span cat = new com.vaadin.flow.component.html.Span(it.category());
 			cat.addClassName("pos-role-badge");
 			tile.add(title, price, cat);
+			// mouse click
 			tile.addClickListener(evt -> { addToCart(it); Notification.show("Added to cart: " + it.name()); });
+			// keyboard activation (Enter or Space) — forward to click via client-side listener
+			tile.getElement().executeJs("this.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ this.click(); e.preventDefault(); } });");
 			tiles.add(tile);
 		}
 	}

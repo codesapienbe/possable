@@ -25,6 +25,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class MainLayout extends AppLayout {
 
@@ -56,6 +59,38 @@ public class MainLayout extends AppLayout {
 		status.getStyle().set("margin-left", "var(--lumo-space-m)");
 		status.getElement().getThemeList().add("badge success");
 
+		// mobile menu toggle (hidden on desktop via CSS)
+		Button menuToggle = new Button(new Icon(VaadinIcon.MENU));
+		menuToggle.addClassName("menu-toggle");
+		menuToggle.addClickListener(e -> {
+			Dialog mobile = new Dialog();
+			// accessibility attributes for the dialog
+			mobile.getElement().setAttribute("role", "dialog");
+			mobile.getElement().setAttribute("aria-label", "Main navigation");
+			mobile.getElement().setAttribute("aria-modal", "true");
+			VerticalLayout content = new VerticalLayout();
+			content.getElement().setAttribute("role", "menu");
+			RouterLink l1 = new RouterLink("Dashboard", DashboardView.class);
+			l1.getElement().setAttribute("role", "menuitem");
+			l1.getElement().setAttribute("aria-label", "Navigate to Dashboard");
+			RouterLink l2 = new RouterLink("Items", ItemListView.class);
+			l2.getElement().setAttribute("role", "menuitem");
+			l2.getElement().setAttribute("aria-label", "Navigate to Items");
+			RouterLink l3 = new RouterLink("Orders", OrderView.class);
+			l3.getElement().setAttribute("role", "menuitem");
+			l3.getElement().setAttribute("aria-label", "Navigate to Orders");
+			RouterLink l4 = new RouterLink("Printers", PrinterListView.class);
+			l4.getElement().setAttribute("role", "menuitem");
+			l4.getElement().setAttribute("aria-label", "Navigate to Printers");
+			RouterLink l5 = new RouterLink("Print Jobs", PrintJobsView.class);
+			l5.getElement().setAttribute("role", "menuitem");
+			l5.getElement().setAttribute("aria-label", "Navigate to Print Jobs");
+			content.add(l1, l2, l3, l4, l5);
+			mobile.add(content);
+			mobile.setWidth("280px");
+			mobile.open();
+		});
+
 		Span user = new Span("");
 		user.getStyle().set("margin-left", "auto");
 
@@ -83,7 +118,7 @@ public class MainLayout extends AppLayout {
 		});
 		logout.addClassName("pos-button-large");
 
-		HorizontalLayout header = new HorizontalLayout(title, menu, status, user, roleBadge, logout);
+		HorizontalLayout header = new HorizontalLayout(title, menuToggle, menu, status, user, roleBadge, logout);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		header.expand(menu);

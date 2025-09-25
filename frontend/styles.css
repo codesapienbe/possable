@@ -287,4 +287,30 @@ body {
 	background: var(--pos-accent);
 	box-shadow: 0 4px 10px rgba(0,0,0,0.5) inset;
 }
-.pin-dot + .pin-dot { margin-left: 8px; } 
+.pin-dot + .pin-dot { margin-left: 8px; }
+
+/* Overlay fade-in */
+.unlock-overlay {
+	animation: fade-in 260ms ease both;
+}
+
+@keyframes fade-in {
+	0% { opacity: 0; transform: translateY(-6px) scale(0.98); }
+	100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Tile focus and keyboard affordances */
+.pos-tile:focus {
+	outline: 3px solid rgba(14,165,164,0.18);
+	box-shadow: 0 12px 30px rgba(0,0,0,0.65);
+	transform: translateY(-4px) scale(1.01);
+}
+.pos-tile[role="button"] { cursor: pointer; }
+
+/* Mobile header: hide full menu and show hamburger */
+.menu-toggle { display: none; }
+@media (max-width: 800px) {
+	.pos-menu { display: none !important; }
+	.menu-toggle { display: inline-flex !important; }
+	.pos-header { padding: 10px var(--pos-gap); }
+} 
