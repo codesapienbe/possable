@@ -34,7 +34,7 @@ public class OrderService {
         // Log in structured format
         log.info("{\"message\":\"order_created\", \"order_id\":\"{}\", \"items_count\":{}, \"component\":\"order-service\"}", id, items.size());
 
-        // Simulate async printing/processing using virtual thread executor
+        // Trigger async processing (printing) - processing is delegated to PrintJobService via created jobs
         CompletableFuture.runAsync(() -> processOrder(order, notes), taskExecutor::execute)
                 .exceptionally(ex -> {
                     log.error("order processing failed for {}", id, ex);
@@ -74,12 +74,11 @@ public class OrderService {
     private void processOrder(OrderDto order, String notes) {
         log.debug("processing order {}", order.getId());
         try {
-            // placeholder for actual printing/integration
-            Thread.sleep(50);
+            // Processing logic intentionally minimal: Print jobs are created by the UI/actions; services handle actual work
             log.info("{\"message\":\"order_processed\", \"order_id\":\"{}\", \"component\":\"order-service\"}", order.getId());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (Exception e) {
             log.warn("order processing interrupted {}", order.getId());
         }
     }
+
 } 

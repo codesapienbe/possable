@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import com.possable.service.ItemService;
 import com.possable.service.OrderService;
+import com.possable.service.PrintJobService;
+import com.possable.service.PrintTemplateService;
+import com.possable.service.PrinterService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,9 +34,15 @@ public class ItemListView extends VerticalLayout {
 	private final Span cartCount = new Span("0 items");
 	private final Span cartTotal = new Span("$0.00");
 	private final OrderService orderService;
+	private final PrinterService printerService;
+	private final PrintJobService printJobService;
+	private final PrintTemplateService templateService;
 
-	public ItemListView(ItemService itemService, OrderService orderService) {
+	public ItemListView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		this.orderService = orderService;
+		this.printerService = printerService;
+		this.printJobService = printJobService;
+		this.templateService = templateService;
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
@@ -63,21 +72,7 @@ public class ItemListView extends VerticalLayout {
 		TextArea notes = new TextArea("Notes");
 		notes.setWidthFull();
 
-		Button sendOrder = new Button("Send Order", evt -> {
-			if (cartItems.isEmpty()) {
-				Notification.show("Cart is empty");
-				return;
-			}
-			try {
-				orderService.createOrder(cartItems.stream().map(ItemDto::id).collect(Collectors.toList()), notes.getValue());
-				Notification.show("Order sent (" + cartItems.size() + " items)");
-				cartItems.clear();
-				refreshCart();
-				UI.getCurrent().navigate(OrderView.class);
-			} catch (Exception ex) {
-				Notification.show("Failed to send order: " + ex.getMessage());
-			}
-		});
+		Button sendOrder = new Button("Send Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
 
 		Button clear = new Button("Clear", evt -> {
 			cartItems.clear();
@@ -133,26 +128,47 @@ public class ItemListView extends VerticalLayout {
 		}
 		TextArea notes = new TextArea("Notes");
 		notes.setWidthFull();
-		Button sendOrder = new Button("Send Order", evt -> {
-			if (cartItems.isEmpty()) {
-				Notification.show("Cart is empty");
-				return;
-			}
-			try {
-				orderService.createOrder(cartItems.stream().map(ItemDto::id).collect(Collectors.toList()), notes.getValue());
-				Notification.show("Order sent (" + cartItems.size() + " items)");
-				cartItems.clear();
-				refreshCart();
-				UI.getCurrent().navigate(OrderView.class);
-			} catch (Exception ex) {
-				Notification.show("Failed to send order: " + ex.getMessage());
-			}
-		});
+		Button sendOrder = new Button("Send Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
 		Button clear = new Button("Clear", evt -> {
 			cartItems.clear();
 			refreshCart();
 		});
 		cartPanel.add(notes, new HorizontalLayout(sendOrder, clear));
+	}
+
+	private void sendOrderAndCreatePrintJobs(List<ItemDto> items, String notes) {
+		if (items == null || items.isEmpty()) {
+			Notification.show("Cart is empty");
+			return;
+		}
+		try {
+			var createdOrder = orderService.createOrder(items.stream().map(ItemDto::id).collect(Collectors.toList()), notes);
+			// create print jobs for printers that have matching templates
+			var templates = templateService.listTemplates();
+			int created = 0;
+			var missing = new StringBuilder();
+			for (var p : printerService.listPrinters()) {
+				var tpl = templates.stream().filter(t -> t.printerCategory().equals(p.category())).findFirst();
+				if (tpl.isPresent()) {
+					printJobService.createJob(createdOrder.getId(), p.id(), tpl.get().id());
+					created++;
+				} else {
+					if (missing.length() > 0) missing.append(", ");
+					missing.append(p.name());
+				}
+			}
+			if (created > 0) {
+				orderService.updateStatus(createdOrder.getId(), "IN_PREPARATION");
+			}
+			String msg = "Order sent (" + items.size() + " items) - print jobs created: " + created;
+			if (missing.length() > 0) msg += "; no template for: " + missing.toString();
+			Notification.show(msg);
+			items.clear();
+			refreshCart();
+			UI.getCurrent().navigate(OrderView.class);
+		} catch (Exception ex) {
+			Notification.show("Failed to send order: " + ex.getMessage());
+		}
 	}
 
 	private List<ItemDto> mapItems(List<ItemService.Item> items) {

@@ -29,7 +29,7 @@ public class MainLayout extends AppLayout {
 
 		Tabs menu = new Tabs();
 		menu.setOrientation(Tabs.Orientation.HORIZONTAL);
-		menu.add(createTab("Dashboard", DashboardView.class), createTab("Items", ItemListView.class), createTab("Orders", OrderView.class));
+		menu.add(createTab("Dashboard", DashboardView.class), createTab("Items", ItemListView.class), createTab("Orders", OrderView.class), createTab("Printers", PrinterListView.class), createTab("Print Jobs", PrintJobsView.class));
 		menu.getStyle().set("min-width", "480px");
 
 		Span status = new Span("Connected");
