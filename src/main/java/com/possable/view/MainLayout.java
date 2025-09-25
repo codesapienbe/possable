@@ -1,9 +1,12 @@
 package com.possable.view;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -12,19 +15,35 @@ import com.vaadin.flow.router.RouterLink;
 
 public class MainLayout extends AppLayout {
 
-	public MainLayout() {
-		DrawerToggle toggle = new DrawerToggle();
-		H1 title = new H1("Possable POS");
-		title.getStyle().set("margin", "0");
+	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
 
-		HorizontalLayout header = new HorizontalLayout(toggle, title);
-		header.setAlignItems(Alignment.CENTER);
-		addToNavbar(header);
+	public MainLayout() {
+		H1 title = new H1("Possable POS");
+		title.getStyle().set("margin", "0").set("font-size", "18px");
 
 		Tabs menu = new Tabs();
-		menu.setOrientation(Tabs.Orientation.VERTICAL);
+		menu.setOrientation(Tabs.Orientation.HORIZONTAL);
 		menu.add(createTab("Dashboard", DashboardView.class), createTab("Items", ItemListView.class), createTab("Orders", OrderView.class));
-		addToDrawer(menu);
+		menu.getStyle().set("min-width", "480px");
+
+		Span status = new Span("Connected");
+		status.getStyle().set("margin-left", "var(--lumo-space-m)");
+		status.getElement().getThemeList().add("badge success");
+
+		Span user = new Span("Waiter");
+		user.getStyle().set("margin-left", "auto");
+
+		HorizontalLayout header = new HorizontalLayout(title, menu, status, user);
+		header.setWidthFull();
+		header.setAlignItems(Alignment.CENTER);
+		header.expand(menu);
+		// add CSS class names for POS theme hooks
+		header.addClassName("pos-header");
+		menu.addClassName("pos-menu");
+		status.addClassName("pos-status");
+		user.addClassName("pos-user");
+		addClassName("pos-app");
+		addToNavbar(header);
 	}
 
 	private Tab createTab(String text, Class<? extends Component> navigationTarget) {

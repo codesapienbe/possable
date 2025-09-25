@@ -1,0 +1,103 @@
+/* POS desktop theme styles */
+:root{
+	--pos-bg: #0f1724; /* dark slate */
+	--pos-panel: #0b1220;
+	--pos-accent: #0ea5a4; /* teal */
+	--pos-muted: #94a3b8;
+	--pos-card: #0b1622;
+}
+
+body {
+	background: linear-gradient(180deg, #071022 0%, #0b1220 100%);
+	color: #e6eef6;
+	font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* App header */
+.pos-app ::slotted(.vaadin-app-layout__content) {
+	/* ensure content padding */
+}
+.pos-header {
+	background: linear-gradient(90deg, rgba(14,165,164,0.06), rgba(14,165,164,0.03));
+	padding: 12px 18px;
+	border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.pos-header h1 {
+	color: var(--pos-accent);
+	font-weight: 600;
+}
+.pos-menu {
+	margin-left: 16px;
+}
+.pos-status {
+	color: #0b1220;
+	background: var(--pos-accent);
+	padding: 6px 10px;
+	border-radius: 6px;
+}
+.pos-user {
+	opacity: 0.9;
+}
+
+/* Dashboard stat cards */
+.pos-stat {
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	padding: 14px;
+	border-radius: 8px;
+	min-width: 160px;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+}
+
+/* Tiles */
+.pos-tiles {
+	padding: 8px;
+}
+.pos-tile {
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	color: #e6eef6;
+	border-radius: 8px;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+	font-size: 14px;
+	font-weight: 600;
+	text-align: left;
+}
+.pos-tile::part(label) {
+	white-space: pre-wrap;
+}
+
+/* Cart */
+.pos-cart {
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	border-radius: 8px;
+}
+.pos-cart h1 {
+	font-size: 18px;
+	margin: 0 0 8px 0;
+}
+
+/* Grid and details */
+.pos-grid {
+	background: transparent;
+	--vaadin-grid-header-row-background: transparent;
+}
+.pos-details {
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	padding: 12px;
+	border-radius: 8px;
+}
+
+/* Filters */
+.pos-filter {
+	min-width: 180px;
+}
+
+/* Buttons */
+.v-button {
+	border-radius: 8px;
+}
+
+/* Responsive small adjustments */
+@media (max-width: 800px) {
+	.pos-tiles { justify-content: center; }
+	.pos-cart { min-width: unset; }
+} 
