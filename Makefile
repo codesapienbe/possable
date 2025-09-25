@@ -31,17 +31,23 @@ help:
 	@echo "  clean          Clean Maven artifacts, remove target and docker image/container"
 
 build-local:
-	@# Build native image using GraalVM native plugin (requires GraalVM/native-image)
-	$(MVN) -Pnative package
-	@# ensure native binary is executable if produced
+	@echo "Build native image using GraalVM native plugin (requires GraalVM/native-image)"
+ifeq ($(OS),Windows_NT)
+	@$(MVN) -Pnative package
+else
+	@$(MVN) -Pnative package
 	@if [ -f "target/possable" ]; then chmod +x target/possable; fi
+endif
 
 build-docker:
+	@echo "Building docker image using $(DOCKERFILE)"
 	docker build -f $(DOCKERFILE) -t $(IMAGE_NAME) .
 
 run-local:
-	@# Prefer running the GraalVM native binary if it exists, otherwise fall back to jar
-	@# For local runs, exclude DataSource autoconfiguration to avoid startup failure when no DB configured
+	@echo "Running application locally (native if available, otherwise jar)"
+ifeq ($(OS),Windows_NT)
+	@powershell -NoProfile -Command "if (Test-Path 'target/possable') { $env:SPRING_AUTOCONFIGURE_EXCLUDE='org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration'; & 'target/possable' } elseif ('$(JAR)' -eq '') { Write-Host 'No runnable artifact found - run \"make build-local\" first'; exit 1 } else { & java -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration -jar '$(JAR)' }"
+else
 	@if [ -x "target/possable" ]; then \
 		SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration ./target/possable; \
 	elif [ -z "$(JAR)" ]; then \
@@ -49,11 +55,14 @@ run-local:
 	else \
 		java -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration -jar "$(JAR)"; \
 	fi
+endif
 
 run-docker:
+	@echo "Running docker image $(IMAGE_NAME)"
 	docker run --rm -p 8080:8080 --name possable_app $(IMAGE_NAME)
 
 clean:
+	@echo "Cleaning maven artifacts, docker container and image, target directory"
 	$(MVN) clean
 	-@docker rm -f possable_app 2>/dev/null || true
 	-@docker rmi $(IMAGE_NAME) 2>/dev/null || true
