@@ -41,12 +41,13 @@ build-docker:
 
 run-local:
 	@# Prefer running the GraalVM native binary if it exists, otherwise fall back to jar
+	@# For local runs, exclude DataSource autoconfiguration to avoid startup failure when no DB configured
 	@if [ -x "target/possable" ]; then \
-		./target/possable; \
+		SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration ./target/possable; \
 	elif [ -z "$(JAR)" ]; then \
 		echo "No runnable artifact found - run 'make build-local' first"; exit 1; \
 	else \
-		java -jar "$(JAR)"; \
+		java -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration -jar "$(JAR)"; \
 	fi
 
 run-docker:
