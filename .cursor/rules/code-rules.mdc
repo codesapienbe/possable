@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: General code quality and style rules for Spring Boot 3 development
+alwaysApply: true
+---
+
+# Code Quality and Style Rules
+
+## Spring Boot 3 Best Practices
+- Use Spring Boot 3.x features including Virtual Threads for high concurrency
+- Implement proper Spring Security configuration with JWT and API key authentication
+- Use Spring Data JPA with proper entity relationships and validation
+- Apply @RestController with proper HTTP status codes and ResponseEntity
+- Implement proper exception handling with @ControllerAdvice
+- Use @Transactional appropriately for database operations
+- Apply Spring Boot configuration properties with @ConfigurationProperties
+
+## GraalVM Native Image Compliance
+- Avoid reflection usage; use compile-time configuration when needed
+- Use Spring Boot native hints for third-party libraries
+- Prefer constructor injection over field injection
+- Use @RegisterReflectionForBinding for DTOs and entities
+- Avoid dynamic proxy creation patterns
+- Use build-time initialization where possible
+
+## Code Structure and Architecture
+- Follow clean architecture principles with proper separation of concerns
+- Use service layer pattern with interfaces for business logic
+- Implement proper DTOs for API request/response objects
+- Use MapStruct or similar for object mapping
+- Apply proper validation with Bean Validation annotations
+- Create custom exceptions for business logic errors
+- Use Spring profiles for different environments
+
+## Java and Coding Standards
+- Use Java 21+ features including Virtual Threads, pattern matching, and records
+- Prefer immutable objects and records for data transfer
+- Use Optional for nullable return types
+- Apply proper null checks and validation
+- Use meaningful variable and method names
+- Keep methods small and focused on single responsibility
+- Use streams and functional programming where appropriate
+- Apply proper logging with SLF4J and structured logging

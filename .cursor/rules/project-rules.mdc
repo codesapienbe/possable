@@ -1,0 +1,74 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Restaurant POS SaaS API specific rules and patterns
+alwaysApply: true
+---
+
+# Restaurant POS SaaS Project Rules
+
+## API Design Principles
+- Follow OpenAPI 3.1 specification exactly as defined in openapi.yaml
+- Use consistent REST patterns: GET for retrieval, POST for creation, PUT for updates, DELETE for removal
+- Implement proper HTTP status codes: 200 for success, 201 for creation, 400 for validation errors, 401 for auth errors, 403 for forbidden, 404 for not found
+- Use consistent JSON response format with proper error handling
+- Apply rate limiting for SaaS usage quotas per client
+- Implement proper pagination using limit parameter (default 20, max 100)
+
+## Authentication and Authorization
+- Implement dual authentication: X-API-KEY header for client identification and Bearer JWT for user auth
+- Use different security levels: ApiKeyAuth for basic operations, BearerAuth for sensitive operations
+- Track and enforce monthly usage limits per API key
+- Implement proper JWT token validation and expiration handling
+- Use Spring Security method-level security where appropriate
+
+## Database and Entity Design
+- Create JPA entities for: Item, Order, OrderItem, Employee, Payment, Printer, PrintTemplate, PrintJob
+- Use UUIDs for entity IDs for better scalability
+- Implement proper entity relationships with lazy loading
+- Use database indexes for frequently queried fields
+- Apply soft delete pattern where data retention is required
+- Use database constraints for data integrity
+
+## Print Management System
+- Design flexible printer registration system with category-based organization
+- Implement template engine for print formatting (consider using Thymeleaf or Freemarker)
+- Create print job queue with status tracking (pending, printing, completed, failed)
+- Support multiple printer categories: oven, grill, cashier, customer_copy, etc.
+- Implement asynchronous print job processing using Virtual Threads
+- Create audit trail for all print operations
+
+## Business Logic Patterns
+- Calculate order totals from item prices and quantities
+- Generate unique order numbers for customer tracking
+- Implement proper order status lifecycle: pending → completed/canceled
+- Handle payment methods: cash, card, tap with proper validation
+- Create customer receipt copies with order tracking information
+- Implement employee role-based access control
+
+## Testing and Quality Assurance
+- Write unit tests for all service methods using JUnit 5 and Mockito
+- Create integration tests for API endpoints using @SpringBootTest
+- Test authentication and authorization scenarios
+- Mock external dependencies in tests
+- Achieve minimum 80% code coverage
+- Use TestContainers for database integration tests
+
+## Error Handling and Logging
+- Create custom exceptions for business validation errors
+- Implement global exception handler with proper error responses
+- Use structured logging with correlation IDs for request tracing
+- Log all authentication attempts and usage quota checks
+- Monitor print job failures and implement retry mechanisms
+- Create health checks for database and external dependencies
+
+## Performance and Scalability
+- Use Virtual Threads for IO-intensive operations like database queries and print job processing
+- Implement connection pooling for database connections
+- Use caching strategically for frequently accessed data like menu items
+- Optimize database queries with proper indexing
+- Design for horizontal scaling with stateless services
+- Monitor API response times and database query performance
