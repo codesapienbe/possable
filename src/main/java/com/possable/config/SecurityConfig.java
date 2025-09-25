@@ -66,7 +66,12 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
+            .formLogin(form -> form.disable())
+            .exceptionHandling(eh -> eh.authenticationEntryPoint((req, res, authEx) -> {
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"unauthorized\"}");
+            }));
 
         return http.build();
     }

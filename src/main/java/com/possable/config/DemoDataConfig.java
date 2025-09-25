@@ -16,7 +16,7 @@ import com.possable.service.PrintTemplateService;
 import com.possable.service.PrinterService;
 
 @Configuration
-@Profile("demo") // only enable when spring profile 'demo' is active
+
 public class DemoDataConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(DemoDataConfig.class);
