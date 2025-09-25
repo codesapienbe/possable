@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.possable.service.DemoNotificationService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -15,14 +16,28 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class MainLayout extends AppLayout {
 
 	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
 
 	private final DemoNotificationService demoNotificationService;
+
+	private static final long INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+	private static final ScheduledExecutorService INACTIVITY_SCHED = Executors.newSingleThreadScheduledExecutor(r -> {
+		Thread t = new Thread(r, "inactivity-scheduler");
+		t.setDaemon(true);
+		return t;
+	});
+	private ScheduledFuture<?> inactivityFuture;
 
 	public MainLayout(DemoNotificationService demoNotificationService) {
 		this.demoNotificationService = demoNotificationService;
@@ -42,14 +57,31 @@ public class MainLayout extends AppLayout {
 		Span user = new Span("");
 		user.getStyle().set("margin-left", "auto");
 
+		Span roleBadge = new Span("");
+		roleBadge.getStyle().set("margin-left", "8px");
+		roleBadge.getElement().getThemeList().add("badge");
+		roleBadge.addClassName("pos-role-badge");
+
 		Button logout = new Button("Logout", evt -> {
-			SecurityContextHolder.clearContext();
-			// navigate back to entry point
-			getUI().ifPresent(ui -> ui.navigate(com.possable.view.EntryPointView.class));
+			Dialog confirm = new Dialog();
+			confirm.add(new Span("Are you sure you want to logout?"));
+			Button yes = new Button("Logout", e -> {
+				SecurityContextHolder.clearContext();
+				confirm.close();
+				getUI().ifPresent(ui -> {
+					ui.navigate(com.possable.view.EntryPointView.class);
+					ui.getPage().reload();
+				});
+			});
+			Button no = new Button("Cancel", e -> confirm.close());
+			yes.addClassName("pos-button-large");
+			no.addClassName("pos-button-large");
+			confirm.add(new HorizontalLayout(yes, no));
+			confirm.open();
 		});
 		logout.addClassName("pos-button-large");
 
-		HorizontalLayout header = new HorizontalLayout(title, menu, status, user, logout);
+		HorizontalLayout header = new HorizontalLayout(title, menu, status, user, roleBadge, logout);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		header.expand(menu);
@@ -67,14 +99,74 @@ public class MainLayout extends AppLayout {
 			if (msg != null && !msg.isBlank()) {
 				Notification.show(msg, 5000, Notification.Position.TOP_END);
 			}
-			// update user display from security context
+			// update user display and role badge from security context
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null && auth.isAuthenticated() && auth.getName() != null) {
 				user.setText(auth.getName());
+				var authorities = auth.getAuthorities();
+				if (authorities != null && !authorities.isEmpty()) {
+					var rolesList = authorities.stream().map(a -> a.getAuthority().replace("ROLE_", "")).toList();
+					String roles = String.join(", ", rolesList);
+					roleBadge.setText(roles);
+					// set role-specific classes for styling
+					roleBadge.getElement().getClassList().remove("role-service");
+					roleBadge.getElement().getClassList().remove("role-kitchen");
+					roleBadge.getElement().getClassList().remove("role-management");
+					for (String r : rolesList) {
+						if ("SERVICE".equalsIgnoreCase(r)) roleBadge.getElement().getClassList().add("role-service");
+						if ("KITCHEN".equalsIgnoreCase(r)) roleBadge.getElement().getClassList().add("role-kitchen");
+						if ("MANAGEMENT".equalsIgnoreCase(r)) roleBadge.getElement().getClassList().add("role-management");
+					}
+				} else {
+					roleBadge.setText("");
+				}
 			} else {
 				user.setText("");
+				roleBadge.setText("");
+			}
+
+			// register client-side listeners to report activity to server
+			getElement().executeJs("const root=$0; function __vaadin_report(){ try{root.$server.reportActivity();}catch(e){} } window.addEventListener('mousemove', __vaadin_report); window.addEventListener('keydown', __vaadin_report); window.addEventListener('touchstart', __vaadin_report);", getElement());
+
+			// start inactivity checker for this UI
+			var ui = evt.getUI();
+			if (inactivityFuture != null) {
+				inactivityFuture.cancel(false);
+				inactivityFuture = null;
+			}
+			inactivityFuture = INACTIVITY_SCHED.scheduleAtFixedRate(() -> {
+				ui.access(() -> {
+					Authentication a = SecurityContextHolder.getContext().getAuthentication();
+					if (a == null || !a.isAuthenticated()) return;
+					Object last = VaadinSession.getCurrent().getAttribute("lastActivity");
+					long lastMs = last instanceof Long ? (Long) last : System.currentTimeMillis();
+					if (System.currentTimeMillis() - lastMs > INACTIVITY_TIMEOUT_MS) {
+						SecurityContextHolder.clearContext();
+						Notification.show("Logged out due to inactivity", 3000, Notification.Position.TOP_END);
+						ui.navigate(com.possable.view.EntryPointView.class);
+						ui.getPage().reload();
+						return;
+					}
+				});
+			}, 30, 30, TimeUnit.SECONDS);
+		});
+
+		addDetachListener(evt -> {
+			if (inactivityFuture != null) {
+				inactivityFuture.cancel(false);
+				inactivityFuture = null;
 			}
 		});
+
+	}
+
+	@ClientCallable
+	public void reportActivity() {
+		// called from client-side JS when user interacts
+		VaadinSession session = VaadinSession.getCurrent();
+		if (session != null) {
+			session.setAttribute("lastActivity", System.currentTimeMillis());
+		}
 	}
 
 	private Tab createTab(String text, Class<? extends Component> navigationTarget) {

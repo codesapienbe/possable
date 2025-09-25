@@ -193,4 +193,27 @@ body {
 }
 
 .skeleton-container { display: flex; flex-direction: column; gap: 8px; }
-.skeleton-tiles-container { display: flex; flex-wrap: wrap; gap: 12px; } 
+.skeleton-tiles-container { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Role badge styling */
+.pos-role-badge {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    color: #061017;
+    background: rgba(255,255,255,0.04);
+}
+
+/* Role specific colors */
+.role-service {
+    background: var(--pos-accent);
+    color: #061017;
+}
+.role-kitchen {
+    background: #f59e0b; /* amber */
+    color: #061017;
+}
+.role-management {
+    background: #06b6d4; /* cyan */
+    color: #061017;
+} 
