@@ -50,16 +50,45 @@ public class OrderController {
         return ResponseEntity.ok(o);
     }
 
-    public record UpdateOrderStatusRequest(@NotBlank String status) {}
+    public static class UpdateOrderStatusRequest {
+        @NotBlank
+        private String status;
+        public UpdateOrderStatusRequest() {}
+        public UpdateOrderStatusRequest(String status) { this.status = status; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
 
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable String orderId, @Valid @RequestBody UpdateOrderStatusRequest req) {
-        var updated = orderService.updateStatus(orderId, req.status());
+        var updated = orderService.updateStatus(orderId, req.getStatus());
         if (updated == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(updated);
     }
 
-    public record CreateOrderRequest(@NotNull @NotEmpty List<@NotNull String> items, String notes) {}
+    public static class CreateOrderRequest {
+        @NotNull
+        @NotEmpty
+        private List<@NotNull String> items;
+        private String notes;
+        public CreateOrderRequest() {}
+        public CreateOrderRequest(List<String> items, String notes) { this.items = items; this.notes = notes; }
+        public List<String> getItems() { return items; }
+        public void setItems(List<String> items) { this.items = items; }
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+    }
 
-    public record OrderDto(String id, List<String> items, String status, Instant createdAt) {}
+    public static class OrderDto {
+        private String id;
+        private List<String> items;
+        private String status;
+        private Instant createdAt;
+        public OrderDto() {}
+        public OrderDto(String id, List<String> items, String status, Instant createdAt) { this.id = id; this.items = items; this.status = status; this.createdAt = createdAt; }
+        public String getId() { return id; }
+        public List<String> getItems() { return items; }
+        public String getStatus() { return status; }
+        public Instant getCreatedAt() { return createdAt; }
+    }
 } 

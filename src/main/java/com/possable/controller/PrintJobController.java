@@ -33,14 +33,53 @@ public class PrintJobController {
         this.jobService = jobService;
     }
 
-    public record CreatePrintJobsRequest(@NotBlank String orderId, @NotNull @NotEmpty List<JobItem> jobs) {
-        public static record JobItem(@NotBlank String printerId, @NotBlank String templateId) {}
+    public static class CreatePrintJobsRequest {
+        @NotBlank
+        private String orderId;
+
+        @NotNull
+        @NotEmpty
+        private List<JobItem> jobs;
+
+        public CreatePrintJobsRequest() {}
+
+        public CreatePrintJobsRequest(String orderId, List<JobItem> jobs) {
+            this.orderId = orderId;
+            this.jobs = jobs;
+        }
+
+        public String getOrderId() { return orderId; }
+        public void setOrderId(String orderId) { this.orderId = orderId; }
+
+        public List<JobItem> getJobs() { return jobs; }
+        public void setJobs(List<JobItem> jobs) { this.jobs = jobs; }
+
+        public static class JobItem {
+            @NotBlank
+            private String printerId;
+
+            @NotBlank
+            private String templateId;
+
+            public JobItem() {}
+
+            public JobItem(String printerId, String templateId) {
+                this.printerId = printerId;
+                this.templateId = templateId;
+            }
+
+            public String getPrinterId() { return printerId; }
+            public void setPrinterId(String printerId) { this.printerId = printerId; }
+
+            public String getTemplateId() { return templateId; }
+            public void setTemplateId(String templateId) { this.templateId = templateId; }
+        }
     }
 
     @PostMapping
     public ResponseEntity<List<PrintJobService.PrintJob>> createPrintJobs(@Valid @RequestBody CreatePrintJobsRequest req) {
-        var created = req.jobs().stream()
-                .map(j -> jobService.createJob(req.orderId(), j.printerId(), j.templateId()))
+        var created = req.getJobs().stream()
+                .map(j -> jobService.createJob(req.getOrderId(), j.getPrinterId(), j.getTemplateId()))
                 .collect(Collectors.toList());
         return ResponseEntity.status(201).body(created);
     }
@@ -54,11 +93,20 @@ public class PrintJobController {
         return ResponseEntity.ok(jobService.listJobs(filters));
     }
 
-    public record UpdateStatusRequest(@NotBlank String status) {}
+    public static class UpdateStatusRequest {
+        @NotBlank
+        private String status;
+
+        public UpdateStatusRequest() {}
+        public UpdateStatusRequest(String status) { this.status = status; }
+
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
 
     @PutMapping("/{printJobId}")
     public ResponseEntity<Map<String, String>> updateStatus(@PathVariable String printJobId, @Valid @RequestBody UpdateStatusRequest req) {
-        jobService.updateStatus(printJobId, req.status());
-        return ResponseEntity.ok(Map.of("id", printJobId, "status", req.status()));
+        jobService.updateStatus(printJobId, req.getStatus());
+        return ResponseEntity.ok(Map.of("id", printJobId, "status", req.getStatus()));
     }
 } 

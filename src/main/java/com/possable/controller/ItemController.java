@@ -32,7 +32,25 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    public record CreateItemRequest(@NotBlank String name, String description, @NotNull Double price, Boolean available) {}
+    public static class CreateItemRequest {
+        @NotBlank
+        private String name;
+        private String description;
+        @NotNull
+        private Double price;
+        private Boolean available;
+
+        public CreateItemRequest() {}
+        public CreateItemRequest(String name, String description, Double price, Boolean available) { this.name = name; this.description = description; this.price = price; this.available = available; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public Double getPrice() { return price; }
+        public void setPrice(Double price) { this.price = price; }
+        public Boolean getAvailable() { return available; }
+        public void setAvailable(Boolean available) { this.available = available; }
+    }
 
     @GetMapping
     public ResponseEntity<List<ItemService.Item>> listItems(@RequestParam(defaultValue = "20") int limit) {
@@ -41,8 +59,8 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<ItemService.Item> createItem(@Valid @RequestBody CreateItemRequest req) {
-        boolean available = req.available() == null ? true : req.available();
-        var it = itemService.createItem(req.name(), req.description(), req.price(), available);
+        boolean available = req.getAvailable() == null ? true : req.getAvailable();
+        var it = itemService.createItem(req.getName(), req.getDescription(), req.getPrice(), available);
         return ResponseEntity.created(URI.create("/items/" + it.id())).body(it);
     }
 
@@ -55,8 +73,8 @@ public class ItemController {
 
     @PutMapping("/{itemId}")
     public ResponseEntity<ItemService.Item> updateItem(@PathVariable String itemId, @Valid @RequestBody CreateItemRequest req) {
-        boolean available = req.available() == null ? true : req.available();
-        var updated = itemService.updateItem(itemId, req.name(), req.description(), req.price(), available);
+        boolean available = req.getAvailable() == null ? true : req.getAvailable();
+        var updated = itemService.updateItem(itemId, req.getName(), req.getDescription(), req.getPrice(), available);
         if (updated == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(updated);
     }

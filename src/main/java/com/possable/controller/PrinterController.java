@@ -32,11 +32,25 @@ public class PrinterController {
         return ResponseEntity.ok(printerService.listPrinters());
     }
 
-    public record RegisterPrinterRequest(@NotBlank String name, @NotBlank String category, String description) {}
+    public static class RegisterPrinterRequest {
+        @NotBlank
+        private String name;
+        @NotBlank
+        private String category;
+        private String description;
+        public RegisterPrinterRequest() {}
+        public RegisterPrinterRequest(String name, String category, String description) { this.name = name; this.category = category; this.description = description; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+    }
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerPrinter(@Valid @RequestBody RegisterPrinterRequest req) {
-        var p = printerService.registerPrinter(req.name(), req.category(), req.description());
+        var p = printerService.registerPrinter(req.getName(), req.getCategory(), req.getDescription());
         return ResponseEntity.status(201).body(Map.of("id", p.id(), "name", p.name(), "category", p.category()));
     }
 } 

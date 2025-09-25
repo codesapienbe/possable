@@ -31,11 +31,26 @@ public class PrintTemplateController {
         return ResponseEntity.ok(templateService.listTemplates());
     }
 
-    public record CreateTemplateRequest(@NotBlank String printerCategory, @NotBlank String templateName, @NotBlank String content) {}
+    public static class CreateTemplateRequest {
+        @NotBlank
+        private String printerCategory;
+        @NotBlank
+        private String templateName;
+        @NotBlank
+        private String content;
+        public CreateTemplateRequest() {}
+        public CreateTemplateRequest(String printerCategory, String templateName, String content) { this.printerCategory = printerCategory; this.templateName = templateName; this.content = content; }
+        public String getPrinterCategory() { return printerCategory; }
+        public void setPrinterCategory(String printerCategory) { this.printerCategory = printerCategory; }
+        public String getTemplateName() { return templateName; }
+        public void setTemplateName(String templateName) { this.templateName = templateName; }
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+    }
 
     @PostMapping
     public ResponseEntity<PrintTemplateService.Template> createTemplate(@Valid @RequestBody CreateTemplateRequest req) {
-        var t = templateService.createTemplate(req.printerCategory(), req.templateName(), req.content());
+        var t = templateService.createTemplate(req.getPrinterCategory(), req.getTemplateName(), req.getContent());
         return ResponseEntity.status(201).body(t);
     }
 } 

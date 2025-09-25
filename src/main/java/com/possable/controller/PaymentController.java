@@ -28,11 +28,26 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    public record CreatePaymentRequest(@NotBlank String orderId, @NotNull Double amount, @NotBlank String method) {}
+    public static class CreatePaymentRequest {
+        @NotBlank
+        private String orderId;
+        @NotNull
+        private Double amount;
+        @NotBlank
+        private String method;
+        public CreatePaymentRequest() {}
+        public CreatePaymentRequest(String orderId, Double amount, String method) { this.orderId = orderId; this.amount = amount; this.method = method; }
+        public String getOrderId() { return orderId; }
+        public void setOrderId(String orderId) { this.orderId = orderId; }
+        public Double getAmount() { return amount; }
+        public void setAmount(Double amount) { this.amount = amount; }
+        public String getMethod() { return method; }
+        public void setMethod(String method) { this.method = method; }
+    }
 
     @PostMapping
     public ResponseEntity<PaymentService.Payment> createPayment(@Valid @RequestBody CreatePaymentRequest req) {
-        var p = paymentService.createPayment(req.orderId(), req.amount(), req.method());
+        var p = paymentService.createPayment(req.getOrderId(), req.getAmount(), req.getMethod());
         return ResponseEntity.created(URI.create("/payments/" + p.id())).body(p);
     }
 

@@ -28,7 +28,22 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    public record CreateEmployeeRequest(@NotBlank String name, String role, Boolean active) {}
+    public static class CreateEmployeeRequest {
+        @NotBlank
+        private String name;
+        private String role;
+        private Boolean active;
+
+        public CreateEmployeeRequest() {}
+        public CreateEmployeeRequest(String name, String role, Boolean active) { this.name = name; this.role = role; this.active = active; }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+        public Boolean getActive() { return active; }
+        public void setActive(Boolean active) { this.active = active; }
+    }
 
     @GetMapping
     public ResponseEntity<List<EmployeeService.Employee>> listEmployees(@RequestParam(defaultValue = "20") int limit) {
@@ -37,8 +52,8 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<EmployeeService.Employee> addEmployee(@Valid @RequestBody CreateEmployeeRequest req) {
-        boolean active = req.active() == null ? true : req.active();
-        var e = employeeService.addEmployee(req.name(), req.role(), active);
+        boolean active = req.getActive() == null ? true : req.getActive();
+        var e = employeeService.addEmployee(req.getName(), req.getRole(), active);
         return ResponseEntity.created(URI.create("/employees/" + e.id())).body(e);
     }
 } 
