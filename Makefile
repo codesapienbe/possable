@@ -2,7 +2,7 @@
 # Targets:
 #   make build  	   -> build Docker image using Dockerfile.native
 #   make run    	   -> run the docker image (exposes :8080)
-#   make run-local     -> run the built jar locally
+#   make dev           -> build native image locally and run it locally
 #   make clean         -> mvn clean + remove image/container/target
 
 # Default image name and dockerfile (override with IMAGE_NAME or DOCKERFILE env var)
@@ -21,12 +21,16 @@ help:
 	@echo "  build          Build Docker image (uses $(DOCKERFILE))"
 	@echo "  run            Run the docker image (exposes 8080)"
 	@echo "  clean          Clean Maven artifacts, remove target and docker image/container"
+	@echo "  dev            Build native image locally and run it locally"
 
 build:
 	@echo "Building docker image using $(DOCKERFILE)"
 	docker build -f $(DOCKERFILE) -t $(IMAGE_NAME) .
 
-# run-local target removed intentionally
+dev:
+	@echo "Running application locally"
+	mvn -Pnative -DskipTests clean package
+	mvn -Pnative -DskipTests spring-boot:run
 
 run:
 	@echo "Running docker image $(IMAGE_NAME)"

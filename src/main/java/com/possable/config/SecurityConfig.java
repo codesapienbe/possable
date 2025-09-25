@@ -40,7 +40,12 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(authenticationFilter(), AbstractPreAuthenticatedProcessingFilter.class)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/health", "/actuator/health", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs").permitAll()
+                .requestMatchers(
+                    "/", "/index.html", "/favicon.ico", "/sw.js", "/manifest.json",
+                    "/frontend/**", "/frontend-es5/**", "/frontend-es6/**", "/VAADIN/**",
+                    "/icons/**", "/images/**", "/styles/**", "/themes/**",
+                    "/health", "/actuator/health", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
