@@ -17,6 +17,7 @@ possable:
 app:
   auth:
     pincode: "1234"
+    inactivity-timeout-ms: 300000
   docs:
     enabled: false
 

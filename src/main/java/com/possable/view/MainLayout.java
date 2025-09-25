@@ -18,6 +18,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.server.VaadinSession;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,7 +32,8 @@ public class MainLayout extends AppLayout {
 
 	private final DemoNotificationService demoNotificationService;
 
-	private static final long INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+	@Value("${app.auth.inactivity-timeout-ms:300000}")
+	private long inactivityTimeoutMs; // milliseconds
 	private static final ScheduledExecutorService INACTIVITY_SCHED = Executors.newSingleThreadScheduledExecutor(r -> {
 		Thread t = new Thread(r, "inactivity-scheduler");
 		t.setDaemon(true);
@@ -140,12 +142,11 @@ public class MainLayout extends AppLayout {
 					if (a == null || !a.isAuthenticated()) return;
 					Object last = VaadinSession.getCurrent().getAttribute("lastActivity");
 					long lastMs = last instanceof Long ? (Long) last : System.currentTimeMillis();
-					if (System.currentTimeMillis() - lastMs > INACTIVITY_TIMEOUT_MS) {
+					if (System.currentTimeMillis() - lastMs > inactivityTimeoutMs) {
 						SecurityContextHolder.clearContext();
 						Notification.show("Logged out due to inactivity", 3000, Notification.Position.TOP_END);
 						ui.navigate(com.possable.view.EntryPointView.class);
 						ui.getPage().reload();
-						return;
 					}
 				});
 			}, 30, 30, TimeUnit.SECONDS);
