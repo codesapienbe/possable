@@ -314,3 +314,34 @@ body {
 	.menu-toggle { display: inline-flex !important; }
 	.pos-header { padding: 10px var(--pos-gap); }
 } 
+
+.pos-card {
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	border-radius: 12px;
+	padding: 18px;
+	min-width: 140px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+}
+
+.pos-card span { color: #e6eef6; }
+
+/* Hide burger on desktop, hide tabs on mobile — already controlled, ensure role cards align near top */
+@media (min-width: 801px) {
+	.menu-toggle { display: none !important; }
+	.pos-menu { display: flex !important; }
+}
+@media (max-width: 800px) {
+	.pos-menu { display: none !important; }
+	.menu-toggle { display: inline-flex !important; }
+	.pos-header { padding: 10px var(--pos-gap); }
+	/* make role cards stack vertically on small screens */
+	.pos-root > .vaadin-horizontal-layout { flex-direction: column; gap: 12px; align-items: center; }
+}
+
+/* center role cards near top */
+.pos-root > .vaadin-horizontal-layout { margin-top: 12px; align-items: flex-start; } 

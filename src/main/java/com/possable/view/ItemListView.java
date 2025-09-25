@@ -23,10 +23,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.AfterNavigationEvent;
 
 @Route(value = "items", layout = MainLayout.class)
 @PageTitle("Items")
-public class ItemListView extends VerticalLayout {
+public class ItemListView extends VerticalLayout implements AfterNavigationObserver {
 
 	public static record ItemDto(String id, String name, BigDecimal price, String category) {}
 
@@ -107,9 +109,16 @@ public class ItemListView extends VerticalLayout {
 
 		add(main);
 
+		// initial render will happen via navigation events; keep attach fallback
 		addAttachListener(evt -> {
-			reloadMenu();
+			if (currentItems.isEmpty()) reloadMenu();
 		});
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
+		// reload menu whenever this view becomes active to ensure fresh data
+		reloadMenu();
 	}
 
 	private void reloadMenu() {

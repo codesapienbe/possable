@@ -25,11 +25,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import java.util.Map;
+import java.util.HashMap;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
 	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
 
@@ -44,15 +48,29 @@ public class MainLayout extends AppLayout {
 	});
 	private ScheduledFuture<?> inactivityFuture;
 
+	// keep a persistent Tabs instance and route->Tab mapping so we can synchronize selection reliably
+	private final Tabs menu = new Tabs();
+	private final Map<String, Tab> routeToTab = new HashMap<>();
+	private final Map<Tab, Class<? extends Component>> tabToTarget = new HashMap<>();
+
 	public MainLayout(DemoNotificationService demoNotificationService) {
 		this.demoNotificationService = demoNotificationService;
 
 		H1 title = new H1("Possable POS");
 		title.getStyle().set("margin", "0").set("font-size", "18px");
 
-		Tabs menu = new Tabs();
 		menu.setOrientation(Tabs.Orientation.HORIZONTAL);
 		menu.add(createTab("Dashboard", DashboardView.class), createTab("Items", ItemListView.class), createTab("Orders", OrderView.class), createTab("Printers", PrinterListView.class), createTab("Print Jobs", PrintJobsView.class));
+		// when a tab is selected, navigate to its target
+		menu.addSelectedChangeListener(ev -> {
+			Tab s = ev.getSelectedTab();
+			if (s != null) {
+				Class<? extends Component> target = tabToTarget.get(s);
+				if (target != null) {
+					getUI().ifPresent(u -> u.navigate(target));
+				}
+			}
+		});
 		menu.getStyle().set("min-width", "480px");
 
 		Span status = new Span("Connected");
@@ -208,6 +226,25 @@ public class MainLayout extends AppLayout {
 	private Tab createTab(String text, Class<? extends Component> navigationTarget) {
 		RouterLink link = new RouterLink(text, navigationTarget);
 		Tab tab = new Tab(link);
+		// determine route path from @Route annotation if present
+		var ann = navigationTarget.getAnnotation(com.vaadin.flow.router.Route.class);
+		String routePath = (ann != null && ann.value() != null && !ann.value().isBlank()) ? ann.value() : "";
+		routeToTab.put(routePath, tab);
+		tabToTarget.put(tab, navigationTarget);
 		return tab;
 	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
+		String first = event.getLocation().getFirstSegment();
+		String route = first == null ? "" : first;
+		Tab t = routeToTab.get(route);
+		if (t != null) {
+			menu.setSelectedTab(t);
+		} else {
+			// clear selection when route doesn't match
+			menu.setSelectedTab(null);
+		}
+	}
+
 } 
