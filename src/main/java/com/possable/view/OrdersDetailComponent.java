@@ -1,5 +1,6 @@
 package com.possable.view;
 
+import java.util.List;
 import java.util.Set;
 
 import com.possable.service.OrderService;
@@ -14,6 +15,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class OrdersDetailComponent extends VerticalLayout {
 
@@ -21,6 +24,9 @@ public class OrdersDetailComponent extends VerticalLayout {
 	private final PrinterService printerService;
 	private final PrintJobService printJobService;
 	private final PrintTemplateService templateService;
+	private CheckboxGroup<PrinterService.Printer> printers;
+	private Button send;
+	private Button ready;
 
 	public OrdersDetailComponent(OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		this.orderService = orderService;
@@ -40,13 +46,16 @@ public class OrdersDetailComponent extends VerticalLayout {
 		add(new Pre("Status: " + order.getStatus()));
 		add(new Pre("Items: " + (order.getItems() == null ? 0 : order.getItems().size())));
 
-		CheckboxGroup<PrinterService.Printer> printers = new CheckboxGroup<>();
+		// create UI controls once and reuse
+		this.printers = new CheckboxGroup<>();
 		printers.setLabel("Send to printers");
-		var available = printerService.listPrinters();
-		printers.setItems(available);
-		printers.setItemLabelGenerator(p -> p.name() + " (" + p.category() + ")");
+		if (printerService != null) {
+			var available = printerService.listPrinters();
+			printers.setItems(available);
+			printers.setItemLabelGenerator(p -> p.name() + " (" + p.category() + ")");
+		}
 
-		Button send = new Button("Send to Kitchen", evt -> {
+		this.send = new Button("Send to Kitchen", evt -> {
 			if (order == null) return;
 			Set<PrinterService.Printer> selected = printers.getSelectedItems();
 			if (selected == null || selected.isEmpty()) {
@@ -54,12 +63,12 @@ public class OrdersDetailComponent extends VerticalLayout {
 				return;
 			}
 
-			var templates = templateService.listTemplates();
+			var templates = templateService == null ? List.<com.possable.service.PrintTemplateService.Template>of() : templateService.listTemplates();
 			int created = 0;
 			var missing = new StringBuilder();
 			for (PrinterService.Printer p : selected) {
 				var tpl = templates.stream().filter(t -> t.printerCategory().equals(p.category())).findFirst();
-				if (tpl.isPresent()) {
+				if (tpl.isPresent() && printJobService != null) {
 					printJobService.createJob(order.getId(), p.id(), tpl.get().id());
 					created++;
 				} else {
@@ -74,7 +83,7 @@ public class OrdersDetailComponent extends VerticalLayout {
 			Notification.show(msg);
 		});
 
-		Button ready = new Button("Mark Ready", evt -> {
+		this.ready = new Button("Mark Ready", evt -> {
 			if (order == null) return;
 			orderService.updateStatus(order.getId(), "READY");
 			Notification.show("Order marked READY");
@@ -83,6 +92,22 @@ public class OrdersDetailComponent extends VerticalLayout {
 		Button refresh = new Button("Refresh", evt -> {
 			// no-op here; parent component may refresh list
 		});
+
+		// server-side permission checks
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean hasKitchenRole = auth != null && auth.getAuthorities() != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_KITCHEN") || a.getAuthority().equals("ROLE_MANAGEMENT"));
+		boolean hasSendRole = auth != null && auth.getAuthorities() != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SERVICE") || a.getAuthority().equals("ROLE_KITCHEN") || a.getAuthority().equals("ROLE_MANAGEMENT"));
+
+		// disable/hide printer controls if services missing or user unauthorized
+		boolean printerAvailable = printerService != null && printJobService != null && templateService != null;
+		if (!printerAvailable || !hasSendRole) {
+			// hide printers and send button
+			printers.setVisible(false);
+			send.setVisible(false);
+		}
+		if (!hasKitchenRole) {
+			ready.setVisible(false);
+		}
 
 		add(printers, new HorizontalLayout(send, ready, refresh));
 	}

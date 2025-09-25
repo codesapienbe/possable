@@ -6,6 +6,9 @@ import java.util.Map;
 
 import com.possable.service.ItemService;
 import com.possable.service.OrderService;
+import com.possable.service.PrinterService;
+import com.possable.service.PrintJobService;
+import com.possable.service.PrintTemplateService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -30,7 +33,7 @@ public class ServiceView extends VerticalLayout {
 	private final ItemService itemService;
 	private final OrderService orderService;
 
-	public ServiceView(ItemService itemService, OrderService orderService, com.possable.service.PrinterService printerService, com.possable.service.PrintJobService printJobService, com.possable.service.PrintTemplateService templateService) {
+	public ServiceView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		this.itemService = itemService;
 		this.orderService = orderService;
 		setPadding(true);
