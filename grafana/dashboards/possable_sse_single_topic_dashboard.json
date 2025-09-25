@@ -1,0 +1,59 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [ { "expr": "rate(possable_sse_sent{component=\"print-job-service\", topic=~\"$topic\"}[1m])", "legendFormat": "sent/sec", "refId": "A" } ],
+      "title": "SSE: Sent Rate (topic=$topic)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [ { "expr": "increase(possable_sse_collapsed{component=\"print-job-service\", topic=~\"$topic\"}[5m])", "legendFormat": "collapsed (5m)", "refId": "A" } ],
+      "title": "SSE: Collapsed Events (topic=$topic)",
+      "type": "timeseries",
+      "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 5 } ] },
+      "alert": {
+        "name": "Collapsed Events High for $topic",
+        "conditions": [ { "evaluator": { "type": "gt", "params": [ 3 ] }, "operator": { "type": "and" }, "query": { "params": [ "A" ] }, "reducer": { "type": "sum", "params": [] } } ],
+        "for": "2m",
+        "noDataState": "OK",
+        "execErrState": "ERROR"
+      }
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [ { "expr": "increase(possable_sse_dropped_emitters{component=\"print-job-service\", topic=~\"$topic\"}[5m])", "legendFormat": "dropped (5m)", "refId": "A" } ],
+      "title": "SSE: Dropped Emitters (topic=$topic)",
+      "type": "timeseries",
+      "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] },
+      "alert": {
+        "name": "Dropped Emitters for $topic",
+        "conditions": [ { "evaluator": { "type": "gt", "params": [ 0 ] }, "operator": { "type": "and" }, "query": { "params": [ "A" ] }, "reducer": { "type": "sum", "params": [] } } ],
+        "for": "1m",
+        "noDataState": "OK",
+        "execErrState": "ERROR"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [ "sse", "single-topic", "possable" ],
+  "templating": { "list": [ { "name": "DS_PROMETHEUS", "type": "datasource", "label": "Data source", "current": { "text": "Prometheus", "value": "${DS_PROMETHEUS}" } }, { "name": "topic", "label": "Topic", "type": "query", "query": "label_values(possable_sse_sent, topic)", "datasource": "${DS_PROMETHEUS}", "refresh": 1, "regex": "" } ] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Possable - SSE Single Topic Dashboard",
+  "uid": null,
+  "version": 1
+} 

@@ -15,5 +15,17 @@ possable:
     bearer-token-secret: "changeme-bearer-secret"
 
 app:
+  auth:
+    pincode: "1234"
   docs:
-    enabled: false 
+    enabled: false
+
+# Management/Actuator settings for Prometheus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always 

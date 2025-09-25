@@ -15,6 +15,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -29,6 +31,7 @@ public class ItemListView extends VerticalLayout {
 	public static record ItemDto(String id, String name, BigDecimal price, String category) {}
 
 	private final VerticalLayout tiles = new VerticalLayout();
+	private final com.vaadin.flow.component.orderedlayout.HorizontalLayout skeletonTiles = new com.vaadin.flow.component.orderedlayout.HorizontalLayout();
 	private final VerticalLayout cartPanel = new VerticalLayout();
 	private final List<ItemDto> cartItems = new ArrayList<>();
 	private final Span cartCount = new Span("0 items");
@@ -37,23 +40,29 @@ public class ItemListView extends VerticalLayout {
 	private final PrinterService printerService;
 	private final PrintJobService printJobService;
 	private final PrintTemplateService templateService;
+	private final ItemService itemService;
+	private ComboBox<String> categoryFilter;
+	private List<ItemDto> currentItems = List.of();
 
 	public ItemListView(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
 		this.orderService = orderService;
 		this.printerService = printerService;
 		this.printJobService = printJobService;
 		this.templateService = templateService;
+		this.itemService = itemService;
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
 		addClassName("pos-root");
 
-		add(new H1("Menu"));
+		H1 header = new H1("Menu");
+		header.getStyle().set("font-size", "1.75em").set("margin", "0 0 8px 0");
+		add(header);
 
-		ComboBox<String> categoryFilter = new ComboBox<>("Category");
-		var items = mapItems(itemService.listItems(200));
-		categoryFilter.setItems(items.stream().map(ItemDto::category).distinct().collect(Collectors.toList()));
-		categoryFilter.addValueChangeListener(e -> renderTiles(items, e.getValue()));
+		categoryFilter = new ComboBox<>("Category");
+		categoryFilter.setPlaceholder("All categories");
+		categoryFilter.addValueChangeListener(e -> renderTiles(currentItems, e.getValue()));
+		categoryFilter.addClassName("pos-filter");
 		add(categoryFilter);
 
 		HorizontalLayout main = new HorizontalLayout();
@@ -62,7 +71,14 @@ public class ItemListView extends VerticalLayout {
 
 		tiles.getStyle().set("display", "flex").set("flex-wrap", "wrap").set("gap", "12px");
 		tiles.addClassName("pos-tiles");
-		renderTiles(items, null);
+		// skeleton tiles initially hidden
+		skeletonTiles.setClassName("skeleton-tiles-container");
+		for (int i = 0; i < 6; i++) {
+			com.vaadin.flow.component.html.Div s = new com.vaadin.flow.component.html.Div();
+			s.addClassName("skeleton-tile");
+			skeletonTiles.add(s);
+		}
+		add(skeletonTiles);
 
 		cartPanel.getStyle().set("min-width", "320px").set("border", "1px solid var(--lumo-contrast-10pct)").set("padding", "var(--lumo-space-m)");
 		cartPanel.addClassName("pos-cart");
@@ -72,12 +88,16 @@ public class ItemListView extends VerticalLayout {
 		TextArea notes = new TextArea("Notes");
 		notes.setWidthFull();
 
-		Button sendOrder = new Button("Send Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
+		Button sendOrder = new Button("Place Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
+		sendOrder.getElement().getThemeList().add("primary");
+		sendOrder.addClassName("pos-button-large");
+		sendOrder.setIcon(new Icon(VaadinIcon.CART));
 
 		Button clear = new Button("Clear", evt -> {
 			cartItems.clear();
 			refreshCart();
 		});
+		clear.addClassName("pos-button-large");
 
 		cartPanel.add(notes, new HorizontalLayout(sendOrder, clear));
 
@@ -86,6 +106,22 @@ public class ItemListView extends VerticalLayout {
 		main.setFlexGrow(1, cartPanel);
 
 		add(main);
+
+		addAttachListener(evt -> {
+			reloadMenu();
+		});
+	}
+
+	private void reloadMenu() {
+		// show skeletons
+		skeletonTiles.setVisible(true);
+		tiles.setVisible(false);
+		currentItems = mapItems(itemService.listItems(200));
+		categoryFilter.setItems(currentItems.stream().map(ItemDto::category).distinct().collect(Collectors.toList()));
+		renderTiles(currentItems, categoryFilter.getValue());
+		// hide skeletons
+		skeletonTiles.setVisible(false);
+		tiles.setVisible(true);
 	}
 
 	private void renderTiles(List<ItemDto> items, String category) {
@@ -93,7 +129,8 @@ public class ItemListView extends VerticalLayout {
 		items.stream().filter(i -> category == null || category.isBlank() || category.equals(i.category()))
 			.forEach(i -> {
 				Button b = new Button(i.name() + "\n" + i.price().toString());
-				b.getStyle().set("width", "200px").set("height", "90px").set("white-space", "pre-wrap");
+				b.addClassName("pos-tile pos-tile-large");
+				b.getElement().setAttribute("aria-label", i.name());
 				b.addClickListener(evt -> {
 					addToCart(i);
 					Notification.show("Added to cart: " + i.name());
@@ -113,6 +150,7 @@ public class ItemListView extends VerticalLayout {
 		cartCount.setText(cartItems.size() + " items");
 		BigDecimal total = cartItems.stream().map(ItemDto::price).reduce(BigDecimal.ZERO, BigDecimal::add);
 		cartTotal.setText("$" + total.toString());
+		cartTotal.getStyle().set("font-size", "1.25em").set("font-weight", "700");
 		cartPanel.add(cartCount, cartTotal);
 		for (int i = 0; i < cartItems.size(); i++) {
 			ItemDto it = cartItems.get(i);
@@ -123,16 +161,20 @@ public class ItemListView extends VerticalLayout {
 				cartItems.remove(it);
 				refreshCart();
 			});
+			remove.addClassName("pos-button-large");
 			row.add(remove);
 			cartPanel.add(row);
 		}
 		TextArea notes = new TextArea("Notes");
 		notes.setWidthFull();
-		Button sendOrder = new Button("Send Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
+		Button sendOrder = new Button("Place Order", evt -> sendOrderAndCreatePrintJobs(cartItems, notes.getValue()));
+		sendOrder.getElement().getThemeList().add("primary");
+		sendOrder.addClassName("pos-button-large");
 		Button clear = new Button("Clear", evt -> {
 			cartItems.clear();
 			refreshCart();
 		});
+		clear.addClassName("pos-button-large");
 		cartPanel.add(notes, new HorizontalLayout(sendOrder, clear));
 	}
 

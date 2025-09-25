@@ -5,12 +5,15 @@
 	--pos-accent: #0ea5a4; /* teal */
 	--pos-muted: #94a3b8;
 	--pos-card: #0b1622;
+	--pos-gap: 16px;
 }
 
 body {
 	background: linear-gradient(180deg, #071022 0%, #0b1220 100%);
 	color: #e6eef6;
 	font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	margin: 0;
+	padding: 0;
 }
 
 /* App header */
@@ -19,12 +22,13 @@ body {
 }
 .pos-header {
 	background: linear-gradient(90deg, rgba(14,165,164,0.06), rgba(14,165,164,0.03));
-	padding: 12px 18px;
+	padding: 14px var(--pos-gap);
 	border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 .pos-header h1 {
 	color: var(--pos-accent);
 	font-weight: 600;
+	margin: 0;
 }
 .pos-menu {
 	margin-left: 16px;
@@ -32,34 +36,41 @@ body {
 .pos-status {
 	color: #0b1220;
 	background: var(--pos-accent);
-	padding: 6px 10px;
+	padding: 6px 12px;
 	border-radius: 6px;
 }
 .pos-user {
-	opacity: 0.9;
+	opacity: 0.95;
 }
 
 /* Dashboard stat cards */
 .pos-stat {
 	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-	padding: 14px;
-	border-radius: 8px;
+	padding: 16px;
+	border-radius: 10px;
 	min-width: 160px;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+	box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+	margin-right: var(--pos-gap);
 }
 
 /* Tiles */
 .pos-tiles {
-	padding: 8px;
+	padding: 12px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
 }
 .pos-tile {
 	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 	color: #e6eef6;
-	border-radius: 8px;
+	border-radius: 10px;
 	box-shadow: 0 6px 18px rgba(0,0,0,0.6);
 	font-size: 14px;
 	font-weight: 600;
 	text-align: left;
+	padding: 12px;
+	min-width: 160px;
+	max-width: 220px;
 }
 .pos-tile::part(label) {
 	white-space: pre-wrap;
@@ -68,7 +79,8 @@ body {
 /* Cart */
 .pos-cart {
 	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-	border-radius: 8px;
+	border-radius: 10px;
+	padding: 12px;
 }
 .pos-cart h1 {
 	font-size: 18px;
@@ -82,22 +94,103 @@ body {
 }
 .pos-details {
 	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-	padding: 12px;
-	border-radius: 8px;
+	padding: 14px;
+	border-radius: 10px;
 }
 
 /* Filters */
 .pos-filter {
 	min-width: 180px;
+	margin-right: 12px;
 }
 
 /* Buttons */
-.v-button {
-	border-radius: 8px;
+.v-button, vaadin-button, .v-button {
+	border-radius: 10px;
+	padding: 8px 12px;
+	font-weight: 600;
 }
 
-/* Responsive small adjustments */
-@media (max-width: 800px) {
+/* Larger POS-friendly buttons */
+.pos-button-large {
+    padding: 14px 18px;
+    font-size: 1.05em;
+    border-radius: 12px;
+}
+
+/* Larger tile variant for touch-friendly UI */
+.pos-tile-large {
+    min-width: 220px;
+    height: 110px;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Emphasize cart total */
+.pos-cart .vaadin-text-area, .pos-cart .v-textarea {
+    margin-bottom: 8px;
+}
+
+/* Small helper classes */
+.pos-root { padding: var(--pos-gap); }
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
 	.pos-tiles { justify-content: center; }
 	.pos-cart { min-width: unset; }
-} 
+	.pos-header { padding: 12px 12px; }
+}
+
+@media (max-width: 800px) {
+	.pos-tiles { gap: 8px; }
+	.pos-tile { min-width: 140px; max-width: 180px; }
+	.pos-stat { min-width: 120px; }
+	/* Stack main columns vertically */
+	vaadin-vertical-layout[theme~="pos-root"], .pos-root vaadin-vertical-layout { gap: 12px; }
+	/* Make header elements wrap nicely */
+	.pos-header H1, .pos-menu { display: block; width: 100%; }
+}
+
+/* Badge animation for real-time events */
+.pulse-badge {
+  	animation: pulse 350ms ease-in-out;
+}
+
+@keyframes pulse {
+  	0% { transform: scale(1); }
+  	50% { transform: scale(1.25); }
+  	100% { transform: scale(1); }
+}
+
+/* Skeleton shimmer for loading states */
+.skeleton-row, .skeleton-tile {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%);
+  border-radius: 8px;
+}
+
+.skeleton-row {
+  height: 36px;
+  margin: 8px 0;
+  width: 100%;
+  opacity: 0.9;
+  animation: shimmer 1.2s linear infinite;
+}
+
+.skeleton-tile {
+  width: 200px;
+  height: 90px;
+  display: inline-block;
+  margin: 6px;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+.skeleton-container { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-tiles-container { display: flex; flex-wrap: wrap; gap: 12px; } 

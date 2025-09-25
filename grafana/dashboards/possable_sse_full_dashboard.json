@@ -1,0 +1,79 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "list" } },
+      "targets": [ { "expr": "rate(possable_sse_sent{component=\"print-job-service\"}[1m])", "legendFormat": "sent/sec", "refId": "A" } ],
+      "title": "SSE: Sent Rate (per sec)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [ { "expr": "sum by (topic) (increase(possable_sse_sent{component=\"print-job-service\"}[5m]))", "legendFormat": "{{topic}}", "refId": "A" } ],
+      "title": "SSE: Sent per Topic (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [ { "expr": "increase(possable_sse_collapsed{component=\"print-job-service\"}[5m])", "legendFormat": "collapsed (5m)", "refId": "A" } ],
+      "title": "SSE: Collapsed Events (5m)",
+      "type": "timeseries",
+      "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 5 }, { "color": "red", "value": 20 } ] },
+      "alert": {
+        "name": "High Collapsed Events",
+        "conditions": [
+          { "evaluator": { "type": "gt", "params": [ 10 ] }, "operator": { "type": "and" }, "query": { "params": [ "A" ] }, "reducer": { "type": "sum", "params": [] } }
+        ],
+        "for": "5m",
+        "noDataState": "OK",
+        "execErrState": "ERROR"
+      }
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [ { "expr": "increase(possable_sse_dropped_emitters{component=\"print-job-service\"}[5m])", "legendFormat": "dropped (5m)", "refId": "A" } ],
+      "title": "SSE: Dropped Emitters (5m)",
+      "type": "timeseries",
+      "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] },
+      "alert": {
+        "name": "Dropped Emitters Detected",
+        "conditions": [ { "evaluator": { "type": "gt", "params": [ 0 ] }, "operator": { "type": "and" }, "query": { "params": [ "A" ] }, "reducer": { "type": "sum", "params": [] } } ],
+        "for": "1m",
+        "noDataState": "OK",
+        "execErrState": "ERROR"
+      }
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 14 },
+      "id": 5,
+      "targets": [ { "expr": "sum by(topic) (rate(possable_sse_sent{component=\"print-job-service\"}[1m]))", "legendFormat": "{{topic}}", "refId": "A" } ],
+      "title": "SSE: Sent Rate per Topic (1m)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [ "sse", "printing", "possable" ],
+  "templating": { "list": [ { "name": "DS_PROMETHEUS", "type": "datasource", "label": "Data source", "current": { "text": "Prometheus", "value": "${DS_PROMETHEUS}" } } ] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Possable - SSE Full Dashboard",
+  "uid": null,
+  "version": 1
+} 

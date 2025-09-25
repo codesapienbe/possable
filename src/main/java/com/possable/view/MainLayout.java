@@ -11,9 +11,12 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class MainLayout extends AppLayout {
 
@@ -36,10 +39,17 @@ public class MainLayout extends AppLayout {
 		status.getStyle().set("margin-left", "var(--lumo-space-m)");
 		status.getElement().getThemeList().add("badge success");
 
-		Span user = new Span("Waiter");
+		Span user = new Span("");
 		user.getStyle().set("margin-left", "auto");
 
-		HorizontalLayout header = new HorizontalLayout(title, menu, status, user);
+		Button logout = new Button("Logout", evt -> {
+			SecurityContextHolder.clearContext();
+			// navigate back to entry point
+			getUI().ifPresent(ui -> ui.navigate(com.possable.view.EntryPointView.class));
+		});
+		logout.addClassName("pos-button-large");
+
+		HorizontalLayout header = new HorizontalLayout(title, menu, status, user, logout);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		header.expand(menu);
@@ -52,9 +62,17 @@ public class MainLayout extends AppLayout {
 		addToNavbar(header);
 
 		addAttachListener(evt -> {
+			// show startup message if present
 			String msg = this.demoNotificationService.consumeStartupMessage();
 			if (msg != null && !msg.isBlank()) {
 				Notification.show(msg, 5000, Notification.Position.TOP_END);
+			}
+			// update user display from security context
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth != null && auth.isAuthenticated() && auth.getName() != null) {
+				user.setText(auth.getName());
+			} else {
+				user.setText("");
 			}
 		});
 	}

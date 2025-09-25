@@ -5,6 +5,7 @@ import java.util.List;
 import com.possable.controller.OrderController.OrderDto;
 import com.possable.service.ItemService;
 import com.possable.service.OrderService;
+import com.possable.service.PrintJobService;
 import com.possable.service.PrintTemplateService;
 import com.possable.service.PrinterService;
 import com.vaadin.flow.component.Component;
@@ -20,20 +21,23 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("POS Dashboard")
 public class DashboardView extends VerticalLayout {
 
 	private final OrderService orderService;
+	private final PrintJobService printJobService;
 
-	public DashboardView(OrderService orderService, PrinterService printerService, ItemService itemService, PrintTemplateService templateService) {
+	public DashboardView(OrderService orderService, PrinterService printerService, ItemService itemService, PrintTemplateService templateService, PrintJobService printJobService) {
 		this.orderService = orderService;
+		this.printJobService = printJobService;
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
 		addClassName("pos-root");
 
-		H1 header = new H1("Dashboard");
+		H1 header = new H1("POS");
+		header.getStyle().set("font-size", "1.8em");
 		add(header);
 
 		HorizontalLayout stats = new HorizontalLayout();
@@ -45,25 +49,73 @@ public class DashboardView extends VerticalLayout {
 		stats.add(createStat("Orders", Integer.toString(ordersCount)), createStat("Revenue", String.format("$%.2f", revenue)), createStat("Printers", Integer.toString(printersCount)));
 		add(stats);
 
-		// Manage printers: register demo printers/templates when missing
-		Button createPrinters = new Button("Create Demo Printers", evt -> {
+		// Manage printers/templates and run full demo
+		Button createPrinters = new Button("Setup Demo Printers", evt -> {
 			if (!printerService.listPrinters().isEmpty() || !templateService.listTemplates().isEmpty()) {
 				Notification.show("Printers/templates already exist", 3000, Notification.Position.TOP_END);
 				return;
 			}
-			var k = printerService.registerPrinter("Kitchen Printer", "kitchen", "Main kitchen order printer");
-			var b = printerService.registerPrinter("Bar Printer", "bar", "Bar drinks printer");
-			var r = printerService.registerPrinter("Receipt Printer", "receipt", "Customer receipts");
+			printerService.registerPrinter("Kitchen Printer", "kitchen", "Main kitchen order printer");
+			printerService.registerPrinter("Bar Printer", "bar", "Bar drinks printer");
+			printerService.registerPrinter("Receipt Printer", "receipt", "Customer receipts");
 
 			templateService.createTemplate("kitchen", "kitchen-default", "KITCHEN\nOrder: {{orderId}}\nItems: {{items}}\nNotes: {{notes}}");
 			templateService.createTemplate("bar", "bar-default", "BAR\nOrder: {{orderId}}\nItems: {{items}}");
 			templateService.createTemplate("receipt", "receipt-default", "RECEIPT\nOrder: {{orderId}}\nTotal: {{total}}\nThank you!");
 
 			Notification.show("Demo printers and templates created", 3000, Notification.Position.TOP_END);
-			// reload to update counts
 			UI.getCurrent().getPage().reload();
 		});
-		add(createPrinters);
+
+		Button runDemo = new Button("Create Sample Order", evt -> {
+			// ensure printers/templates exist
+			if (printerService.listPrinters().isEmpty() || templateService.listTemplates().isEmpty()) {
+				printerService.registerPrinter("Kitchen Printer", "kitchen", "Main kitchen order printer");
+				printerService.registerPrinter("Bar Printer", "bar", "Bar drinks printer");
+				printerService.registerPrinter("Receipt Printer", "receipt", "Customer receipts");
+				templateService.createTemplate("kitchen", "kitchen-default", "KITCHEN\nOrder: {{orderId}}\nItems: {{items}}\nNotes: {{notes}}");
+				templateService.createTemplate("bar", "bar-default", "BAR\nOrder: {{orderId}}\nItems: {{items}}");
+				templateService.createTemplate("receipt", "receipt-default", "RECEIPT\nOrder: {{orderId}}\nTotal: {{total}}\nThank you!");
+			}
+
+			// ensure demo items exist
+			if (itemService.listItems(200).isEmpty()) {
+				itemService.createItem("Espresso", "Strong black coffee", 2.5, true);
+				itemService.createItem("Latte", "Milky coffee", 3.5, true);
+				itemService.createItem("Burger", "Beef burger with lettuce", 8.0, true);
+				itemService.createItem("Fries", "Crispy fries", 3.0, true);
+			}
+
+			// create a sample order using first two items
+			var menu = itemService.listItems(200).stream().map(i -> i.id()).toList();
+			if (menu.isEmpty()) {
+				Notification.show("No items available for demo", 3000, Notification.Position.TOP_END);
+				return;
+			}
+			var orderItems = menu.size() >= 2 ? List.of(menu.get(0), menu.get(1)) : List.of(menu.get(0));
+			var sampleOrder = orderService.createOrder(orderItems, "Demo order");
+
+			// create print jobs
+			var templates = templateService.listTemplates();
+			int created = 0;
+			for (var p : printerService.listPrinters()) {
+				var tpl = templates.stream().filter(t -> t.printerCategory().equals(p.category())).findFirst();
+				if (tpl.isPresent()) {
+					printJobService.createJob(sampleOrder.getId(), p.id(), tpl.get().id());
+					created++;
+				}
+			}
+
+			if (created > 0) {
+				orderService.updateStatus(sampleOrder.getId(), "IN_PREPARATION");
+			}
+
+			Notification.show("Demo order created: " + sampleOrder.getId() + " (print jobs created: " + created + ")", 3000, Notification.Position.TOP_END);
+			UI.getCurrent().navigate(com.possable.view.PrintJobsView.class);
+		});
+
+		HorizontalLayout demoActions = new HorizontalLayout(createPrinters, runDemo);
+		add(demoActions);
 
 		add(new H3("Recent Orders"));
 		Grid<OrderDto> recent = new Grid<>(OrderDto.class, false);
