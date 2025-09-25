@@ -21,7 +21,7 @@ public class DemoDataConfig {
 	private static final Logger log = LoggerFactory.getLogger(DemoDataConfig.class);
 
 	@Bean
-	public ApplicationRunner demoDataInitializer(PrinterService printerService, PrintTemplateService templateService, OrderService orderService, PrintJobService printJobService) {
+	public ApplicationRunner demoDataInitializer(PrinterService printerService, PrintTemplateService templateService, OrderService orderService, PrintJobService printJobService, com.possable.service.DemoNotificationService demoNotificationService) {
 		return args -> {
 			if (!printerService.listPrinters().isEmpty() || !templateService.listTemplates().isEmpty()) {
 				log.info("demo data not created because printers/templates already exist");
@@ -56,6 +56,8 @@ public class DemoDataConfig {
 					orderService.updateStatus(sampleOrder.getId(), "IN_PREPARATION");
 					log.info("created {} print jobs for demo order {}", created, sampleOrder.getId());
 				}
+				// set demo startup message for UI
+				demoNotificationService.setStartupMessage("Demo order created: " + sampleOrder.getId());
 			}
 		};
 	}

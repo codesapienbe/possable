@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+spring:
+  profiles:
+    active: demo
+
 logging:
   file:
     name: application.log
