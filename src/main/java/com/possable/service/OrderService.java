@@ -1,17 +1,18 @@
 package com.possable.service;
 
-import com.possable.controller.OrderController.OrderDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.stereotype.Service;
+
+import com.possable.controller.OrderController.OrderDto;
 
 @Service
 public class OrderService {
@@ -51,7 +52,7 @@ public class OrderService {
 
     public OrderDto findById(String id) {
         synchronized (orders) {
-            return orders.stream().filter(o -> o.id().equals(id)).findFirst().orElse(null);
+            return orders.stream().filter(o -> o.getId().equals(id)).findFirst().orElse(null);
         }
     }
 
@@ -59,8 +60,8 @@ public class OrderService {
         synchronized (orders) {
             for (int i = 0; i < orders.size(); i++) {
                 var o = orders.get(i);
-                if (o.id().equals(id)) {
-                    OrderDto updated = new OrderDto(o.id(), o.items(), status, o.createdAt());
+                if (o.getId().equals(id)) {
+                    OrderDto updated = new OrderDto(o.getId(), o.getItems(), status, o.getCreatedAt());
                     orders.set(i, updated);
                     log.info("{\"message\":\"order_status_updated\", \"order_id\":\"{}\", \"status\":\"{}\", \"component\":\"order-service\"}", id, status);
                     return updated;
@@ -71,14 +72,14 @@ public class OrderService {
     }
 
     private void processOrder(OrderDto order, String notes) {
-        log.debug("processing order {}", order.id());
+        log.debug("processing order {}", order.getId());
         try {
             // placeholder for actual printing/integration
             Thread.sleep(50);
-            log.info("{\"message\":\"order_processed\", \"order_id\":\"{}\", \"component\":\"order-service\"}", order.id());
+            log.info("{\"message\":\"order_processed\", \"order_id\":\"{}\", \"component\":\"order-service\"}", order.getId());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("order processing interrupted {}", order.id());
+            log.warn("order processing interrupted {}", order.getId());
         }
     }
 } 

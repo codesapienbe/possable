@@ -34,8 +34,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody CreateOrderRequest request) {
-        var order = orderService.createOrder(request.items(), request.notes());
-        return ResponseEntity.created(URI.create("/orders/" + order.id())).body(order);
+        var order = orderService.createOrder(request.getItems(), request.getNotes());
+        return ResponseEntity.created(URI.create("/orders/" + order.getId())).body(order);
     }
 
     @GetMapping
@@ -90,5 +90,10 @@ public class OrderController {
         public List<String> getItems() { return items; }
         public String getStatus() { return status; }
         public Instant getCreatedAt() { return createdAt; }
+        // Backwards-compatible record-style accessors used across the codebase/tests
+        public String id() { return getId(); }
+        public List<String> items() { return getItems(); }
+        public String status() { return getStatus(); }
+        public Instant createdAt() { return getCreatedAt(); }
     }
 } 
