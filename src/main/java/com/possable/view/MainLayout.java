@@ -74,8 +74,19 @@ public class MainLayout extends AppLayout {
 			confirm.open();
 		});
 		logout.addClassName("pos-button-large");
+		// theme toggle: toggles light/dark mode and persists selection in localStorage; label shows state with icon
+		Button themeToggle = new Button();
+		themeToggle.addClassName("pos-button-large");
+		// expose id so client-side init script can target the button reliably
+		themeToggle.getElement().setAttribute("id", "theme-toggle");
+		// click toggles theme, persists choice and updates the button label/icon
+		themeToggle.addClickListener(evt -> {
+			getUI().ifPresent(ui -> ui.getPage().executeJs(
+				"((btn)=>{const key='possable-theme';const cur=localStorage.getItem(key)||(document.body.classList.contains('light-mode')?'light':'dark');const next=cur==='light'?'dark':'light';if(next==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}localStorage.setItem(key,next);const isLight=next==='light';btn.textContent=(isLight?'🌞 Light':'🌙 Dark');})(arguments[0])",
+				themeToggle.getElement()));
+		});
 
-		HorizontalLayout header = new HorizontalLayout(title, status, user, roleBadge, logout);
+		HorizontalLayout header = new HorizontalLayout(title, status, user, roleBadge, themeToggle, logout);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		// add CSS class names for POS theme hooks
@@ -119,6 +130,8 @@ public class MainLayout extends AppLayout {
 
 			// register client-side listeners to report activity to server
 			getElement().executeJs("const root=$0; function __vaadin_report(){ try{root.$server.reportActivity();}catch(e){} } window.addEventListener('mousemove', __vaadin_report); window.addEventListener('keydown', __vaadin_report); window.addEventListener('touchstart', __vaadin_report);", getElement());
+			// initialize theme from localStorage on attach and set initial label for themeToggle
+			getElement().executeJs("const key='possable-theme';let v=localStorage.getItem(key);if(!v){v=document.body.classList.contains('light-mode')?'light':'dark'}if(v==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}const isLight=(v==='light');const btn=document.getElementById('theme-toggle');if(btn){btn.textContent=(isLight?'🌞 Light':'🌙 Dark')}");
 
 			// start inactivity checker for this UI
 			var ui = evt.getUI();

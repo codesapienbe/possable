@@ -596,3 +596,62 @@ pattern-lock canvas, .pattern-lock canvas {
 
 /* Make the dialog H1 a bit smaller and centered for mobile */
 .pin-dialog h1 { font-size: 1.6rem; text-align: center; margin: 6px 0 12px 0; } 
+
+/* Light mode overrides: apply when `body` has class `light-mode` (or use `.light-mode` on a root container) */
+body.light-mode {
+	--pos-bg: #f7fafc; /* very light */
+	--pos-panel: #ffffff;
+	--pos-accent: #0ea5a4; /* keep teal accent */
+	--pos-muted: #475569; /* slate for muted text */
+	--pos-card: #ffffff;
+	--pos-gap: 24px;
+	--glass-bg: rgba(2,6,23,0.03);
+	--glass-border: rgba(2,6,23,0.06);
+	--glass-blur: 6px;
+	--pattern-hover-color: rgba(14,165,164,0.98);
+	--pattern-stroke-color: rgba(14,165,164,0.98);
+	--pattern-dot-color: #0ea5a4;
+	--pattern-dot-bg: rgba(2,6,23,0.06);
+	background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+	color: #0b1220;
+}
+
+/* Ensure pattern-lock inherits and contrasts in light mode */
+body.light-mode pattern-lock, body.light-mode .pattern-lock {
+	--pattern-hover-color: rgba(14,165,164,0.98);
+	--pattern-stroke-color: rgba(14,165,164,0.98);
+	--pattern-dot-color: #0ea5a4;
+	--pattern-dot-bg: rgba(2,6,23,0.06);
+}
+
+/* Light-mode specific adjustments for glass panels and buttons */
+body.light-mode .pos-card, body.light-mode .pos-stat, body.light-mode .pos-details, body.light-mode .pos-cart {
+	background: var(--pos-card);
+	border: 1px solid var(--glass-border);
+	color: var(--pos-bg);
+}
+body.light-mode .v-button, body.light-mode vaadin-button, body.light-mode .v-button {
+	/* keep accent buttons readable on light background */
+	background: var(--pos-accent);
+	color: #ffffff;
+	border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* make PIN dots and pattern canvas clearly visible on light backgrounds */
+body.light-mode .pin-dot { background: rgba(2,6,23,0.06); border: 1px solid rgba(2,6,23,0.04); }
+body.light-mode .pin-dot.filled { background: var(--pos-accent); box-shadow: none; }
+body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-shadow: none; border-radius: 10px; background: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.01)); } 
+
+/* Theme transition for light/dark toggle */
+:root, body {
+	transition: background-color 280ms ease, color 280ms ease;
+}
+.pos-header, .pos-card, .pos-stat, .pos-details, .pos-cart, .unlock-overlay, .pos-root canvas, .pattern-lock canvas, .v-button, vaadin-button {
+	transition: background-color 280ms ease, color 280ms ease, box-shadow 280ms ease, border-color 280ms ease, filter 280ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root, body, .pos-header, .pos-card, .pos-stat, .pos-details, .pos-cart, .unlock-overlay, .pos-root canvas, .pattern-lock canvas, .v-button, vaadin-button {
+		transition: none !important;
+	}
+} 
