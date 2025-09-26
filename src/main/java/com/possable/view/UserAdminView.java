@@ -40,9 +40,10 @@ public class UserAdminView extends VerticalLayout implements BeforeEnterObserver
 
 		TextField username = new TextField("Username");
 		PasswordField pin = new PasswordField("PIN");
+		TextField drawing = new TextField("Drawing (line data)");
 		Button add = new Button("Add User", evt -> {
 			if (username.isEmpty() || pin.isEmpty()) { Notification.show("Username and PIN required"); return; }
-			boolean ok = userService.addUser(username.getValue(), pin.getValue(), Set.of("SERVICE"));
+			boolean ok = userService.addUser(username.getValue(), pin.getValue(), drawing.getValue(), Set.of("SERVICE"));
 			if (ok) { Notification.show("User added"); refreshGrid(); username.clear(); pin.clear(); } else { Notification.show("Failed"); }
 		});
 		add.addClassName("pos-button-large");
@@ -58,7 +59,7 @@ public class UserAdminView extends VerticalLayout implements BeforeEnterObserver
 			var sel = grid.asSingleSelect().getValue();
 			if (sel == null) { Notification.show("Select a user"); return; }
 			if (pin.isEmpty()) { Notification.show("Enter new PIN"); return; }
-			if (userService.updatePassword(sel, pin.getValue())) { Notification.show("Updated"); refreshGrid(); pin.clear(); } else { Notification.show("Failed"); }
+			if (userService.updatePincode(sel, pin.getValue())) { Notification.show("Updated"); refreshGrid(); pin.clear(); } else { Notification.show("Failed"); }
 		});
 		change.addClassName("pos-button-large");
 

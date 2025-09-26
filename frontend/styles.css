@@ -130,9 +130,15 @@ body {
 
 /* Buttons */
 .v-button, vaadin-button, .v-button {
-	border-radius: 10px;
+	border-radius: 8px;
 	padding: 8px 12px;
-	font-weight: 600;
+	font-weight: 700;
+	/* make primary button text high-contrast and reduce heavy shadows */
+	background: var(--pos-accent);
+	color: #ffffff;
+	border: 1px solid rgba(255,255,255,0.08);
+	box-shadow: 0 2px 6px rgba(2,6,23,0.28);
+	text-shadow: 0 1px 0 rgba(0,0,0,0.25);
 }
 
 /* Larger POS-friendly buttons */
@@ -405,3 +411,188 @@ body {
 .unlock-overlay.role-kitchen { background: radial-gradient(circle at center, rgba(245,158,11,0.12), rgba(2,6,23,0.88)); }
 .unlock-overlay.role-management { background: radial-gradient(circle at center, rgba(6,182,212,0.12), rgba(2,6,23,0.88)); }
 .unlock-overlay.role-customer { background: radial-gradient(circle at center, rgba(167,139,250,0.12), rgba(2,6,23,0.88)); } 
+
+/* Apple-like glass design overrides and responsive entry-screen */
+:root {
+	--glass-bg: rgba(255,255,255,0.04);
+	--glass-border: rgba(255,255,255,0.06);
+	--glass-blur: 14px;
+	--pattern-hover-color: rgba(255,255,255,0.6);
+	--pattern-hover-radius: 14;
+}
+
+/* Global subtle glass on panels/cards */
+.pos-card, .pos-stat, .pos-details, .pos-cart, .unlock-lock, .pos-tile {
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+	-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+	border: 1px solid var(--glass-border);
+	border-radius: 14px;
+}
+
+/* Entry screen layout - center role cards near top and make them glass cards */
+.entry-screen {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 42px;
+	min-height: calc(100vh - 84px);
+}
+
+.role-cards {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+	justify-content: center;
+	max-width: 1100px;
+}
+
+/* Larger, tactile role cards with icon emphasis */
+.pos-card {
+	min-width: 160px;
+	padding: 22px;
+	border-radius: 16px;
+	box-shadow: 0 18px 40px rgba(2,6,23,0.6);
+	transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, background 220ms ease;
+}
+
+.pos-card:hover {
+	transform: translateY(-8px) scale(1.025);
+	box-shadow: 0 28px 60px rgba(2,6,23,0.7);
+}
+
+.pos-card .role-icon {
+	width: 56px;
+	height: 56px;
+	border-radius: 12px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 26px;
+	box-shadow: 0 8px 20px rgba(2,6,23,0.6) inset;
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* Make tiles, grids, and inputs more touch-friendly and responsive */
+.pos-tile, .pos-tile-large {
+	min-height: 84px;
+	padding: 18px;
+	border-radius: 14px;
+}
+
+/* Pattern canvas styling (glass feel) */
+.pos-root canvas, .pattern-lock canvas {
+	border-radius: 12px;
+	box-shadow: inset 0 4px 18px rgba(0,0,0,0.6), 0 8px 30px rgba(2,6,23,0.45);
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	touch-action: none;
+}
+
+/* Unlock overlay refinement for glass aesthetic */
+.unlock-overlay {
+	background: radial-gradient(circle at center, rgba(255,255,255,0.02), rgba(2,6,23,0.78));
+	-webkit-backdrop-filter: blur(10px) saturate(120%);
+	backdrop-filter: blur(10px) saturate(120%);
+}
+
+.unlock-lock {
+	border: 1px solid rgba(255,255,255,0.04);
+	padding: 18px;
+	min-width: 140px;
+	min-height: 140px;
+	border-radius: 16px;
+}
+
+/* Micro-interaction: subtle glow on role selection */
+.pos-card:active, .pos-card:focus {
+	transform: translateY(-2px) scale(1.01);
+	outline: none;
+	box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+}
+
+/* Responsive: stack role cards vertically on narrow screens and make elements larger for touch */
+@media (max-width: 640px) {
+	.entry-screen { padding-top: 22px; }
+	.role-cards { gap: 12px; }
+	.pos-card { width: calc(100% - 48px); min-width: unset; padding: 18px; display: flex; flex-direction: row; align-items: center; gap: 12px; }
+	.pos-card .role-icon { width: 46px; height: 46px; font-size: 22px; }
+	.pos-tile, .pos-tile-large { min-height: 96px; padding: 16px; }
+}
+
+/* Small screens - simplify header and center content */
+@media (max-width: 480px) {
+	.pos-header { padding: 10px 12px; }
+	.pos-header h1 { font-size: 18px; }
+	.pos-root ::slotted(.vaadin-app-layout__content) { padding: 12px; }
+}
+
+/* Accessibility: focus-visible states */
+.pos-card:focus-visible, .pos-tile:focus-visible {
+	box-shadow: 0 0 0 4px rgba(14,165,164,0.12);
+}
+
+/* gentle entrance for main panels */
+@keyframes glass-entrance {
+	0% { transform: translateY(8px); opacity: 0; filter: blur(4px); }
+	100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+}
+
+.pos-card, .pos-stat, .pos-details { animation: glass-entrance 420ms cubic-bezier(.2,.9,.2,1) both; }
+
+/* keep tab indicator crisp on glass backgrounds */
+.pos-menu vaadin-tab[selected] { box-shadow: 0 6px 20px rgba(0,0,0,0.45) inset; } 
+
+/* Contrast fixes for pattern lock and buttons */
+pattern-lock, .pattern-lock {
+	--pattern-hover-color: rgba(14,165,164,0.95);
+	--pattern-hover-radius: 14;
+	--pattern-stroke-color: rgba(14,165,164,0.98);
+	--pattern-dot-color: #0ea5a4;
+	--pattern-dot-bg: rgba(255,255,255,0.08);
+}
+pattern-lock canvas, .pattern-lock canvas {
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+}
+
+/* Make primary buttons high-contrast */
+.v-button, vaadin-button, .v-button {
+	background: var(--pos-accent);
+	color: #ffffff;
+	border: 1px solid rgba(255,255,255,0.08);
+	box-shadow: 0 2px 6px rgba(2,6,23,0.28);
+	border-radius: 8px;
+	font-weight: 700;
+}
+.v-button[theme~="secondary"], vaadin-button[theme~="secondary"] {
+	background: transparent;
+	color: var(--pos-accent);
+	border: 1px solid rgba(255,255,255,0.08);
+	box-shadow: none;
+}
+.v-button[disabled], vaadin-button[disabled] { opacity: 0.6; filter: grayscale(12%); } 
+
+/* Role card icon contrast and role-specific colors */
+.pos-card svg, .pos-card vaadin-icon {
+	color: #e6eef6;
+	fill: currentColor;
+	filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+}
+.pos-card span { color: #e6eef6; font-weight: 800; }
+.pos-card.role-service svg { color: var(--pos-accent); }
+.pos-card.role-kitchen svg { color: #f59e0b; }
+.pos-card.role-management svg { color: #06b6d4; }
+.pos-card.role-customer svg { color: #a78bfa; }
+
+/* PIN dialog and keypad improvements */
+.pin-dialog {
+	/* ensure dialog content doesn't overflow vertically on small screens */
+	max-height: 80vh;
+}
+.pin-dialog .v-button, .pin-dialog vaadin-button { min-width: 56px; }
+.pin-numpad { justify-content: center; display: flex; flex-wrap: wrap; gap: 8px; max-width: 260px; margin: 8px auto; }
+
+/* keep the 'Use PIN' toggle centered when present */
+.pin-dialog .pos-button-large { align-self: center; }
+
+/* Make the dialog H1 a bit smaller and centered for mobile */
+.pin-dialog h1 { font-size: 1.6rem; text-align: center; margin: 6px 0 12px 0; } 

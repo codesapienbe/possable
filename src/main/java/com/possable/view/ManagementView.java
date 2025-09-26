@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -39,7 +40,7 @@ public class ManagementView extends VerticalLayout {
 		map.put(printersTab, factory.createPrintersComponent());
 		map.put(jobsTab, factory.createPrintJobsComponent());
 
-		com.vaadin.flow.component.html.Div content = new com.vaadin.flow.component.html.Div();
+		Div content = new Div();
 		content.setWidthFull();
 		content.add(map.get(itemsTab));
 

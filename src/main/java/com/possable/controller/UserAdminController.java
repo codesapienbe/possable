@@ -47,8 +47,9 @@ public class UserAdminController {
     public ResponseEntity<?> addUser(@RequestBody Map<String, Object> body) {
         String username = (String) body.get("username");
         String password = (String) body.get("password");
+        String drawing = (String) body.getOrDefault("drawing", "");
         var roles = (Set<String>) body.getOrDefault("roles", Set.of());
-        boolean ok = userService.addUser(username, password, roles);
+        boolean ok = userService.addUser(username, password, drawing, roles);
         log.info("{" + "\"component\":\"UserAdmin\", \"action\":\"add_user\", \"user\":\"{}\", \"result\":\"{}\" }", username, ok);
         return ok ? ResponseEntity.ok(Map.of("ok", true)) : ResponseEntity.badRequest().body(Map.of("ok", false));
     }
@@ -64,7 +65,7 @@ public class UserAdminController {
     public ResponseEntity<?> updatePassword(@RequestBody Map<String, Object> body) {
         String username = (String) body.get("username");
         String password = (String) body.get("password");
-        boolean ok = userService.updatePassword(username, password);
+        boolean ok = userService.updatePincode(username, password);
         log.info("{" + "\"component\":\"UserAdmin\", \"action\":\"update_password\", \"user\":\"{}\", \"result\":\"{}\" }", username, ok);
         return ok ? ResponseEntity.ok(Map.of("ok", true)) : ResponseEntity.badRequest().body(Map.of("ok", false));
     }

@@ -14,6 +14,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.possable.view.PatternLockComponent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,9 @@ public class EntryPointView extends VerticalLayout {
 
 		cards.add(createRoleCard(VaadinIcon.USERS, "SERVICE", () -> openPinDialog("service")));
 		cards.add(createRoleCard(VaadinIcon.CUTLERY, "KITCHEN", () -> openPinDialog("kitchen")));
-		cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
-		cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> UI.getCurrent().navigate("customer")));
+			cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
+			cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> UI.getCurrent().navigate("customer")));
+			// future: capture drawing-based unlock input via client and pass to openPinDialog as drawing parameter
 
 		add(cards);
 
@@ -82,6 +84,8 @@ public class EntryPointView extends VerticalLayout {
 		Button card = new Button(inner);
 		card.addClassName("pos-card");
 		card.addClassName("pos-button-large");
+		// add role-specific classname so we can theme icon color/accents via CSS
+		card.addClassName("role-" + text.toLowerCase());
 		card.setWidth("160px");
 		card.addClickListener(e -> action.run());
 		return card;
@@ -89,14 +93,20 @@ public class EntryPointView extends VerticalLayout {
 
 	private void openPinDialog(String username) {
 		Dialog dialog = new Dialog();
-		dialog.setWidth("320px");
+		dialog.setWidth("420px");
+		// keep dialog height constrained on small viewports to avoid full-page scroll
+		dialog.getElement().getStyle().set("max-height", "80vh");
+		// add a helper classname for targeted styling
+		dialog.addClassName("pin-dialog");
 		VerticalLayout content = new VerticalLayout();
 		content.setPadding(true);
 		content.setSpacing(true);
+		content.setAlignItems(FlexComponent.Alignment.CENTER);
 		content.add(new H1("Enter PIN"));
 		TextField pin = new TextField("PIN");
 		pin.setPlaceholder("4-digit PIN");
-		pin.setWidthFull();
+		// use a fixed width so the numeric keypad and dots align nicely
+		pin.setWidth("220px");
 		pin.getElement().setAttribute("inputmode", "numeric");
 		pin.getElement().setAttribute("maxlength", "4");
 		pin.setValue("");
@@ -123,72 +133,62 @@ public class EntryPointView extends VerticalLayout {
 				}
 			}
 		};
+		// pattern lock component (small square)
+		// choose hover color by role to provide visual context
+		String hoverColor = "rgba(255,255,255,0.6)";
+		switch (username) {
+			case "kitchen" -> hoverColor = "rgba(245,158,11,0.9)";
+			case "management" -> hoverColor = "rgba(6,182,212,0.9)";
+			case "service" -> hoverColor = "rgba(14,165,164,0.9)";
+			default -> hoverColor = "rgba(167,139,250,0.9)";
+		}
+		PatternLockComponent pattern = new PatternLockComponent(260, hoverColor, 14);
+		content.add(pattern);
+
+		// hide PIN elements by default — drawing is primary login method
+		pin.setVisible(false);
+		pinDots.setVisible(false);
+
+		Button usePinToggle = new Button("Use PIN", e -> {
+			pattern.getElement().setAttribute("hidden", "true");
+			pattern.getElement().removeAttribute("hidden"); // ensure attribute exists for client
+			pattern.setVisible(false);
+			pin.setVisible(true);
+			pinDots.setVisible(true);
+			e.getSource().setVisible(false);
+		});
+		usePinToggle.addClassName("pos-button-large");
+		content.add(usePinToggle);
+
+		// listen for pattern changes from client component and attempt login when pattern length >= 4
+		pattern.getElement().addEventListener("pattern-changed", ev -> {
+			String patternJson = ev.getEventData().getString("event.detail.pattern");
+			if (patternJson == null || patternJson.isBlank()) return;
+			// count indices in the JSON array
+			String cleaned = patternJson.replaceAll("[^0-9,]", "");
+			String[] parts = cleaned.isEmpty() ? new String[0] : cleaned.split(",");
+			if (parts.length < 4) return; // require at least 4 nodes to consider a pattern
+			boolean ok = userService.authenticate(username, patternJson, null);
+			if (ok) {
+				completeLogin(username, dialog, pattern);
+			} else {
+				Notification.show("Invalid pattern");
+				pattern.clear();
+			}
+		}).addEventData("event.detail.pattern");
+
 		Button submit = new Button("Enter", evt -> {
 			String value = pin.getValue();
 			try {
-				if (value == null || !value.matches("\\d{4}")) {
-					Notification.show("Please enter a 4-digit PIN");
+				if (value == null || !value.matches("\\d{4,6}")) {
+					Notification.show("Please enter a 4-6 digit PIN");
 					return;
 				}
-				boolean ok = userService.authenticate(username, value);
+				// first try drawing-based auth using pattern lock
+				String drawing = pattern.getPattern();
+				boolean ok = userService.authenticate(username, drawing != null && !drawing.isBlank() ? drawing : null, value);
 				if (ok) {
-					// prepare role-specific unlock display
-					unlockLock.getElement().getClassList().remove("role-service");
-					unlockLock.getElement().getClassList().remove("role-kitchen");
-					unlockLock.getElement().getClassList().remove("role-management");
-					unlockLock.getElement().getClassList().remove("role-customer");
-					unlockLock.removeAll();
-					Icon roleIcon;
-					Span roleLabel = new Span(username.toUpperCase());
-					switch (username) {
-					case "kitchen" -> {
-						unlockLock.getElement().getClassList().add("role-kitchen");
-						roleIcon = VaadinIcon.CUTLERY.create();
-					}
-					case "management" -> {
-						unlockLock.getElement().getClassList().add("role-management");
-						roleIcon = VaadinIcon.COG.create();
-					}
-					case "service" -> {
-						unlockLock.getElement().getClassList().add("role-service");
-						roleIcon = VaadinIcon.USERS.create();
-					}
-					default -> {
-						unlockLock.getElement().getClassList().add("role-customer");
-						roleIcon = VaadinIcon.SHOP.create();
-					}
-					}
-					roleIcon.getStyle().set("font-size", "42px");
-					roleLabel.getStyle().set("margin-top", "8px").set("font-weight", "800");
-					unlockLock.add(roleIcon, roleLabel);
-
-					// set security context with username and mapped roles
-					var roles = userService.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
-					var token = new UsernamePasswordAuthenticationToken(username, null, roles);
-					SecurityContextHolder.getContext().setAuthentication(token);
-					dialog.close();
-					Notification.show("Welcome " + username);
-					// show unlock animation overlay and delay navigation until finished
-					unlockOverlay.setVisible(true);
-					UI ui = UI.getCurrent();
-					Thread animThread = new Thread(() -> {
-						try {
-							Thread.sleep(900); // duration matches CSS animation
-						} catch (InterruptedException ignored) {}
-						ui.access(() -> {
-						unlockOverlay.setVisible(false);
-						// navigate depending on role/user (go to role landing pages by route)
-						String targetRoute = switch (username) {
-							case "kitchen" -> "kitchen";
-							case "management" -> "management";
-							case "service" -> "service";
-							default -> "customer";
-						};
-						ui.navigate(targetRoute);
-					});
-					});
-					animThread.setDaemon(true);
-					animThread.start();
+					completeLogin(username, dialog, pattern);
 				} else {
 					Notification.show("Invalid PIN");
 				}
@@ -202,6 +202,9 @@ public class EntryPointView extends VerticalLayout {
 		// numeric keypad
 		HorizontalLayout numpad = new HorizontalLayout();
 		numpad.getStyle().set("flex-wrap", "wrap").set("gap", "8px").set("max-width", "260px");
+		// center keypad buttons and make it addressable from CSS
+		numpad.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+		numpad.addClassName("pin-numpad");
 		for (int i = 1; i <= 9; i++) {
 			int digit = i;
 			Button d = new Button(Integer.toString(digit), e -> {
@@ -226,5 +229,64 @@ public class EntryPointView extends VerticalLayout {
 		content.add(pinDots, pin, numpad, new HorizontalLayout(submit, cancel));
 		dialog.add(content);
 		dialog.open();
+	}
+
+	private void completeLogin(String username, Dialog dialog, PatternLockComponent pattern) {
+		// prepare role-specific unlock display
+		unlockLock.getElement().getClassList().remove("role-service");
+		unlockLock.getElement().getClassList().remove("role-kitchen");
+		unlockLock.getElement().getClassList().remove("role-management");
+		unlockLock.getElement().getClassList().remove("role-customer");
+		unlockLock.removeAll();
+		Icon roleIcon;
+		Span roleLabel = new Span(username.toUpperCase());
+		switch (username) {
+		case "kitchen" -> {
+			unlockLock.getElement().getClassList().add("role-kitchen");
+			roleIcon = VaadinIcon.CUTLERY.create();
+		}
+		case "management" -> {
+			unlockLock.getElement().getClassList().add("role-management");
+			roleIcon = VaadinIcon.COG.create();
+		}
+		case "service" -> {
+			unlockLock.getElement().getClassList().add("role-service");
+			roleIcon = VaadinIcon.USERS.create();
+		}
+		default -> {
+			unlockLock.getElement().getClassList().add("role-customer");
+			roleIcon = VaadinIcon.SHOP.create();
+		}
+		}
+		roleIcon.getStyle().set("font-size", "42px");
+		roleLabel.getStyle().set("margin-top", "8px").set("font-weight", "800");
+		unlockLock.add(roleIcon, roleLabel);
+
+		// set security context with username and mapped roles
+		var roles = userService.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
+		var token = new UsernamePasswordAuthenticationToken(username, null, roles);
+		SecurityContextHolder.getContext().setAuthentication(token);
+		dialog.close();
+		Notification.show("Welcome " + username);
+		// show unlock animation overlay and delay navigation until finished
+		unlockOverlay.setVisible(true);
+		UI ui = UI.getCurrent();
+		Thread animThread = new Thread(() -> {
+			try { Thread.sleep(900); } catch (InterruptedException ignored) {}
+			ui.access(() -> {
+				unlockOverlay.setVisible(false);
+				String targetRoute = switch (username) {
+					case "kitchen" -> "kitchen";
+					case "management" -> "management";
+					case "service" -> "service";
+					default -> "customer";
+				};
+				ui.navigate(targetRoute);
+			});
+		});
+		animThread.setDaemon(true);
+		animThread.start();
+		// clear pattern after use
+		if (pattern != null) pattern.clear();
 	}
 } 
