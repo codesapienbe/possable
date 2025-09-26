@@ -32,13 +32,15 @@ public class ManagementView extends VerticalLayout {
 		Tab ordersTab = new Tab("Orders");
 		Tab printersTab = new Tab("Printers");
 		Tab jobsTab = new Tab("Print Jobs");
-		tabs.add(itemsTab, ordersTab, printersTab, jobsTab);
+		Tab logsTab = new Tab("Logs");
+		tabs.add(itemsTab, ordersTab, printersTab, jobsTab, logsTab);
 
 		Map<Tab, Component> map = new HashMap<>();
 		map.put(itemsTab, factory.createItemListComponent());
 		map.put(ordersTab, factory.createOrdersComponent());
 		map.put(printersTab, factory.createPrintersComponent());
 		map.put(jobsTab, factory.createPrintJobsComponent());
+		map.put(logsTab, new LogViewerComponent());
 
 		Div content = new Div();
 		content.setWidthFull();

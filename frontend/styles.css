@@ -591,13 +591,70 @@ pattern-lock canvas, .pattern-lock canvas {
 .pin-dialog .v-button, .pin-dialog vaadin-button { min-width: 56px; }
 .pin-numpad { justify-content: center; display: flex; flex-wrap: wrap; gap: 8px; max-width: 260px; margin: 8px auto; }
 
+/* visual pressed effect for pin keys (used when clicking on numpad) */
+.pin-key {
+	transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.pin-key:active {
+	transform: scale(0.96);
+	box-shadow: inset 0 2px 6px rgba(0,0,0,0.18);
+	filter: brightness(0.95);
+}
+
+/* Also provide a short JS-triggerable class for animated press (for programmatic feedback) */
+.pin-key.press-anim { animation: pin-press 160ms ease; }
+@keyframes pin-press { 0% { transform: scale(1); } 50% { transform: scale(0.96); } 100% { transform: scale(1); } }
+
 /* keep the 'Use PIN' toggle centered when present */
 .pin-dialog .pos-button-large { align-self: center; }
 
 /* Make the dialog H1 a bit smaller and centered for mobile */
 .pin-dialog h1 { font-size: 1.6rem; text-align: center; margin: 6px 0 12px 0; } 
 
-/* Light mode overrides: apply when `body` has class `light-mode` (or use `.light-mode` on a root container) */
+/* Small switch-style toggle used in PIN dialog */
+.toggle-switch {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 70px;
+	height: 34px;
+	background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+	border-radius: 999px;
+	border: 1px solid rgba(255,255,255,0.06);
+	position: relative;
+	cursor: pointer;
+	padding: 4px;
+	box-shadow: 0 4px 14px rgba(2,6,23,0.45);
+}
+.toggle-switch::after {
+	content: '';
+	position: absolute;
+	left: 6px;
+	top: 6px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+	transition: transform 180ms ease, background-color 180ms ease;
+}
+.toggle-switch.on {
+	background: linear-gradient(90deg, rgba(14,165,164,0.16), rgba(14,165,164,0.1));
+	border-color: rgba(14,165,164,0.24);
+}
+.toggle-switch.on::after {
+	transform: translateX(36px);
+	background: #0ea5a4;
+}
+.toggle-switch[aria-pressed="true"]::after { transform: translateX(36px); }
+.toggle-switch:focus { outline: 2px solid rgba(14,165,164,0.16); }
+
+@media (max-width: 480px) {
+	.toggle-switch { width: 62px; height: 30px; }
+	.toggle-switch.on::after { transform: translateX(30px); }
+}
+
+/* Light mode overrides: apply when body has class 'light-mode' */
 body.light-mode {
 	--pos-bg: #f7fafc; /* very light */
 	--pos-panel: #ffffff;
@@ -628,7 +685,7 @@ body.light-mode pattern-lock, body.light-mode .pattern-lock {
 body.light-mode .pos-card, body.light-mode .pos-stat, body.light-mode .pos-details, body.light-mode .pos-cart {
 	background: var(--pos-card);
 	border: 1px solid var(--glass-border);
-	color: var(--pos-bg);
+	color: #0b1220;
 }
 body.light-mode .v-button, body.light-mode vaadin-button, body.light-mode .v-button {
 	/* keep accent buttons readable on light background */
@@ -640,7 +697,7 @@ body.light-mode .v-button, body.light-mode vaadin-button, body.light-mode .v-but
 /* make PIN dots and pattern canvas clearly visible on light backgrounds */
 body.light-mode .pin-dot { background: rgba(2,6,23,0.06); border: 1px solid rgba(2,6,23,0.04); }
 body.light-mode .pin-dot.filled { background: var(--pos-accent); box-shadow: none; }
-body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-shadow: none; border-radius: 10px; background: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.01)); } 
+body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-shadow: none; border-radius: 10px; background: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.01)); }
 
 /* Theme transition for light/dark toggle */
 :root, body {
@@ -654,4 +711,4 @@ body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-sha
 	:root, body, .pos-header, .pos-card, .pos-stat, .pos-details, .pos-cart, .unlock-overlay, .pos-root canvas, .pattern-lock canvas, .v-button, vaadin-button {
 		transition: none !important;
 	}
-} 
+}

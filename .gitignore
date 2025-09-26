@@ -3,3 +3,4 @@
 /TODO.md
 application.log.*
 node_modules
+src/main/dev-bundle

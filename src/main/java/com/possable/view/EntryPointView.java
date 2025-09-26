@@ -144,20 +144,41 @@ public class EntryPointView extends VerticalLayout {
 		}
 		PatternLockComponent pattern = new PatternLockComponent(260, hoverColor, 14);
 		content.add(pattern);
+		// declare numpad early so the toggle can control its visibility
+		HorizontalLayout numpad = new HorizontalLayout();
+		numpad.addClassName("pin-numpad");
+		numpad.setVisible(false);
 
 		// hide PIN elements by default — drawing is primary login method
 		pin.setVisible(false);
 		pinDots.setVisible(false);
 
-		Button usePinToggle = new Button("Use PIN", e -> {
-			pattern.getElement().setAttribute("hidden", "true");
-			pattern.getElement().removeAttribute("hidden"); // ensure attribute exists for client
-			pattern.setVisible(false);
-			pin.setVisible(true);
-			pinDots.setVisible(true);
-			e.getSource().setVisible(false);
+		// toggle switch between pattern (default) and PIN
+		Button usePinToggle = new Button();
+		usePinToggle.addClassName("toggle-switch");
+		usePinToggle.getElement().setProperty("aria-pressed", "false");
+		// initial state: off (pattern visible)
+		usePinToggle.getElement().getClassList().remove("on");
+		usePinToggle.addClickListener(e -> {
+			boolean isOn = usePinToggle.getElement().getClassList().contains("on");
+			if (isOn) {
+				// switch to pattern
+				usePinToggle.getElement().getClassList().remove("on");
+				usePinToggle.getElement().setProperty("aria-pressed", "false");
+				pattern.setVisible(true);
+				pin.setVisible(false);
+				pinDots.setVisible(false);
+				numpad.setVisible(false);
+			} else {
+				// switch to PIN input
+				usePinToggle.getElement().getClassList().add("on");
+				usePinToggle.getElement().setProperty("aria-pressed", "true");
+				pattern.setVisible(false);
+				pin.setVisible(true);
+				pinDots.setVisible(true);
+				numpad.setVisible(true);
+			}
 		});
-		usePinToggle.addClassName("pos-button-large");
 		content.add(usePinToggle);
 
 		// listen for pattern changes from client component and attempt login when pattern length >= 4
@@ -200,11 +221,9 @@ public class EntryPointView extends VerticalLayout {
 		submit.addClassName("pos-button-large");
 		cancel.addClassName("pos-button-large");
 		// numeric keypad
-		HorizontalLayout numpad = new HorizontalLayout();
 		numpad.getStyle().set("flex-wrap", "wrap").set("gap", "8px").set("max-width", "260px");
 		// center keypad buttons and make it addressable from CSS
 		numpad.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-		numpad.addClassName("pin-numpad");
 		for (int i = 1; i <= 9; i++) {
 			int digit = i;
 			Button d = new Button(Integer.toString(digit), e -> {
@@ -216,16 +235,18 @@ public class EntryPointView extends VerticalLayout {
 				}
 			});
 			d.addClassName("pos-button-large");
+			d.addClassName("pin-key");
 			d.getStyle().set("width", "64px");
 			numpad.add(d);
 		}
 		Button zero = new Button("0", e -> { String v = pin.getValue(); if (v.length() < 4) { pin.setValue(v + "0"); refreshDots.run(); if (pin.getValue().length() == 4) submit.click(); } });
-		zero.addClassName("pos-button-large"); zero.getStyle().set("width", "64px");
+		zero.addClassName("pos-button-large"); zero.addClassName("pin-key"); zero.getStyle().set("width", "64px");
 		Button back = new Button("⌫", e -> { String v = pin.getValue(); if (!v.isEmpty()) { pin.setValue(v.substring(0, v.length() - 1)); refreshDots.run(); } });
-		back.addClassName("pos-button-large"); back.getStyle().set("width", "64px");
+		back.addClassName("pos-button-large"); back.addClassName("pin-key"); back.getStyle().set("width", "64px");
 		Button clearBtn = new Button("Clear", e -> { pin.setValue(""); refreshDots.run(); });
-		clearBtn.addClassName("pos-button-large"); clearBtn.getStyle().set("width", "64px");
+		clearBtn.addClassName("pos-button-large"); clearBtn.addClassName("pin-key"); clearBtn.getStyle().set("width", "64px");
 		numpad.add(zero, back, clearBtn);
+		// add numpad to content (it may be hidden initially)
 		content.add(pinDots, pin, numpad, new HorizontalLayout(submit, cancel));
 		dialog.add(content);
 		dialog.open();
