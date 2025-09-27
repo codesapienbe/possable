@@ -45,6 +45,7 @@ public class EntryPointView extends VerticalLayout {
 		setAlignItems(FlexComponent.Alignment.CENTER);
 		setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 		addClassName("pos-root");
+		addClassName("entry-screen");
 
 		H1 header = new H1("Welcome");
 		header.getStyle().set("font-size", "1.8em");
@@ -52,9 +53,11 @@ public class EntryPointView extends VerticalLayout {
 
 		// role selection cards (icons, centered)
 		HorizontalLayout cards = new HorizontalLayout();
+		cards.addClassName("role-cards");
 		cards.setWidthFull();
 		cards.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 		cards.getStyle().set("gap", "18px");
+		cards.addClassName("role-cards");
 
 		cards.add(createRoleCard(VaadinIcon.USERS, "SERVICE", () -> openPinDialog("service")));
 		cards.add(createRoleCard(VaadinIcon.CUTLERY, "KITCHEN", () -> openPinDialog("kitchen")));
@@ -89,7 +92,7 @@ public class EntryPointView extends VerticalLayout {
 		card.addClassName("pos-button-large");
 		// add role-specific classname so we can theme icon color/accents via CSS
 		card.addClassName("role-" + text.toLowerCase());
-		card.setWidth("160px");
+		card.getStyle().set("min-width", "160px");
 		card.addClickListener(e -> action.run());
 		return card;
 	}

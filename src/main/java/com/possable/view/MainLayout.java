@@ -1,27 +1,28 @@
 package com.possable.view;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.possable.service.DemoNotificationService;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+
+import com.possable.service.DemoNotificationService;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.server.VaadinSession;
 
 public class MainLayout extends AppLayout {
 
@@ -56,7 +57,7 @@ public class MainLayout extends AppLayout {
 		roleBadge.getElement().getThemeList().add("badge");
 		roleBadge.addClassName("pos-role-badge");
 
-		Button logout = new Button("Logout", evt -> {
+		Button logout = new Button(VaadinIcon.SIGN_OUT.create(), evt -> {
 			Dialog confirm = new Dialog();
 			confirm.add(new Span("Are you sure you want to logout?"));
 			Button yes = new Button("Logout", e -> {
@@ -73,20 +74,27 @@ public class MainLayout extends AppLayout {
 			confirm.add(new HorizontalLayout(yes, no));
 			confirm.open();
 		});
-		logout.addClassName("pos-button-large");
-		// theme toggle: toggles light/dark mode and persists selection in localStorage; label shows state with icon
-		Button themeToggle = new Button();
-		themeToggle.addClassName("pos-button-large");
+		logout.getElement().setAttribute("title", "Logout");
+		logout.addClassName("pos-button-icon");
+		// Home button: returns user to role selection (entry point)
+		Button home = new Button(VaadinIcon.HOME.create(), e -> {
+			getUI().ifPresent(ui -> ui.navigate(com.possable.view.EntryPointView.class));
+		});
+		home.addClassName("pos-button-large");
+		// theme toggle: toggles light/dark mode and persists selection in localStorage; icon-only button
+		Button themeToggle = new Button("🌙");
+		themeToggle.addClassName("pos-button-icon");
 		// expose id so client-side init script can target the button reliably
 		themeToggle.getElement().setAttribute("id", "theme-toggle");
-		// click toggles theme, persists choice and updates the button label/icon
+		themeToggle.getElement().setAttribute("title", "Toggle theme");
+		// click toggles theme, persists choice and updates the button icon (emoji only)
 		themeToggle.addClickListener(evt -> {
 			getUI().ifPresent(ui -> ui.getPage().executeJs(
-				"((btn)=>{const key='possable-theme';const cur=localStorage.getItem(key)||(document.body.classList.contains('light-mode')?'light':'dark');const next=cur==='light'?'dark':'light';if(next==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}localStorage.setItem(key,next);const isLight=next==='light';btn.textContent=(isLight?'🌞 Light':'🌙 Dark');})(arguments[0])",
+				"((btn)=>{const key='possable-theme';const cur=localStorage.getItem(key)||(document.body.classList.contains('light-mode')?'light':'dark');const next=cur==='light'?'dark':'light';if(next==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}localStorage.setItem(key,next);const isLight=next==='light';btn.textContent=(isLight?'🌞':'🌙');})(arguments[0])",
 				themeToggle.getElement()));
 		});
 
-		HorizontalLayout header = new HorizontalLayout(title, status, user, roleBadge, themeToggle, logout);
+		HorizontalLayout header = new HorizontalLayout(title, status, user, roleBadge, themeToggle, home, logout);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		// add CSS class names for POS theme hooks
@@ -131,7 +139,7 @@ public class MainLayout extends AppLayout {
 			// register client-side listeners to report activity to server
 			getElement().executeJs("const root=$0; function __vaadin_report(){ try{root.$server.reportActivity();}catch(e){} } window.addEventListener('mousemove', __vaadin_report); window.addEventListener('keydown', __vaadin_report); window.addEventListener('touchstart', __vaadin_report);", getElement());
 			// initialize theme from localStorage on attach and set initial label for themeToggle
-			getElement().executeJs("const key='possable-theme';let v=localStorage.getItem(key);if(!v){v=document.body.classList.contains('light-mode')?'light':'dark'}if(v==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}const isLight=(v==='light');const btn=document.getElementById('theme-toggle');if(btn){btn.textContent=(isLight?'🌞 Light':'🌙 Dark')}");
+			getElement().executeJs("const key='possable-theme';let v=localStorage.getItem(key);if(!v){v=document.body.classList.contains('light-mode')?'light':'dark'}if(v==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}const isLight=(v==='light');const btn=document.getElementById('theme-toggle');if(btn){btn.textContent=(isLight?'🌞':'🌙')}");
 
 			// start inactivity checker for this UI
 			var ui = evt.getUI();

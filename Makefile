@@ -14,7 +14,7 @@ JAR_WILDCARD := $(wildcard target/*.jar)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build run clean dev stop
+.PHONY: help build run clean dev
 
 help:
 	@echo "Usage: make <target>"
@@ -57,13 +57,3 @@ clean:
 	-@docker rmi $(IMAGE_NAME) 2>/dev/null || true
 	-@rm -rf target
 
-stop:
-	@echo "Stopping dev server if running (uses .dev_pid)"
-ifeq ($(OS),Windows_NT)
-	@powershell -NoProfile -Command "if (Test-Path -Path '.dev_pid') { $pid = Get-Content -Path '.dev_pid' ; if (Get-Process -Id $pid -ErrorAction SilentlyContinue) { Stop-Process -Id $pid -Force } ; Remove-Item -Path '.dev_pid' -ErrorAction SilentlyContinue } else { Write-Host 'No .dev_pid file found' }"
-else
-	@if [ -f .dev_pid ]; then PID=$$(cat .dev_pid); \
-		if kill -0 $$PID >/dev/null 2>&1; then echo "Stopping process $$PID"; kill $$PID && rm -f .dev_pid || echo "Failed to stop process $$PID"; \
-		else echo "No process $$PID running, removing stale .dev_pid"; rm -f .dev_pid; fi; \
-	else echo "No .dev_pid file found"; fi
-endif
