@@ -8,6 +8,102 @@ servers:
     description: Production server
 
 components:
+  responses:
+    BadRequestError:
+      description: Bad request (validation or client error)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                type: object
+          examples:
+            sample:
+              summary: Bad request example
+              value:
+                error: "invalid_input"
+                details:
+                  field: "quantity"
+                  reason: "must be positive"
+    UnauthorizedError:
+      description: Unauthorized - authentication required or failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+          examples:
+            sample:
+              summary: Unauthorized example
+              value:
+                error: "unauthorized"
+                message: "Missing or invalid credentials"
+    ForbiddenError:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+          examples:
+            sample:
+              summary: Forbidden example
+              value:
+                error: "forbidden"
+                message: "Insufficient permissions"
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          examples:
+            sample:
+              summary: Not found example
+              value:
+                error: "not_found"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              traceId:
+                type: string
+          examples:
+            sample:
+              summary: Internal error example
+              value:
+                error: "internal_error"
+                traceId: "abc123"
+
+  examples:
+    ApiKeyHeader:
+      summary: Example usage of X-API-KEY header
+      value:
+        X-API-KEY: "your-api-key-here"
+    BearerAuthHeader:
+      summary: Example usage of Authorization header with Bearer token
+      value:
+        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC..."
+
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -309,6 +405,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PagedItem'
+              examples:
+                sample:
+                  summary: Example paged items response
+                  value:
+                    items:
+                      - id: "item123"
+                        name: "Margherita Pizza"
+                        description: "Classic tomato, mozzarella, basil"
+                        price: 12.5
+                        available: true
+                      - id: "item456"
+                        name: "Latte"
+                        description: "Milky coffee"
+                        price: 3.5
+                        available: true
+                    page: 0
+                    size: 20
+                    totalElements: 2
+                    totalPages: 1
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - ApiKeyAuth: []
 
@@ -328,6 +449,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
+              examples:
+                created:
+                  summary: Created item example
+                  value:
+                    id: "item789"
+                    name: "Espresso"
+                    description: "Strong black coffee"
+                    price: 2.5
+                    available: true
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - BearerAuth: []
 
@@ -347,6 +485,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - ApiKeyAuth: []
 
@@ -372,6 +518,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - BearerAuth: []
 
@@ -386,6 +540,14 @@ paths:
       responses:
         '204':
           description: Item deleted
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - BearerAuth: []
 
@@ -413,6 +575,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+              examples:
+                created:
+                  summary: Created order example
+                  value:
+                    id: "order001"
+                    items:
+                      - itemId: "item123"
+                        quantity: 1
+                      - itemId: "item456"
+                        quantity: 1
+                    totalAmount: 15.0
+                    status: pending
+                    createdAt: "2025-09-27T12:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - ApiKeyAuth: []
 
@@ -428,6 +609,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PagedOrder'
+              examples:
+                sample:
+                  summary: Paged orders example
+                  value:
+                    items:
+                      - id: "order001"
+                        items:
+                          - itemId: "item123"
+                            quantity: 1
+                        totalAmount: 12.5
+                        status: pending
+                        createdAt: "2025-09-27T12:00:00Z"
+                    page: 0
+                    size: 20
+                    totalElements: 1
+                    totalPages: 1
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - ApiKeyAuth: []
 
@@ -495,6 +698,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Employee'
+              examples:
+                sample:
+                  summary: Employee list example
+                  value:
+                    - id: "emp001"
+                      name: "Alice"
+                      role: "Waiter"
+                      active: true
+                    - id: "emp002"
+                      name: "Bob"
+                      role: "Chef"
+                      active: true
       security:
         - BearerAuth: []
 
@@ -513,6 +728,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Employee'
+              examples:
+                created:
+                  summary: Created employee example
+                  value:
+                    id: "emp003"
+                    name: "Charlie"
+                    role: "Barista"
+                    active: true
       security:
         - BearerAuth: []
 
@@ -532,6 +755,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+              examples:
+                created:
+                  summary: Payment example
+                  value:
+                    id: "pay001"
+                    orderId: "order001"
+                    amount: 15.0
+                    method: card
+                    status: completed
+                    paidAt: "2025-09-27T12:05:00Z"
+      security:
+        - ApiKeyAuth: []
+
+    get:
+      summary: Get payment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+              examples:
+                sample:
+                  summary: Payment sample
+                  value:
+                    id: "pay001"
+                    orderId: "order001"
+                    amount: 15.0
+                    method: card
+                    status: completed
+                    paidAt: "2025-09-27T12:05:00Z"
       security:
         - ApiKeyAuth: []
 
@@ -555,6 +816,13 @@ paths:
                   resetDate:
                     type: string
                     format: date-time
+              examples:
+                sample:
+                  summary: Usage example
+                  value:
+                    monthlyLimit: 100000
+                    requestsMade: 10500
+                    resetDate: "2025-10-01T00:00:00Z"
       security:
         - ApiKeyAuth: []
 
@@ -570,6 +838,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Printer'
+              examples:
+                sample:
+                  summary: Printers list example
+                  value:
+                    - id: "printer123"
+                      name: "Kitchen Printer"
+                      category: "kitchen"
+                      description: "Main kitchen order printer"
       security:
         - BearerAuth: []
 
@@ -588,6 +864,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Printer'
+              examples:
+                created:
+                  summary: Registered printer example
+                  value:
+                    id: "printer123"
+                    name: "Kitchen Printer"
+                    category: "kitchen"
+                    description: "Main kitchen order printer"
       security:
         - BearerAuth: []
 
@@ -603,6 +887,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PrintTemplate'
+              examples:
+                sample:
+                  summary: Print templates list example
+                  value:
+                    - id: "template_oven_1"
+                      printerCategory: "kitchen"
+                      templateName: "kitchen-default"
+                      content: "KITCHEN\nOrder: {{orderId}}\nItems: {{items}}"
       security:
         - BearerAuth: []
 
@@ -621,6 +913,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PrintTemplate'
+              examples:
+                created:
+                  summary: Print template example
+                  value:
+                    id: "template_oven_1"
+                    printerCategory: "kitchen"
+                    templateName: "kitchen-default"
+                    content: "KITCHEN\nOrder: {{orderId}}\nItems: {{items}}\nNotes: {{notes}}"
       security:
         - BearerAuth: []
 
@@ -664,6 +964,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PrintJob'
+              examples:
+                created:
+                  summary: Print jobs created example
+                  value:
+                    - id: "pj-1"
+                      orderId: "order001"
+                      printerId: "printer123"
+                      templateId: "template_oven_1"
+                      status: pending
+                      createdAt: "2025-09-27T12:10:00Z"
       security:
         - ApiKeyAuth: []
 
@@ -690,10 +1000,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PagedPrintJob'
+              examples:
+                sample:
+                  summary: Paged print jobs example
+                  value:
+                    items:
+                      - id: "pj-1"
+                        orderId: "order001"
+                        printerId: "printer123"
+                        templateId: "template_oven_1"
+                        status: pending
+                        createdAt: "2025-09-27T12:10:00Z"
+                    page: 0
+                    size: 100
+                    totalElements: 1
+                    totalPages: 1
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - ApiKeyAuth: []
 
-  /print-jobs/{printJobId}:
     put:
       summary: Update print job status
       parameters:
@@ -723,3 +1055,107 @@ paths:
                 $ref: '#/components/schemas/PrintJob'
       security:
         - BearerAuth: []
+
+  /api/auth/login:
+    post:
+      summary: Login using PIN or drawing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                pincode:
+                  type: string
+                drawing:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  roles:
+                    type: array
+                    items:
+                      type: string
+              examples:
+                success:
+                  summary: Successful login example
+                  value:
+                    ok: true
+                    roles:
+                      - SERVICE
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security: []
+
+  /api/auth/register:
+    post:
+      summary: Register a new user (management only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                pincode:
+                  type: string
+                drawing:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: User registered
+          content:
+            application/json:
+              examples:
+                created:
+                  summary: User added
+                  value:
+                    ok: true
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                failed:
+                  summary: Failed register
+                  value:
+                    ok: false
+      security:
+        - BearerAuth: []
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service health
+          content:
+            application/json:
+              examples:
+                sample:
+                  summary: Health example
+                  value:
+                    status: UP
+                    timestamp: "2025-09-27T12:00:00Z"
+      security:
+        - ApiKeyAuth: []
