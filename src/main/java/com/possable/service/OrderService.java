@@ -82,6 +82,42 @@ public class OrderService {
         }
     }
 
+    public java.util.Map<String,Object> listOrdersPaged(java.util.Map<String,String> filters) {
+        int page = 0;
+        int size = 20;
+        if (filters != null) {
+            try { if (filters.containsKey("page")) page = Math.max(0, Integer.parseInt(filters.get("page"))); } catch (Exception ignored) {}
+            try { if (filters.containsKey("limit")) size = Math.max(1, Math.min(100, Integer.parseInt(filters.get("limit")))); } catch (Exception ignored) {}
+        }
+        if (orderRepository != null) {
+            var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+            org.springframework.data.domain.Page<OrderEntity> pageRes = orderRepository.findAll(pageable);
+            List<OrderDto> items = pageRes.stream().map(e -> new OrderDto(e.getId(), e.getItems() == null ? List.of() : e.getItems().stream().map(i -> i.getItemId()).collect(Collectors.toList()), e.getStatus(), e.getCreatedAt())).collect(Collectors.toList());
+            java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
+            out.put("items", items);
+            out.put("page", pageRes.getNumber());
+            out.put("size", pageRes.getSize());
+            out.put("totalElements", pageRes.getTotalElements());
+            out.put("totalPages", pageRes.getTotalPages());
+            return out;
+        }
+        List<OrderDto> all;
+        synchronized (inMemoryOrders) {
+            all = List.copyOf(inMemoryOrders);
+        }
+        long totalElements = all.size();
+        int from = Math.min(all.size(), page * size);
+        int to = Math.min(all.size(), from + size);
+        List<OrderDto> pageItems = all.subList(from, to);
+        java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
+        out.put("items", pageItems);
+        out.put("page", page);
+        out.put("size", size);
+        out.put("totalElements", totalElements);
+        out.put("totalPages", (int) Math.ceil((double) totalElements / size));
+        return out;
+    }
+
     public OrderDto findById(String id) {
         if (orderRepository != null) {
             return orderRepository.findById(id).map(e -> new OrderDto(e.getId(), e.getItems() == null ? List.of() : e.getItems().stream().map(i -> i.getItemId()).collect(Collectors.toList()), e.getStatus(), e.getCreatedAt())).orElse(null);

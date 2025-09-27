@@ -2,11 +2,11 @@ package com.possable.controller;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +16,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.possable.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+@Tag(name = "User Admin", description = "Management operations for users")
 @RestController
 @RequestMapping("/api/admin/users")
 @PreAuthorize("hasRole('MANAGEMENT')")
@@ -36,6 +38,7 @@ public class UserAdminController {
         this.userService = userService;
     }
 
+    @Operation(summary = "List usernames")
     @GetMapping("/list")
     public ResponseEntity<Set<String>> listUsers() {
         var list = userService.listUsernames();
@@ -43,6 +46,7 @@ public class UserAdminController {
         return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Add a user")
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody Map<String, Object> body) {
         String username = (String) body.get("username");
@@ -54,6 +58,7 @@ public class UserAdminController {
         return ok ? ResponseEntity.ok(Map.of("ok", true)) : ResponseEntity.badRequest().body(Map.of("ok", false));
     }
 
+    @Operation(summary = "Remove a user")
     @DeleteMapping("/remove")
     public ResponseEntity<?> removeUser(@RequestParam String username) {
         boolean ok = userService.removeUser(username);
@@ -61,6 +66,7 @@ public class UserAdminController {
         return ok ? ResponseEntity.ok(Map.of("ok", true)) : ResponseEntity.badRequest().body(Map.of("ok", false));
     }
 
+    @Operation(summary = "Update a user's PIN")
     @PutMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody Map<String, Object> body) {
         String username = (String) body.get("username");
@@ -70,6 +76,7 @@ public class UserAdminController {
         return ok ? ResponseEntity.ok(Map.of("ok", true)) : ResponseEntity.badRequest().body(Map.of("ok", false));
     }
 
+    @Operation(summary = "Logout (invalidate session)")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         try {

@@ -99,7 +99,7 @@ public class PrintJobController {
 
     @Operation(summary = "List print jobs", description = "List print jobs with optional filters by orderId or status and support pagination via page and limit query params.")
     @GetMapping
-    public ResponseEntity<List<PrintJobService.PrintJob>> listJobs(
+    public ResponseEntity<java.util.Map<String,Object>> listJobs(
             @Parameter(description = "Filter jobs by order ID") @RequestParam(required = false) String orderId,
             @Parameter(description = "Filter jobs by print status", schema = @Schema(allowableValues = {"pending", "printing", "completed", "failed"})) @RequestParam(required = false) String status,
             @Parameter(description = "Page index (0-based)") @RequestParam(required = false) Integer page,
@@ -109,7 +109,7 @@ public class PrintJobController {
         if (status != null && !status.isBlank()) filters.put("status", status);
         if (page != null) filters.put("page", Integer.toString(Math.max(0, page)));
         if (limit != null) filters.put("limit", Integer.toString(Math.max(1, limit)));
-        return ResponseEntity.ok(jobService.listJobs(filters));
+        return ResponseEntity.ok(jobService.listJobsPaged(filters));
     }
 
     @Operation(summary = "Subscribe to print job events", description = "Open an SSE stream subscribing to the given topics. Topics that reference specific orders/jobs/printers require an API key.")

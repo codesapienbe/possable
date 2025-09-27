@@ -376,4 +376,52 @@ public class PrintJobService {
     public double getCollapsedEvents() { return collapsedEventsCounter.count(); }
     public double getDroppedEmitters() { return droppedEmittersCounter.count(); }
     public double getTotalSent() { return totalSentCounter.count(); }
+
+    public java.util.Map<String, Object> listJobsPaged(Map<String, String> filters) {
+        int page = 0;
+        int size = 100;
+        if (filters != null) {
+            try { if (filters.containsKey("page")) page = Math.max(0, Integer.parseInt(filters.get("page"))); } catch (Exception ignored) {}
+            try { if (filters.containsKey("limit")) size = Math.max(1, Math.min(1000, Integer.parseInt(filters.get("limit")))); } catch (Exception ignored) {}
+        }
+        if (printJobRepository != null) {
+            String orderId = filters != null ? filters.get("orderId") : null;
+            String status = filters != null ? filters.get("status") : null;
+            var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+            org.springframework.data.domain.Page<PrintJobEntity> pageRes;
+            if (orderId != null && status != null) {
+                pageRes = printJobRepository.findByOrderIdAndStatus(orderId, status, pageable);
+            } else if (orderId != null) {
+                pageRes = printJobRepository.findByOrderId(orderId, pageable);
+            } else if (status != null) {
+                pageRes = printJobRepository.findByStatus(status, pageable);
+            } else {
+                pageRes = printJobRepository.findAll(pageable);
+            }
+            List<PrintJob> items = pageRes.stream().map(this::toRecord).collect(Collectors.toList());
+            java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
+            out.put("items", items);
+            out.put("page", pageRes.getNumber());
+            out.put("size", pageRes.getSize());
+            out.put("totalElements", pageRes.getTotalElements());
+            out.put("totalPages", pageRes.getTotalPages());
+            return out;
+        }
+        // in-memory fallback: filter and paginate
+        List<PrintJob> filtered;
+        synchronized (inMemoryJobs) {
+            filtered = inMemoryJobs.stream().filter(j -> filters == null || filters.isEmpty() || ((filters.get("orderId") == null || filters.get("orderId").equals(j.orderId())) && (filters.get("status") == null || filters.get("status").equals(j.status())))).collect(Collectors.toList());
+        }
+        long totalElements = filtered.size();
+        int from = Math.min(filtered.size(), page * size);
+        int to = Math.min(filtered.size(), from + size);
+        List<PrintJob> pageItems = filtered.subList(from, to);
+        java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
+        out.put("items", pageItems);
+        out.put("page", page);
+        out.put("size", size);
+        out.put("totalElements", totalElements);
+        out.put("totalPages", (int) Math.ceil((double) totalElements / size));
+        return out;
+    }
 } 

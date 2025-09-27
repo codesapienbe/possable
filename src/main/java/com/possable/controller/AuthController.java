@@ -1,22 +1,19 @@
 package com.possable.controller;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Auth", description = "Authentication endpoints")
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger("application.log");
@@ -42,6 +47,10 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Login user (PIN or drawing)", responses = {
+        @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         String username = (String) body.get("username");
@@ -73,6 +82,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("ok", true, "roles", roles));
     }
 
+    @Operation(summary = "Register a new user (management only)")
     @PostMapping("/register")
     @PreAuthorize("hasRole('MANAGEMENT')")
     public ResponseEntity<?> register(@RequestBody Map<String, Object> body) {

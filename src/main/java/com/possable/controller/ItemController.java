@@ -17,10 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.possable.service.ItemService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@Tag(name = "Items", description = "Operations for menu items and catalog")
 @RestController
 @SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/items")
@@ -52,9 +59,17 @@ public class ItemController {
         public void setAvailable(Boolean available) { this.available = available; }
     }
 
+    @Operation(summary = "List menu items", description = "Get a paged list of menu items.", responses = {
+        @ApiResponse(responseCode = "200", description = "Paged list of items", content = @Content(schema = @Schema(ref = "#/components/schemas/PagedItem")))
+    })
     @GetMapping
-    public ResponseEntity<List<ItemService.Item>> listItems(@RequestParam(defaultValue = "20") int limit) {
-        return ResponseEntity.ok(itemService.listItems(limit));
+    public ResponseEntity<java.util.Map<String,Object>> listItems(
+            @Parameter(description = "Page index (0-based)") @RequestParam(required = false) Integer page,
+            @Parameter(description = "Max number of items per page") @RequestParam(defaultValue = "20") int limit) {
+        var filters = new java.util.HashMap<String, String>();
+        if (page != null) filters.put("page", Integer.toString(Math.max(0, page)));
+        if (limit > 0) filters.put("limit", Integer.toString(Math.max(1, Math.min(100, limit))));
+        return ResponseEntity.ok(itemService.listItemsPaged(filters));
     }
 
     @PostMapping
