@@ -4,3 +4,5 @@
 application.log.*
 node_modules
 src/main/dev-bundle
+.log
+.log.*
