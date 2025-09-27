@@ -66,6 +66,7 @@ public class PrinterService {
         return p;
     }
 
+    @Transactional(readOnly = true)
     public List<Printer> listPrinters() {
         if (printerRepository != null) {
             return printerRepository.findAll().stream().map(this::toRecord).collect(Collectors.toList());
@@ -75,6 +76,7 @@ public class PrinterService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Printer findById(String id) {
         if (printerRepository != null) {
             return printerRepository.findById(id).map(this::toRecord).orElse(null);

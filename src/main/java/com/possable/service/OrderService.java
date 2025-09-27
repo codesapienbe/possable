@@ -85,6 +85,7 @@ public class OrderService {
         return order;
     }
 
+    @Transactional(readOnly = true)
     public List<OrderDto> listOrders() {
         if (orderRepository != null) {
             List<OrderDto> out = new ArrayList<>();
@@ -99,6 +100,7 @@ public class OrderService {
         }
     }
 
+    @Transactional(readOnly = true)
     public java.util.Map<String,Object> listOrdersPaged(java.util.Map<String,String> filters) {
         int page = 0;
         int size = 20;
@@ -135,6 +137,7 @@ public class OrderService {
         return out;
     }
 
+    @Transactional(readOnly = true)
     public OrderDto findById(String id) {
         if (orderRepository != null) {
             return orderRepository.findById(id).map(e -> new OrderDto(e.getId(), e.getItems() == null ? List.of() : e.getItems().stream().map(i -> i.getItemId()).collect(Collectors.toList()), e.getStatus(), e.getCreatedAt())).orElse(null);

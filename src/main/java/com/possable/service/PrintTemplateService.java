@@ -65,6 +65,7 @@ public class PrintTemplateService {
         return t;
     }
 
+    @Transactional(readOnly = true)
     public List<Template> listTemplates() {
         if (templateRepository != null) {
             return templateRepository.findAll().stream().map(this::toRecord).collect(Collectors.toList());
@@ -74,6 +75,7 @@ public class PrintTemplateService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Template findById(String id) {
         if (templateRepository != null) {
             return templateRepository.findById(id).map(this::toRecord).orElse(null);

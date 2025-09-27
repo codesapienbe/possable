@@ -60,6 +60,7 @@ public class ItemService {
         return it;
     }
 
+    @Transactional(readOnly = true)
     public List<Item> listItems(int limit) {
         if (itemRepository != null) {
             List<Item> out = new ArrayList<>();
@@ -74,6 +75,7 @@ public class ItemService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Item findById(String id) {
         if (itemRepository != null) {
             Optional<ItemEntity> opt = itemRepository.findById(id);
@@ -132,6 +134,7 @@ public class ItemService {
         }
     }
 
+    @Transactional(readOnly = true)
     public java.util.Map<String, Object> listItemsPaged(java.util.Map<String, String> filters) {
         int page = 0;
         int size = 20;
