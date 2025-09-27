@@ -211,6 +211,67 @@ components:
           type: string
           format: date-time
 
+    # Paged response wrappers
+    PagedItem:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalElements:
+          type: integer
+          example: 235
+        totalPages:
+          type: integer
+          example: 12
+
+    PagedOrder:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalElements:
+          type: integer
+          example: 235
+        totalPages:
+          type: integer
+          example: 12
+
+    PagedPrintJob:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrintJob'
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 100
+        totalElements:
+          type: integer
+          example: 235
+        totalPages:
+          type: integer
+          example: 3
+
   parameters:
     LimitParam:
       name: limit
@@ -220,6 +281,14 @@ components:
         default: 20
         maximum: 100
       description: Max number of items per page (pagination)
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      description: Page index (0-based) for pagination
 
 security:
   - ApiKeyAuth: []
@@ -232,15 +301,14 @@ paths:
       description: Get a paged list of menu items.
       parameters:
         - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/PageParam'
       responses:
         '200':
-          description: List of items
+          description: Paged list of items
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/PagedItem'
       security:
         - ApiKeyAuth: []
 
@@ -352,15 +420,14 @@ paths:
       summary: List recent orders
       parameters:
         - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/PageParam'
       responses:
         '200':
-          description: List of orders
+          description: Paged list of orders
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/PagedOrder'
       security:
         - ApiKeyAuth: []
 
@@ -614,15 +681,15 @@ paths:
             type: string
             enum: [pending, printing, completed, failed]
           description: Filter jobs by print status
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
       responses:
         '200':
-          description: List of print jobs
+          description: Paged list of print jobs
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PrintJob'
+                $ref: '#/components/schemas/PagedPrintJob'
       security:
         - ApiKeyAuth: []
 

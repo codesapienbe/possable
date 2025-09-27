@@ -19,12 +19,18 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.possable.service.PrintJobService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+@Tag(name = "Print Jobs", description = "Operations to manage print jobs and their SSE stream")
 @RestController
 @SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/print-jobs")
@@ -82,6 +88,7 @@ public class PrintJobController {
         }
     }
 
+    @Operation(summary = "Create print jobs for an order", description = "Create print jobs targeting specific printers with templates for an order.")
     @PostMapping
     public ResponseEntity<List<PrintJobService.PrintJob>> createPrintJobs(@Valid @RequestBody CreatePrintJobsRequest req) {
         var created = req.getJobs().stream()
@@ -90,8 +97,13 @@ public class PrintJobController {
         return ResponseEntity.status(201).body(created);
     }
 
+    @Operation(summary = "List print jobs", description = "List print jobs with optional filters by orderId or status and support pagination via page and limit query params.")
     @GetMapping
-    public ResponseEntity<List<PrintJobService.PrintJob>> listJobs(@RequestParam(required = false) String orderId, @RequestParam(required = false) String status, @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit) {
+    public ResponseEntity<List<PrintJobService.PrintJob>> listJobs(
+            @Parameter(description = "Filter jobs by order ID") @RequestParam(required = false) String orderId,
+            @Parameter(description = "Filter jobs by print status", schema = @Schema(allowableValues = {"pending", "printing", "completed", "failed"})) @RequestParam(required = false) String status,
+            @Parameter(description = "Page index (0-based)") @RequestParam(required = false) Integer page,
+            @Parameter(description = "Max number of items per page") @RequestParam(required = false) Integer limit) {
         var filters = new java.util.HashMap<String, String>();
         if (orderId != null && !orderId.isBlank()) filters.put("orderId", orderId);
         if (status != null && !status.isBlank()) filters.put("status", status);
@@ -100,6 +112,7 @@ public class PrintJobController {
         return ResponseEntity.ok(jobService.listJobs(filters));
     }
 
+    @Operation(summary = "Subscribe to print job events", description = "Open an SSE stream subscribing to the given topics. Topics that reference specific orders/jobs/printers require an API key.")
     @GetMapping("/stream")
     public ResponseEntity<SseEmitter> stream(@RequestParam(required = false) String topics, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         String topicCsv = topics == null || topics.isBlank() ? "all" : topics;
@@ -114,6 +127,7 @@ public class PrintJobController {
         return ResponseEntity.ok(emitter);
     }
 
+    @Operation(summary = "SSE metrics for print jobs", description = "Get metrics about SSE collapsed/dropped/total events")
     @GetMapping("/metrics/sse")
     public ResponseEntity<?> sseMetrics() {
         return ResponseEntity.ok(Map.of(
@@ -134,6 +148,7 @@ public class PrintJobController {
         public void setStatus(String status) { this.status = status; }
     }
 
+    @Operation(summary = "Update print job status", description = "Update the status of a print job (e.g. pending, printing, completed, failed)")
     @PutMapping("/{printJobId}")
     public ResponseEntity<Map<String, String>> updateStatus(@PathVariable String printJobId, @Valid @RequestBody UpdateStatusRequest req) {
         jobService.updateStatus(printJobId, req.getStatus());
