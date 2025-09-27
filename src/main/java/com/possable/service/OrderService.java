@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,25 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
+    @Autowired
     public OrderService(TaskExecutor taskExecutor, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.taskExecutor = taskExecutor;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+    }
+
+    // overloaded constructor used by tests to run without repositories (in-memory mode)
+    public OrderService(TaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+        this.orderRepository = null;
+        this.orderItemRepository = null;
+    }
+
+    // no-arg constructor for AOT/bootstrap scenarios: uses a simple async executor and in-memory repositories
+    public OrderService() {
+        this.taskExecutor = new SimpleAsyncTaskExecutor();
+        this.orderRepository = null;
+        this.orderItemRepository = null;
     }
 
     @Transactional

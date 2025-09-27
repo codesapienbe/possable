@@ -28,5 +28,12 @@ const routes = [
 ];
 
 // Vaadin router needs an outlet in the index.html page to display views
-const router = new Router(document.querySelector('#outlet'));
-router.setRoutes(routes);
+const outlet = document.querySelector('#outlet');
+if (outlet instanceof HTMLElement) {
+  const router = new Router(outlet);
+  router.setRoutes(routes);
+} else {
+  // Log missing outlet to help debugging in dev without throwing
+  // eslint-disable-next-line no-console
+  console.error('Router outlet element "#outlet" not found.');
+}

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +26,14 @@ public class PrinterService {
 
     public record Printer(String id, String name, String category, String description, Instant createdAt) {}
 
+    @Autowired
     public PrinterService(PrinterRepository printerRepository) {
         this.printerRepository = printerRepository;
+    }
+
+    // no-arg constructor used by tests to run in in-memory mode
+    public PrinterService() {
+        this.printerRepository = null;
     }
 
     private Printer toRecord(PrinterEntity e) {
