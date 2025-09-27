@@ -1,11 +1,9 @@
 package com.possable.view;
 
-import java.util.List;
-
 import com.possable.service.OrderService;
-import com.possable.service.PrinterService;
 import com.possable.service.PrintJobService;
 import com.possable.service.PrintTemplateService;
+import com.possable.service.PrinterService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -25,8 +23,12 @@ public class OrdersComponent extends VerticalLayout {
 		grid.addColumn(o -> o.getStatus() == null ? "" : o.getStatus()).setHeader("Status");
 		grid.addColumn(o -> Integer.toString(o.getItems() == null ? 0 : o.getItems().size())).setHeader("Items");
 		grid.setItems(orderService.listOrders());
+		// ensure the grid stretches to full available width and takes priority in layout
+		grid.setWidthFull();
 		grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 		grid.addSelectionListener(e -> e.getFirstSelectedItem().ifPresent(d -> details.showOrder(d)));
 		add(grid, details);
+		// expand the grid so it fills available vertical/horizontal space within this component
+		expand(grid);
 	}
 } 

@@ -1,5 +1,6 @@
 <configuration>
-  <property name="LOG_FILE" value="${LOG_FILE:-application.log}"/>
+  <property name="LOG_DIR" value="${LOG_DIR:-/logs}"/>
+  <property name="LOG_FILE" value="${LOG_FILE:-${LOG_DIR}/application.log}"/>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${LOG_FILE}</file>

@@ -1,15 +1,14 @@
 package com.possable.view;
 
-import com.vaadin.flow.component.Component;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.html.Div;
-
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @Route(value = "kitchen", layout = MainLayout.class)
 @PageTitle("Kitchen")
@@ -30,6 +29,7 @@ public class KitchenView extends VerticalLayout {
 
 		Div content = new Div();
 		content.add(factory.createOrdersComponent());
+		content.setWidthFull();
 		add(tabs, content);
 	}
 } 

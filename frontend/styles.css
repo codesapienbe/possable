@@ -654,6 +654,12 @@ pattern-lock canvas, .pattern-lock canvas {
 	.toggle-switch.on::after { transform: translateX(30px); }
 }
 
+/* wrapper and visible label for the toggle */
+.toggle-row { display: inline-flex; align-items: center; gap: 8px; justify-content: center; margin-top: 8px; }
+.toggle-label { color: #e6eef6; font-weight: 700; margin-left: 8px; font-size: 0.95rem; }
+/* ensure label contrasts in light mode */
+body.light-mode .toggle-label { color: #0b1220; }
+
 /* Light mode overrides: apply when body has class 'light-mode' */
 body.light-mode {
 	--pos-bg: #f7fafc; /* very light */
@@ -711,4 +717,37 @@ body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-sha
 	:root, body, .pos-header, .pos-card, .pos-stat, .pos-details, .pos-cart, .unlock-overlay, .pos-root canvas, .pattern-lock canvas, .v-button, vaadin-button {
 		transition: none !important;
 	}
+}
+
+/* Role-specific styling for main role buttons (pos-card) */
+.pos-card.role-service {
+    background: linear-gradient(135deg, #0ea5a4 0%, #059c9a 100%);
+    color: #061017;
+    border: 1px solid rgba(0,0,0,0.12);
+}
+.pos-card.role-kitchen {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: #061017;
+    border: 1px solid rgba(0,0,0,0.12);
+}
+.pos-card.role-management {
+    background: linear-gradient(135deg, #06b6d4 0%, #0ea5ea 100%);
+    color: #061017;
+    border: 1px solid rgba(0,0,0,0.12);
+}
+.pos-card.role-customer {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+    color: #061017;
+    border: 1px solid rgba(0,0,0,0.12);
+}
+.pos-card .role-icon, .pos-card svg, .pos-card vaadin-icon {
+    color: inherit;
+    fill: currentColor;
+}
+
+/* Ensure role-cards center and stack nicely on mobile */
+@media (max-width: 640px) {
+    .role-cards { flex-direction: column; gap: 12px; align-items: center; }
+    .pos-card { width: calc(100% - 48px); min-width: unset; max-width: 420px; }
+    .pos-card .role-icon, .pos-card svg { font-size: 28px; width: 56px; height: 56px; }
 }

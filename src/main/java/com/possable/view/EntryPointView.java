@@ -1,5 +1,12 @@
 package com.possable.view;
 
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.possable.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,16 +21,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.possable.view.PatternLockComponent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Entry")
@@ -41,6 +40,10 @@ public class EntryPointView extends VerticalLayout {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
+		// make the entry view fill the viewport and center its contents (header + role cards)
+		setHeightFull();
+		setAlignItems(FlexComponent.Alignment.CENTER);
+		setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 		addClassName("pos-root");
 
 		H1 header = new H1("Welcome");
@@ -179,7 +182,14 @@ public class EntryPointView extends VerticalLayout {
 				numpad.setVisible(true);
 			}
 		});
-		content.add(usePinToggle);
+		// visible label for the toggle (helps when button visuals blend with background)
+		Span usePinLabel = new Span("Use PIN");
+		usePinLabel.addClassName("toggle-label");
+		// wrapper to align toggle and label
+		HorizontalLayout toggleRow = new HorizontalLayout(usePinToggle, usePinLabel);
+		toggleRow.setAlignItems(FlexComponent.Alignment.CENTER);
+		toggleRow.addClassName("toggle-row");
+		content.add(toggleRow);
 
 		// listen for pattern changes from client component and attempt login when pattern length >= 4
 		pattern.getElement().addEventListener("pattern-changed", ev -> {

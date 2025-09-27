@@ -14,7 +14,7 @@ JAR_WILDCARD := $(wildcard target/*.jar)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build run clean
+.PHONY: help build run clean dev stop
 
 help:
 	@echo "Usage: make <target>"
@@ -30,7 +30,21 @@ build:
 dev:
 	@echo "Running application locally"
 	mvn -Pnative -DskipTests clean package
-	mvn -Pnative -DskipTests spring-boot:run
+	@echo "Starting application in background and writing PID to .dev_pid"
+ifeq ($(OS),Windows_NT)
+	@powershell -NoProfile -Command "Start-Process -FilePath 'mvn' -ArgumentList '-Pnative','-DskipTests','spring-boot:run' -PassThru | Select-Object -ExpandProperty Id | Out-File -FilePath '.dev_pid' -Encoding ascii"
+else
+	@bash -c 'mvn -Pnative -DskipTests spring-boot:run > /dev/null 2>&1 & echo $$! > .dev_pid' || { nohup mvn -Pnative -DskipTests spring-boot:run > /dev/null 2>&1 & echo $$! > .dev_pid; }
+endif
+
+ifeq ($(OS),Windows_NT)
+	@powershell -NoProfile -Command "Start-Process 'http://localhost:8080'"
+else
+	@sleep 2; \
+	if command -v xdg-open >/dev/null 2>&1; then xdg-open http://localhost:8080; \
+	elif command -v open >/dev/null 2>&1; then open http://localhost:8080; \
+	else echo "Please open http://localhost:8080 in your browser"; fi
+endif
 
 run:
 	@echo "Running docker image $(IMAGE_NAME)"
@@ -42,3 +56,14 @@ clean:
 	-@docker rm -f possable_app 2>/dev/null || true
 	-@docker rmi $(IMAGE_NAME) 2>/dev/null || true
 	-@rm -rf target
+
+stop:
+	@echo "Stopping dev server if running (uses .dev_pid)"
+ifeq ($(OS),Windows_NT)
+	@powershell -NoProfile -Command "if (Test-Path -Path '.dev_pid') { $pid = Get-Content -Path '.dev_pid' ; if (Get-Process -Id $pid -ErrorAction SilentlyContinue) { Stop-Process -Id $pid -Force } ; Remove-Item -Path '.dev_pid' -ErrorAction SilentlyContinue } else { Write-Host 'No .dev_pid file found' }"
+else
+	@if [ -f .dev_pid ]; then PID=$$(cat .dev_pid); \
+		if kill -0 $$PID >/dev/null 2>&1; then echo "Stopping process $$PID"; kill $$PID && rm -f .dev_pid || echo "Failed to stop process $$PID"; \
+		else echo "No process $$PID running, removing stale .dev_pid"; rm -f .dev_pid; fi; \
+	else echo "No .dev_pid file found"; fi
+endif
