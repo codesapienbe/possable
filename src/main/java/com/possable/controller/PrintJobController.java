@@ -91,11 +91,12 @@ public class PrintJobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PrintJobService.PrintJob>> listJobs(@RequestParam(required = false) String orderId, @RequestParam(required = false) String status) {
-        var filters = Map.ofEntries(
-                orderId == null ? Map.entry("", "") : Map.entry("orderId", orderId),
-                status == null ? Map.entry("", "") : Map.entry("status", status)
-        ).entrySet().stream().filter(e -> e.getKey() != null && !e.getKey().isEmpty()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public ResponseEntity<List<PrintJobService.PrintJob>> listJobs(@RequestParam(required = false) String orderId, @RequestParam(required = false) String status, @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit) {
+        var filters = new java.util.HashMap<String, String>();
+        if (orderId != null && !orderId.isBlank()) filters.put("orderId", orderId);
+        if (status != null && !status.isBlank()) filters.put("status", status);
+        if (page != null) filters.put("page", Integer.toString(Math.max(0, page)));
+        if (limit != null) filters.put("limit", Integer.toString(Math.max(1, limit)));
         return ResponseEntity.ok(jobService.listJobs(filters));
     }
 
