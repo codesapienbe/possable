@@ -1,41 +1,78 @@
 package com.possable.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.possable.model.PrintTemplateEntity;
+import com.possable.repository.PrintTemplateRepository;
 
 @Service
 public class PrintTemplateService {
 
     private static final Logger log = LoggerFactory.getLogger(PrintTemplateService.class);
 
-    private final List<Template> templates = Collections.synchronizedList(new ArrayList<>());
+    private final PrintTemplateRepository templateRepository;
+    private final List<Template> inMemoryTemplates = Collections.synchronizedList(new ArrayList<>());
 
     public record Template(String id, String printerCategory, String templateName, String content, Instant createdAt) {}
 
+    public PrintTemplateService(PrintTemplateRepository templateRepository) {
+        this.templateRepository = templateRepository;
+    }
+
+    private Template toRecord(PrintTemplateEntity e) {
+        if (e == null) return null;
+        return new Template(e.getId(), e.getPrinterCategory(), e.getTemplateName(), e.getContent(), e.getCreatedAt());
+    }
+
+    private PrintTemplateEntity toEntity(String printerCategory, String templateName, String content) {
+        PrintTemplateEntity e = new PrintTemplateEntity();
+        e.setPrinterCategory(printerCategory);
+        e.setTemplateName(templateName);
+        e.setContent(content);
+        e.setCreatedAt(Instant.now());
+        return e;
+    }
+
+    @Transactional
     public Template createTemplate(String printerCategory, String templateName, String content) {
+        if (templateRepository != null) {
+            PrintTemplateEntity e = toEntity(printerCategory, templateName, content);
+            PrintTemplateEntity saved = templateRepository.save(e);
+            log.info("{\"message\":\"print_template_created\", \"template_id\":\"{}\", \"component\":\"print-template-service\"}", saved.getId());
+            return toRecord(saved);
+        }
         String id = UUID.randomUUID().toString();
         Template t = new Template(id, printerCategory, templateName, content, Instant.now());
-        templates.add(t);
+        inMemoryTemplates.add(t);
         log.info("{\"message\":\"print_template_created\", \"template_id\":\"{}\", \"component\":\"print-template-service\"}", id);
         return t;
     }
 
     public List<Template> listTemplates() {
-        synchronized (templates) {
-            return List.copyOf(templates);
+        if (templateRepository != null) {
+            return templateRepository.findAll().stream().map(this::toRecord).collect(Collectors.toList());
+        }
+        synchronized (inMemoryTemplates) {
+            return List.copyOf(inMemoryTemplates);
         }
     }
 
     public Template findById(String id) {
-        synchronized (templates) {
-            return templates.stream().filter(t -> t.id().equals(id)).findFirst().orElse(null);
+        if (templateRepository != null) {
+            return templateRepository.findById(id).map(this::toRecord).orElse(null);
+        }
+        synchronized (inMemoryTemplates) {
+            return inMemoryTemplates.stream().filter(t -> t.id().equals(id)).findFirst().orElse(null);
         }
     }
 } 

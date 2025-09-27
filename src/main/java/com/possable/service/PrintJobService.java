@@ -2,33 +2,36 @@ package com.possable.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import com.possable.service.Broadcaster;
+
+import com.possable.model.PrintJobEntity;
+import com.possable.repository.PrintJobRepository;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @Service
 public class PrintJobService {
 
     private static final Logger log = LoggerFactory.getLogger(PrintJobService.class);
 
-    private final List<PrintJob> jobs = Collections.synchronizedList(new ArrayList<>());
+    private final List<PrintJob> inMemoryJobs = Collections.synchronizedList(new ArrayList<>());
     private final PrinterService printerService;
     private final PrintTemplateService templateService;
     private final OrderService orderService;
@@ -40,6 +43,7 @@ public class PrintJobService {
     private final Counter droppedEmittersCounter;
     private final Counter totalSentCounter;
     private final MeterRegistry meterRegistry;
+    private final PrintJobRepository printJobRepository;
 
     private class EmitterState {
         final SseEmitter emitter;
@@ -127,13 +131,14 @@ public class PrintJobService {
     public record PrintJob(String id, String orderId, String printerId, String templateId, String status, Instant createdAt) {}
 
     @Autowired
-    public PrintJobService(PrinterService printerService, PrintTemplateService templateService, OrderService orderService, ItemService itemService, TaskExecutor taskExecutor, MeterRegistry meterRegistry) {
+    public PrintJobService(PrinterService printerService, PrintTemplateService templateService, OrderService orderService, ItemService itemService, TaskExecutor taskExecutor, MeterRegistry meterRegistry, PrintJobRepository printJobRepository) {
         this.printerService = printerService;
         this.templateService = templateService;
         this.orderService = orderService;
         this.itemService = itemService;
         this.taskExecutor = taskExecutor;
         this.meterRegistry = meterRegistry;
+        this.printJobRepository = printJobRepository;
         // register global counters with a consistent metric namespace and component tag
         this.collapsedEventsCounter = meterRegistry.counter("possable.sse.collapsed", "component", "print-job-service");
         this.droppedEmittersCounter = meterRegistry.counter("possable.sse.dropped_emitters", "component", "print-job-service");
@@ -143,24 +148,73 @@ public class PrintJobService {
     // Backwards-compatible constructor used by existing tests and callers
     public PrintJobService(PrinterService printerService, PrintTemplateService templateService, TaskExecutor taskExecutor) {
         // provide a simple in-memory MeterRegistry fallback for tests and older callers
-        this(printerService, templateService, null, null, taskExecutor, new SimpleMeterRegistry());
+        this(printerService, templateService, null, null, taskExecutor, new SimpleMeterRegistry(), null);
+    }
+
+    private PrintJob toRecord(PrintJobEntity e) {
+        if (e == null) return null;
+        return new PrintJob(e.getId(), e.getOrderId(), e.getPrinterId(), e.getTemplateId(), e.getStatus(), e.getCreatedAt());
+    }
+
+    private PrintJobEntity toEntity(String orderId, String printerId, String templateId, String status) {
+        PrintJobEntity e = new PrintJobEntity();
+        e.setOrderId(orderId);
+        e.setPrinterId(printerId);
+        e.setTemplateId(templateId);
+        e.setStatus(status);
+        e.setCreatedAt(Instant.now());
+        return e;
     }
 
     public List<PrintJob> listJobs(Map<String, String> filters) {
-        synchronized (jobs) {
-            return jobs.stream()
-                    .filter(j -> filters == null || filters.isEmpty() || (
-                            (filters.get("orderId") == null || filters.get("orderId").equals(j.orderId())) &&
-                            (filters.get("status") == null || filters.get("status").equals(j.status()))
-                    ))
-                    .collect(Collectors.toList());
+        if (printJobRepository != null) {
+            int page = 0;
+            int size = 100;
+            if (filters != null) {
+                try { if (filters.containsKey("page")) page = Math.max(0, Integer.parseInt(filters.get("page"))); } catch (Exception ignored) {}
+                try { if (filters.containsKey("limit")) size = Math.max(1, Math.min(1000, Integer.parseInt(filters.get("limit")))); } catch (Exception ignored) {}
+            }
+            String orderId = filters != null ? filters.get("orderId") : null;
+            String status = filters != null ? filters.get("status") : null;
+            org.springframework.data.domain.Page<PrintJobEntity> pageRes;
+            var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+            if (orderId != null && status != null) {
+                pageRes = printJobRepository.findByOrderIdAndStatus(orderId, status, pageable);
+            } else if (orderId != null) {
+                pageRes = printJobRepository.findByOrderId(orderId, pageable);
+            } else if (status != null) {
+                pageRes = printJobRepository.findByStatus(status, pageable);
+            } else {
+                pageRes = printJobRepository.findAll(pageable);
+            }
+            return pageRes.stream().map(this::toRecord).collect(Collectors.toList());
+        }
+        synchronized (inMemoryJobs) {
+            return inMemoryJobs.stream().filter(j -> filters == null || filters.isEmpty() || ((filters.get("orderId") == null || filters.get("orderId").equals(j.orderId())) && (filters.get("status") == null || filters.get("status").equals(j.status())))).collect(Collectors.toList());
         }
     }
 
     public PrintJob createJob(String orderId, String printerId, String templateId) {
+        if (printJobRepository != null) {
+            PrintJobEntity e = toEntity(orderId, printerId, templateId, "pending");
+            PrintJobEntity saved = printJobRepository.save(e);
+            PrintJob job = toRecord(saved);
+            log.info("{\"message\":\"print_job_created\", \"print_job_id\":\"{}\", \"component\":\"print-job-service\"}", job.id());
+
+            // Notify SSE clients and Vaadin broadcaster about created job
+            String createdEvent = "{\"id\":\"" + job.id() + "\", \"status\":\"pending\"}";
+            List<String> topics = List.of("all", "printer:" + printerId, "order:" + orderId, "job:" + job.id());
+            sendSseEvent(createdEvent, topics);
+            Broadcaster.broadcast(createdEvent);
+
+            // Schedule processing
+            CompletableFuture.runAsync(() -> processJob(job.id()), taskExecutor::execute).exceptionally(ex -> { log.error("print job processing failed for {}", job.id(), ex); return null; });
+            return job;
+        }
+
         String id = UUID.randomUUID().toString();
         PrintJob job = new PrintJob(id, orderId, printerId, templateId, "pending", Instant.now());
-        jobs.add(job);
+        inMemoryJobs.add(job);
         log.info("{\"message\":\"print_job_created\", \"print_job_id\":\"{}\", \"component\":\"print-job-service\"}", id);
 
         // Notify SSE clients and Vaadin broadcaster about created job
@@ -170,24 +224,34 @@ public class PrintJobService {
         Broadcaster.broadcast(createdEvent);
 
         // Schedule processing
-        CompletableFuture.runAsync(() -> processJob(job.id()), taskExecutor::execute)
-                .exceptionally(ex -> {
-                    log.error("print job processing failed for {}", id, ex);
-                    return null;
-                });
+        CompletableFuture.runAsync(() -> processJob(id), taskExecutor::execute).exceptionally(ex -> { log.error("print job processing failed for {}", id, ex); return null; });
 
         return job;
     }
 
     public void updateStatus(String jobId, String status) {
-        synchronized (jobs) {
-            for (int i = 0; i < jobs.size(); i++) {
-                var j = jobs.get(i);
+        if (printJobRepository != null) {
+            var opt = printJobRepository.findById(jobId);
+            if (opt.isPresent()) {
+                PrintJobEntity e = opt.get();
+                e.setStatus(status);
+                PrintJobEntity saved = printJobRepository.save(e);
+                log.info("{\"message\":\"print_job_status_updated\", \"print_job_id\":\"{}\", \"status\":\"{}\", \"component\":\"print-job-service\"}", jobId, status);
+                String ev = "{\"id\":\"" + jobId + "\", \"status\":\"" + status + "\"}";
+                List<String> evTopics = List.of("all", "printer:" + saved.getPrinterId(), "order:" + saved.getOrderId(), "job:" + saved.getId());
+                sendSseEvent(ev, evTopics);
+                Broadcaster.broadcast(ev);
+                return;
+            }
+            return;
+        }
+        synchronized (inMemoryJobs) {
+            for (int i = 0; i < inMemoryJobs.size(); i++) {
+                var j = inMemoryJobs.get(i);
                 if (j.id().equals(jobId)) {
-                    jobs.set(i, new PrintJob(j.id(), j.orderId(), j.printerId(), j.templateId(), status, j.createdAt()));
+                    inMemoryJobs.set(i, new PrintJob(j.id(), j.orderId(), j.printerId(), j.templateId(), status, j.createdAt()));
                     log.info("{\"message\":\"print_job_status_updated\", \"print_job_id\":\"{}\", \"status\":\"{}\", \"component\":\"print-job-service\"}", jobId, status);
                     String ev = "{\"id\":\"" + jobId + "\", \"status\":\"" + status + "\"}";
-                    // determine topics from job
                     List<String> evTopics = List.of("all", "printer:" + j.printerId(), "order:" + j.orderId(), "job:" + j.id());
                     sendSseEvent(ev, evTopics);
                     Broadcaster.broadcast(ev);
@@ -199,10 +263,16 @@ public class PrintJobService {
 
     private void processJob(String jobId) {
         // Render template and perform non-blocking "print" (log the output)
-        PrintJob job;
-        synchronized (jobs) {
-            job = jobs.stream().filter(j -> j.id().equals(jobId)).findFirst().orElse(null);
+        PrintJob job = null;
+        if (printJobRepository != null) {
+            var opt = printJobRepository.findById(jobId);
+            if (opt.isPresent()) job = toRecord(opt.get());
+        } else {
+            synchronized (inMemoryJobs) {
+                job = inMemoryJobs.stream().filter(j -> j.id().equals(jobId)).findFirst().orElse(null);
+            }
         }
+
         if (job == null) {
             log.error("{\"message\":\"print_job_not_found\", \"print_job_id\":\"{}\", \"component\":\"print-job-service\"}", jobId);
             return;
