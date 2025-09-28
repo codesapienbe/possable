@@ -61,11 +61,18 @@ public class EntryPointView extends VerticalLayout {
 
 		cards.add(createRoleCard(VaadinIcon.USERS, "SERVICE", () -> openPinDialog("service")));
 		cards.add(createRoleCard(VaadinIcon.CUTLERY, "KITCHEN", () -> openPinDialog("kitchen")));
-			cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
-			cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> openCustomerPincodeDialog()));
-			// future: capture drawing-based unlock input via client and pass to openPinDialog as drawing parameter
+		cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
+		cards.add(createRoleCard(VaadinIcon.CREDIT_CARD, "CASHIER", () -> openPinDialog("cashier")));
+		// future: capture drawing-based unlock input via client and pass to openPinDialog as drawing parameter
 
 		add(cards);
+
+		// place Customer button separately since it doesn't depend on other modules
+		HorizontalLayout customerRow = new HorizontalLayout();
+		customerRow.setWidthFull();
+		customerRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+		customerRow.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> openCustomerPincodeDialog()));
+		add(customerRow);
 
 		// unlock overlay setup (hidden by default)
 		unlockOverlay.addClassName("unlock-overlay");

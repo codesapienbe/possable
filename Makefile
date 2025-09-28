@@ -31,8 +31,22 @@ dev:
 	@echo "Running application locally (background, logs -> .dev.log)"
 ifeq ($(OS),Windows_NT)
 	@pwsh -NoProfile -Command "Start-Process -FilePath 'cmd.exe' -ArgumentList '/c mvn spring-boot:run > .dev.log 2>&1' -WindowStyle Hidden"
+	@pwsh -NoProfile -Command "$$timeout=30; $$i=0; $$port=$$null; while ($$i -lt $$timeout) { if (Test-Path '.dev.log') { $$content = Get-Content -Path .dev.log -Raw; if ($$content -match 'port\(s\):\s*([0-9]+)') { Write-Host \"Application running on port: $$($$matches[1])\"; exit 0 } if ($$content -match 'Started .* on port\s*([0-9]+)') { Write-Host \"Application running on port: $$($$matches[1])\"; exit 0 } } Start-Sleep -Seconds 1; $$i++ } Write-Host 'Could not determine application port from .dev.log'; Get-Content .dev.log -Tail 50 | Write-Host"
 else
 	@nohup mvn -DskipTests spring-boot:run > .dev.log 2>&1 &
+	@( \
+		timeout=30; i=0; port=""; \
+		while [ $$i -lt $$timeout ]; do \
+			if grep -Eo 'port\(s\):[[:space:]]*[0-9]+' .dev.log >/dev/null 2>&1; then \
+				port=$$(grep -Eo 'port\(s\):[[:space:]]*[0-9]+' .dev.log | grep -Eo '[0-9]+' -m1); break; \
+			fi; \
+			if grep -Eo 'Started .* on port[[:space:]]*[0-9]+' .dev.log >/dev/null 2>&1; then \
+				port=$$(grep -Eo 'Started .* on port[[:space:]]*[0-9]+' .dev.log | grep -Eo '[0-9]+' -m1); break; \
+			fi; \
+			sleep 1; i=$$((i+1)); \
+		done; \
+		if [ -n "$$port" ]; then printf "Application running on port: %s\n" "$$port"; else printf "Could not determine application port from .dev.log within %s seconds. Tail last 50 lines:\n" "$$timeout"; tail -n 50 .dev.log; fi; \
+	)
 endif
 
 run:
