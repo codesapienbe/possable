@@ -28,23 +28,8 @@ build:
 	docker build -f $(DOCKERFILE) -t $(IMAGE_NAME) .
 
 dev:
-	@echo "Running application locally"
-	mvn -Pnative -DskipTests clean package
-	@echo "Starting application in background and writing PID to .dev_pid"
-ifeq ($(OS),Windows_NT)
-	@powershell -NoProfile -Command "Start-Process -FilePath 'mvn' -ArgumentList '-Pnative','-DskipTests','spring-boot:run' -PassThru | Select-Object -ExpandProperty Id | Out-File -FilePath '.dev_pid' -Encoding ascii"
-else
-	@bash -c 'mvn -Pnative -DskipTests spring-boot:run > /dev/null 2>&1 & echo $$! > .dev_pid' || { nohup mvn -Pnative -DskipTests spring-boot:run > /dev/null 2>&1 & echo $$! > .dev_pid; }
-endif
-
-ifeq ($(OS),Windows_NT)
-	@powershell -NoProfile -Command "Start-Process 'http://localhost:8080'"
-else
-	@sleep 2; \
-	if command -v xdg-open >/dev/null 2>&1; then xdg-open http://localhost:8080; \
-	elif command -v open >/dev/null 2>&1; then open http://localhost:8080; \
-	else echo "Please open http://localhost:8080 in your browser"; fi
-endif
+	@echo "Running application locally (foreground)"
+	mvn -Pnative -DskipTests spring-boot:run
 
 run:
 	@echo "Running docker image $(IMAGE_NAME)"
