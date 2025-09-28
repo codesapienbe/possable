@@ -1,0 +1,212 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.possable:possable >------------------------
+[INFO] Building possable 0.1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'enableDevServerByDefault' is unknown for plugin 'vaadin-maven-plugin:24.1.12:prepare-frontend (default)'
+[INFO] 
+[INFO] >>> spring-boot:3.2.0:run (default-cli) > test-compile @ possable >>>
+[INFO] 
+[INFO] --- jacoco:0.8.13:prepare-agent (prepare-agent) @ possable ---
+[INFO] argLine set to -javaagent:C:\\Users\\Administrator\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.13\\org.jacoco.agent-0.8.13-runtime.jar=destfile=C:\\Users\\Administrator\\Projects\\possable\\target\\jacoco.exec
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ possable ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- vaadin:24.1.12:prepare-frontend (default) @ possable ---
+[WARNING] The <productionMode>false</productionMode> Maven parameter no longer has any effect and can be removed. Production mode is automatically enabled when you run the build-frontend target.
+[INFO] Reflections took 1575 ms to scan 172 urls, producing 9504 keys and 48182 values
+[INFO] Copying frontend resources from jar files ...
+[INFO] Visited 171 resources. Took 344 ms.
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ possable ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ possable ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ possable ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.0:run (default-cli) < test-compile @ possable <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.0:run (default-cli) @ possable ---
+[INFO] Attaching agents: []
+01:10:13,800 |-INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version 1.4.11
+01:10:13,807 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Here is a list of configurators discovered as a service, by rank: 
+01:10:13,807 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 -   org.springframework.boot.logging.logback.RootLogLevelConfigurator
+01:10:13,807 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - They will be invoked in order until ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY is returned.
+01:10:13,807 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Constructed configurator of type class org.springframework.boot.logging.logback.RootLogLevelConfigurator
+01:10:13,820 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - org.springframework.boot.logging.logback.RootLogLevelConfigurator.configure() call lasted 1 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+01:10:13,821 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Trying to configure with ch.qos.logback.classic.joran.SerializedModelConfigurator
+01:10:13,821 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Constructed configurator of type class ch.qos.logback.classic.joran.SerializedModelConfigurator
+01:10:13,861 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.scmo]
+01:10:13,863 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.scmo]
+01:10:13,863 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - ch.qos.logback.classic.joran.SerializedModelConfigurator.configure() call lasted 42 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+01:10:13,863 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Trying to configure with ch.qos.logback.classic.util.DefaultJoranConfigurator
+01:10:13,863 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Constructed configurator of type class ch.qos.logback.classic.util.DefaultJoranConfigurator
+01:10:13,864 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+01:10:13,865 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.xml]
+01:10:13,865 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - ch.qos.logback.classic.util.DefaultJoranConfigurator.configure() call lasted 2 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+01:10:13,865 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Trying to configure with ch.qos.logback.classic.BasicConfigurator
+01:10:13,867 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - Constructed configurator of type class ch.qos.logback.classic.BasicConfigurator
+01:10:13,867 |-INFO in ch.qos.logback.classic.BasicConfigurator@ef3444c - Setting up default configuration.
+01:10:13,894 |-INFO in ch.qos.logback.classic.util.ContextInitializer@1629cbf8 - ch.qos.logback.classic.BasicConfigurator.configure() call lasted 27 milliseconds. ExecutionStatus=NEUTRAL
+01:10:14,802 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [FILE]
+01:10:14,802 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+01:10:14,864 |-INFO in c.q.l.core.rolling.TimeBasedRollingPolicy@1523379993 - Will use gz compression
+01:10:14,867 |-INFO in c.q.l.core.rolling.TimeBasedRollingPolicy@1523379993 - Will use the pattern application.log.%d{yyyy-MM-dd} for the active file
+01:10:14,907 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - The date pattern is 'yyyy-MM-dd' from file name pattern 'application.log.%d{yyyy-MM-dd}.gz'.
+01:10:14,908 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - Roll-over at midnight.
+01:10:14,922 |-INFO in c.q.l.core.rolling.DefaultTimeBasedFileNamingAndTriggeringPolicy - Setting initial period to 2025-09-28T23:02:20.583Z
+01:10:15,526 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Active log file name: application.log
+01:10:15,526 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - File property is set to [application.log]
+01:10:15,527 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [CONSOLE]
+01:10:15,527 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+01:10:15,530 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders] for [providers] property
+01:10:15,535 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.LoggingEventFormattedTimestampJsonProvider] for [timestamp] property
+01:10:15,536 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.LogstashVersionJsonProvider] for [version] property
+01:10:15,536 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.LoggerNameJsonProvider] for [loggerName] property
+01:10:15,537 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.LoggingEventThreadNameJsonProvider] for [threadName] property
+01:10:15,537 |-WARN in ch.qos.logback.core.model.processor.ImplicitModelHandler - Ignoring unknown property [level] in [net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders]
+01:10:15,537 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.MessageJsonProvider] for [message] property
+01:10:15,538 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.loggingevent.MdcJsonProvider] for [mdc] property
+01:10:15,538 |-WARN in ch.qos.logback.core.model.processor.ImplicitModelHandler - Ignoring unknown property [includeMdcKey] in [net.logstash.logback.composite.loggingevent.MdcJsonProvider]
+01:10:15,538 |-WARN in ch.qos.logback.core.model.processor.ImplicitModelHandler - Ignoring unknown property [includeMdcKey] in [net.logstash.logback.composite.loggingevent.MdcJsonProvider]
+01:10:15,538 |-WARN in ch.qos.logback.core.model.processor.ImplicitModelHandler - Ignoring unknown property [includeMdcKey] in [net.logstash.logback.composite.loggingevent.MdcJsonProvider]
+01:10:15,538 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.composite.GlobalCustomFieldsJsonProvider] for [globalCustomFields] property
+01:10:15,538 |-WARN in ch.qos.logback.core.joran.util.beans.BeanDescriptionFactory@11303ac6 - Class 'net.logstash.logback.composite.GlobalCustomFieldsJsonProvider' contains multiple setters for the same property 'customFieldsNode'.
+01:10:15,542 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to INFO
+01:10:15,542 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@491e4513 - Propagating INFO level on Logger[ROOT] onto the JUL framework
+01:10:15,543 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[ROOT]
+01:10:15,543 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[ROOT]
+01:10:15,543 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@5d5bb958 - End of configuration.
+01:10:15,543 |-INFO in org.springframework.boot.logging.logback.SpringBootJoranConfigurator@605231cd - Registering current configuration as safe fallback point
+
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+{"@timestamp":"2025-09-29T01:10:15.589729+02:00","@version":"1","logger_name":"org.hibernate.validator.internal.util.Version","thread_name":"background-preinit","message":"HV000001: Hibernate Validator 8.0.1.Final"}
+{"@timestamp":"2025-09-29T01:10:15.6512992+02:00","@version":"1","logger_name":"com.possable.Application","thread_name":"restartedMain","message":"Starting Application using Java 21.0.8 with PID 12624 (C:\\Users\\Administrator\\Projects\\possable\\target\\classes started by Administrator in C:\\Users\\Administrator\\Projects\\possable)"}
+{"@timestamp":"2025-09-29T01:10:15.6543009+02:00","@version":"1","logger_name":"com.possable.Application","thread_name":"restartedMain","message":"The following 1 profile is active: \"demo\""}
+{"@timestamp":"2025-09-29T01:10:15.719447+02:00","@version":"1","logger_name":"org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor","thread_name":"restartedMain","message":"Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable"}
+{"@timestamp":"2025-09-29T01:10:15.719447+02:00","@version":"1","logger_name":"org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor","thread_name":"restartedMain","message":"For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'"}
+{"@timestamp":"2025-09-29T01:10:17.8721381+02:00","@version":"1","logger_name":"org.springframework.data.repository.config.RepositoryConfigurationDelegate","thread_name":"restartedMain","message":"Bootstrapping Spring Data JPA repositories in DEFAULT mode."}
+{"@timestamp":"2025-09-29T01:10:18.0101111+02:00","@version":"1","logger_name":"org.springframework.data.repository.config.RepositoryConfigurationDelegate","thread_name":"restartedMain","message":"Finished Spring Data repository scanning in 120 ms. Found 6 JPA repository interfaces."}
+{"@timestamp":"2025-09-29T01:10:19.5493067+02:00","@version":"1","logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","thread_name":"restartedMain","message":"Tomcat initialized with port 0 (http)"}
+{"@timestamp":"2025-09-29T01:10:19.5615324+02:00","@version":"1","logger_name":"org.apache.coyote.http11.Http11NioProtocol","thread_name":"restartedMain","message":"Initializing ProtocolHandler [\"http-nio-auto-1\"]"}
+{"@timestamp":"2025-09-29T01:10:19.5682347+02:00","@version":"1","logger_name":"org.apache.catalina.core.StandardService","thread_name":"restartedMain","message":"Starting service [Tomcat]"}
+{"@timestamp":"2025-09-29T01:10:19.5682347+02:00","@version":"1","logger_name":"org.apache.catalina.core.StandardEngine","thread_name":"restartedMain","message":"Starting Servlet engine: [Apache Tomcat/10.1.16]"}
+{"@timestamp":"2025-09-29T01:10:19.6528866+02:00","@version":"1","logger_name":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]","thread_name":"restartedMain","message":"Initializing Spring embedded WebApplicationContext"}
+{"@timestamp":"2025-09-29T01:10:19.6538829+02:00","@version":"1","logger_name":"org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext","thread_name":"restartedMain","message":"Root WebApplicationContext: initialization completed in 3931 ms"}
+{"@timestamp":"2025-09-29T01:10:19.9171721+02:00","@version":"1","logger_name":"com.zaxxer.hikari.HikariDataSource","thread_name":"restartedMain","message":"HikariPool-1 - Starting..."}
+{"@timestamp":"2025-09-29T01:10:20.5727173+02:00","@version":"1","logger_name":"com.zaxxer.hikari.pool.HikariPool","thread_name":"restartedMain","message":"HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:7e3d5b63-ae71-4da8-9c92-f4140d1f1011 user=SA"}
+{"@timestamp":"2025-09-29T01:10:20.5762435+02:00","@version":"1","logger_name":"com.zaxxer.hikari.HikariDataSource","thread_name":"restartedMain","message":"HikariPool-1 - Start completed."}
+{"@timestamp":"2025-09-29T01:10:20.6445014+02:00","@version":"1","logger_name":"org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration","thread_name":"restartedMain","message":"H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:7e3d5b63-ae71-4da8-9c92-f4140d1f1011'"}
+{"@timestamp":"2025-09-29T01:10:21.0881505+02:00","@version":"1","logger_name":"com.vaadin.flow.spring.VaadinServletContextInitializer","thread_name":"restartedMain","message":"Search for VaadinAppShell took 98 ms"}
+{"@timestamp":"2025-09-29T01:10:24.8911281+02:00","@version":"1","logger_name":"com.vaadin.flow.spring.VaadinServletContextInitializer","thread_name":"restartedMain","message":"Search for subclasses and classes with annotations took 3639 ms"}
+{"@timestamp":"2025-09-29T01:10:24.9915139+02:00","@version":"1","logger_name":"com.vaadin.base.devserver.startup.DevModeStartupListener","thread_name":"restartedMain","message":"Starting dev-mode updaters in C:\\Users\\Administrator\\Projects\\possable folder."}
+{"@timestamp":"2025-09-29T01:10:25.0390841+02:00","@version":"1","logger_name":"com.vaadin.flow.server.frontend.scanner.FullDependenciesScanner","thread_name":"restartedMain","message":"Visited 109 classes. Took 25 ms."}
+{"@timestamp":"2025-09-29T01:10:25.041236+02:00","@version":"1","logger_name":"com.vaadin.flow.server.frontend.BundleValidationUtil","thread_name":"restartedMain","message":"Checking if a development mode bundle build is needed"}
+{"@timestamp":"2025-09-29T01:10:25.523505+02:00","@version":"1","logger_name":"com.vaadin.flow.server.frontend.BundleValidationUtil","thread_name":"restartedMain","message":"A development mode bundle build is not needed"}
+{"@timestamp":"2025-09-29T01:10:25.5811484+02:00","@version":"1","logger_name":"com.vaadin.flow.server.frontend.TaskCopyFrontendFiles","thread_name":"ForkJoinPool.commonPool-worker-1","message":"Copying frontend resources from jar files ..."}
+{"@timestamp":"2025-09-29T01:10:25.67098+02:00","@version":"1","logger_name":"com.vaadin.flow.server.frontend.TaskCopyFrontendFiles","thread_name":"ForkJoinPool.commonPool-worker-1","message":"Visited 17 resources. Took 90 ms."}
+[94mVaadin application has been deployed and started to the context path "/".
+[0m{"@timestamp":"2025-09-29T01:10:26.0079569+02:00","@version":"1","logger_name":"org.hibernate.jpa.internal.util.LogHelper","thread_name":"restartedMain","message":"HHH000204: Processing PersistenceUnitInfo [name: default]"}
+{"@timestamp":"2025-09-29T01:10:26.105068+02:00","@version":"1","logger_name":"org.hibernate.Version","thread_name":"restartedMain","message":"HHH000412: Hibernate ORM core version 6.3.1.Final"}
+{"@timestamp":"2025-09-29T01:10:26.1459823+02:00","@version":"1","logger_name":"org.hibernate.cache.internal.RegionFactoryInitiator","thread_name":"restartedMain","message":"HHH000026: Second-level cache disabled"}
+{"@timestamp":"2025-09-29T01:10:26.4735886+02:00","@version":"1","logger_name":"org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo","thread_name":"restartedMain","message":"No LoadTimeWeaver setup: ignoring JPA class transformer"}
+{"@timestamp":"2025-09-29T01:10:28.1579567+02:00","@version":"1","logger_name":"org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator","thread_name":"restartedMain","message":"HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)"}
+{"@timestamp":"2025-09-29T01:10:28.2638472+02:00","@version":"1","logger_name":"org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean","thread_name":"restartedMain","message":"Initialized JPA EntityManagerFactory for persistence unit 'default'"}
+{"@timestamp":"2025-09-29T01:10:29.6868179+02:00","@version":"1","logger_name":"org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$JpaWebConfiguration","thread_name":"restartedMain","message":"spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning"}
+{"@timestamp":"2025-09-29T01:10:31.021326+02:00","@version":"1","logger_name":"org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver","thread_name":"restartedMain","message":"Exposing 4 endpoint(s) beneath base path '/actuator'"}
+{"@timestamp":"2025-09-29T01:10:31.1593249+02:00","@version":"1","logger_name":"org.springframework.security.web.DefaultSecurityFilterChain","thread_name":"restartedMain","message":"Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@635db8c3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6ab020c6, org.springframework.security.web.context.SecurityContextHolderFilter@4ffc5433, org.springframework.security.web.header.HeaderWriterFilter@6b9a0b25, org.springframework.web.filter.CorsFilter@5f6545da, org.springframework.security.web.authentication.logout.LogoutFilter@66377af0, com.possable.config.SecurityConfig$1@72c2ef85, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3e6d3b7c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@546ad141, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3820b05b, org.springframework.security.web.session.SessionManagementFilter@36aede98, org.springframework.security.web.access.ExceptionTranslationFilter@6ad0fbe2, org.springframework.security.web.access.intercept.AuthorizationFilter@36174ba3]"}
+{"@timestamp":"2025-09-29T01:10:32.0426282+02:00","@version":"1","logger_name":"org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer","thread_name":"restartedMain","message":"LiveReload server is running on port 35729"}
+{"@timestamp":"2025-09-29T01:10:32.1293205+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereHandler com.vaadin.flow.server.communication.PushAtmosphereHandler mapped to context-path: /*"}
+{"@timestamp":"2025-09-29T01:10:32.129849+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed the following AtmosphereInterceptor mapped to AtmosphereHandler com.vaadin.flow.server.communication.PushAtmosphereHandler"}
+{"@timestamp":"2025-09-29T01:10:32.2450541+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Atmosphere is using org.atmosphere.util.VoidAnnotationProcessor for processing annotation"}
+{"@timestamp":"2025-09-29T01:10:32.2702676+02:00","@version":"1","logger_name":"org.atmosphere.util.ForkJoinPool","thread_name":"restartedMain","message":"Using ForkJoinPool  java.util.concurrent.ForkJoinPool. Set the org.atmosphere.cpr.broadcaster.maxAsyncWriteThreads to -1 to fully use its power."}
+{"@timestamp":"2025-09-29T01:10:32.2923592+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed WebSocketProtocol org.atmosphere.websocket.protocol.SimpleHttpProtocol "}
+{"@timestamp":"2025-09-29T01:10:32.3055089+02:00","@version":"1","logger_name":"org.atmosphere.container.JSR356AsyncSupport","thread_name":"restartedMain","message":"JSR 356 Mapping path /VAADIN/push"}
+{"@timestamp":"2025-09-29T01:10:32.3387773+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installing Default AtmosphereInterceptors"}
+{"@timestamp":"2025-09-29T01:10:32.3428879+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.CorsInterceptor : CORS Interceptor Support"}
+{"@timestamp":"2025-09-29T01:10:32.3444929+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.CacheHeadersInterceptor : Default Response's Headers Interceptor"}
+{"@timestamp":"2025-09-29T01:10:32.3462481+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.PaddingAtmosphereInterceptor : Browser Padding Interceptor Support"}
+{"@timestamp":"2025-09-29T01:10:32.3475672+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.AndroidAtmosphereInterceptor : Android Interceptor Support"}
+{"@timestamp":"2025-09-29T01:10:32.3475672+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Dropping Interceptor org.atmosphere.interceptor.HeartbeatInterceptor"}
+{"@timestamp":"2025-09-29T01:10:32.3501177+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.SSEAtmosphereInterceptor : SSE Interceptor Support"}
+{"@timestamp":"2025-09-29T01:10:32.3526279+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.JSONPAtmosphereInterceptor : JSONP Interceptor Support"}
+{"@timestamp":"2025-09-29T01:10:32.355137+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.JavaScriptProtocol : Atmosphere JavaScript Protocol"}
+{"@timestamp":"2025-09-29T01:10:32.3566692+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.WebSocketMessageSuspendInterceptor : org.atmosphere.interceptor.WebSocketMessageSuspendInterceptor"}
+{"@timestamp":"2025-09-29T01:10:32.3576806+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.OnDisconnectInterceptor : Browser disconnection detection"}
+{"@timestamp":"2025-09-29T01:10:32.3602275+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"\torg.atmosphere.interceptor.IdleResourceInterceptor : org.atmosphere.interceptor.IdleResourceInterceptor"}
+{"@timestamp":"2025-09-29T01:10:32.3612252+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Set org.atmosphere.cpr.AtmosphereInterceptor.disableDefaults to disable them."}
+{"@timestamp":"2025-09-29T01:10:32.3632426+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor CORS Interceptor Support with priority FIRST_BEFORE_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3662379+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor Default Response's Headers Interceptor with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3691338+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor Browser Padding Interceptor Support with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3696459+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor Android Interceptor Support with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.370227+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor SSE Interceptor Support with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.370227+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor JSONP Interceptor Support with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.370227+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor Atmosphere JavaScript Protocol with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3712432+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor org.atmosphere.interceptor.WebSocketMessageSuspendInterceptor with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3712432+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor Browser disconnection detection with priority AFTER_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3722556+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor org.atmosphere.interceptor.IdleResourceInterceptor with priority BEFORE_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.3752459+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Using EndpointMapper class org.atmosphere.util.DefaultEndpointMapper"}
+{"@timestamp":"2025-09-29T01:10:32.3762462+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Using BroadcasterCache: org.atmosphere.cache.UUIDBroadcasterCache"}
+{"@timestamp":"2025-09-29T01:10:32.3762462+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Default Broadcaster Class: org.atmosphere.cpr.DefaultBroadcaster"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Broadcaster Shared List Resources: false"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Broadcaster Polling Wait Time 100"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Shared ExecutorService supported: true"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Messaging ExecutorService Pool Size unavailable - Not instance of ThreadPoolExecutor"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Async I/O Thread Pool Size: 200"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Using BroadcasterFactory: org.atmosphere.cpr.DefaultBroadcasterFactory"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Using AtmosphereResurceFactory: org.atmosphere.cpr.DefaultAtmosphereResourceFactory"}
+{"@timestamp":"2025-09-29T01:10:32.3772435+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Using WebSocketProcessor: org.atmosphere.websocket.DefaultWebSocketProcessor"}
+{"@timestamp":"2025-09-29T01:10:32.3834569+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Invoke AtmosphereInterceptor on WebSocket message true"}
+{"@timestamp":"2025-09-29T01:10:32.3834569+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"HttpSession supported: true"}
+{"@timestamp":"2025-09-29T01:10:32.3834569+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Atmosphere is using org.atmosphere.inject.InjectableObjectFactory for dependency injection and object creation"}
+{"@timestamp":"2025-09-29T01:10:32.3834569+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Atmosphere is using async support: org.atmosphere.container.JSR356AsyncSupport running under container: Apache Tomcat/10.1.16 using jakarta.servlet/3.0 and jsr356/WebSocket API"}
+{"@timestamp":"2025-09-29T01:10:32.384452+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Atmosphere Framework 3.0.3.slf4jvaadin1 started."}
+{"@timestamp":"2025-09-29T01:10:32.3916257+02:00","@version":"1","logger_name":"org.atmosphere.cpr.AtmosphereFramework","thread_name":"restartedMain","message":"Installed AtmosphereInterceptor  Track Message Size Interceptor using | with priority BEFORE_DEFAULT "}
+{"@timestamp":"2025-09-29T01:10:32.4919383+02:00","@version":"1","logger_name":"org.apache.coyote.http11.Http11NioProtocol","thread_name":"restartedMain","message":"Starting ProtocolHandler [\"http-nio-auto-1\"]"}
+{"@timestamp":"2025-09-29T01:10:32.5584253+02:00","@version":"1","logger_name":"com.vaadin.flow.server.DefaultDeploymentConfiguration","thread_name":"restartedMain","message":"\nVaadin is running in DEVELOPMENT mode - do not use for production deployments.\n\nThe following feature previews are enabled:\n- SideNav component (Production ready but tweaks to at least the internal DOM will still take place)\n\n"}
+{"@timestamp":"2025-09-29T01:10:32.6248147+02:00","@version":"1","logger_name":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","thread_name":"restartedMain","message":"Tomcat started on port 17669 (http) with context path ''"}
+{"@timestamp":"2025-09-29T01:10:32.6410763+02:00","@version":"1","logger_name":"com.possable.Application","thread_name":"restartedMain","message":"Started Application in 18.509 seconds (process running for 19.356)"}
+{"@timestamp":"2025-09-29T01:10:33.0029152+02:00","@version":"1","logger_name":"com.possable.service.PrinterService","thread_name":"restartedMain","message":"{\"message\":\"printer_registered\", \"printer_id\":\"a912c0f2-0515-4e46-a4e4-7765bc5d3f0f\", \"component\":\"printer-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0657161+02:00","@version":"1","logger_name":"com.possable.service.PrinterService","thread_name":"restartedMain","message":"{\"message\":\"printer_registered\", \"printer_id\":\"c130e9ff-9ad3-4718-b562-e5662c2a82ce\", \"component\":\"printer-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0679101+02:00","@version":"1","logger_name":"com.possable.service.PrinterService","thread_name":"restartedMain","message":"{\"message\":\"printer_registered\", \"printer_id\":\"52026c59-d6ad-4b78-b6f6-ced9bc89c019\", \"component\":\"printer-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0705367+02:00","@version":"1","logger_name":"com.possable.service.PrintTemplateService","thread_name":"restartedMain","message":"{\"message\":\"print_template_created\", \"template_id\":\"8372f349-f842-4e1b-96f6-ba85009bb768\", \"component\":\"print-template-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0751126+02:00","@version":"1","logger_name":"com.possable.service.PrintTemplateService","thread_name":"restartedMain","message":"{\"message\":\"print_template_created\", \"template_id\":\"30eee11a-f8e6-4c72-aab8-c8da247ea0c3\", \"component\":\"print-template-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0771149+02:00","@version":"1","logger_name":"com.possable.service.PrintTemplateService","thread_name":"restartedMain","message":"{\"message\":\"print_template_created\", \"template_id\":\"b8f15d79-5c9d-450b-9983-f94a6dc2b23e\", \"component\":\"print-template-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0791153+02:00","@version":"1","logger_name":"com.possable.config.DemoDataConfig","thread_name":"restartedMain","message":"demo printers and templates registered: a912c0f2-0515-4e46-a4e4-7765bc5d3f0f, c130e9ff-9ad3-4718-b562-e5662c2a82ce, 52026c59-d6ad-4b78-b6f6-ced9bc89c019"}
+{"@timestamp":"2025-09-29T01:10:33.088181+02:00","@version":"1","logger_name":"com.possable.service.ItemService","thread_name":"restartedMain","message":"{\"message\":\"item_created\", \"item_id\":\"899ccb4b-1f85-48d0-a141-200fd9d20fea\", \"component\":\"item-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0932519+02:00","@version":"1","logger_name":"com.possable.service.ItemService","thread_name":"restartedMain","message":"{\"message\":\"item_created\", \"item_id\":\"7702fc27-4201-419a-80cd-38a466050272\", \"component\":\"item-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.095858+02:00","@version":"1","logger_name":"com.possable.service.ItemService","thread_name":"restartedMain","message":"{\"message\":\"item_created\", \"item_id\":\"ccd1a623-0bbd-4633-912f-212397a81731\", \"component\":\"item-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.0988592+02:00","@version":"1","logger_name":"com.possable.service.ItemService","thread_name":"restartedMain","message":"{\"message\":\"item_created\", \"item_id\":\"31b70975-94b4-45bb-a3f1-aaec23f5da27\", \"component\":\"item-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.1008569+02:00","@version":"1","logger_name":"com.possable.config.DemoDataConfig","thread_name":"restartedMain","message":"created demo items: 899ccb4b-1f85-48d0-a141-200fd9d20fea, 7702fc27-4201-419a-80cd-38a466050272, ccd1a623-0bbd-4633-912f-212397a81731, 31b70975-94b4-45bb-a3f1-aaec23f5da27"}
+{"@timestamp":"2025-09-29T01:10:33.14011+02:00","@version":"1","logger_name":"com.possable.service.OrderService","thread_name":"restartedMain","message":"{\"message\":\"order_created\", \"order_id\":\"28514b99-4cfd-4482-80aa-e11778a385f7\", \"items_count\":2, \"component\":\"order-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.1466465+02:00","@version":"1","logger_name":"com.possable.service.OrderService","thread_name":"","message":"{\"message\":\"order_processed\", \"order_id\":\"28514b99-4cfd-4482-80aa-e11778a385f7\", \"component\":\"order-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.162118+02:00","@version":"1","logger_name":"com.possable.config.DemoDataConfig","thread_name":"restartedMain","message":"created demo order 28514b99-4cfd-4482-80aa-e11778a385f7 with 2 items"}
+{"@timestamp":"2025-09-29T01:10:33.1704651+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"restartedMain","message":"{\"message\":\"print_job_created\", \"print_job_id\":\"1bfaf2f0-8054-44bc-bbe7-1697ecd251f2\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.1749838+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"restartedMain","message":"{\"message\":\"print_job_created\", \"print_job_id\":\"d43f2e87-105f-4754-84c3-25c4c875a2a8\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.1791765+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"restartedMain","message":"{\"message\":\"print_job_created\", \"print_job_id\":\"4f0ca7a9-d904-429c-b3fe-1c1bd46b2585\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.1954147+02:00","@version":"1","logger_name":"com.possable.service.OrderService","thread_name":"restartedMain","message":"{\"message\":\"order_status_updated\", \"order_id\":\"28514b99-4cfd-4482-80aa-e11778a385f7\", \"status\":\"IN_PREPARATION\", \"component\":\"order-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2137137+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"d43f2e87-105f-4754-84c3-25c4c875a2a8\", \"status\":\"printing\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2137137+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"1bfaf2f0-8054-44bc-bbe7-1697ecd251f2\", \"status\":\"printing\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2137137+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"4f0ca7a9-d904-429c-b3fe-1c1bd46b2585\", \"status\":\"printing\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2188987+02:00","@version":"1","logger_name":"com.possable.config.DemoDataConfig","thread_name":"restartedMain","message":"created 3 print jobs for demo order 28514b99-4cfd-4482-80aa-e11778a385f7"}
+{"@timestamp":"2025-09-29T01:10:33.2337766+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_executed\", \"print_job_id\":\"d43f2e87-105f-4754-84c3-25c4c875a2a8\", \"printer_id\":\"c130e9ff-9ad3-4718-b562-e5662c2a82ce\", \"printer_name\":\"Bar Printer\", \"component\":\"print-job-service\", \"output\":\"BAR\\nOrder: 28514b99-4cfd-4482-80aa-e11778a385f7\\nItems: Espresso x1, Latte x1\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2358452+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_executed\", \"print_job_id\":\"1bfaf2f0-8054-44bc-bbe7-1697ecd251f2\", \"printer_id\":\"a912c0f2-0515-4e46-a4e4-7765bc5d3f0f\", \"printer_name\":\"Kitchen Printer\", \"component\":\"print-job-service\", \"output\":\"KITCHEN\\nOrder: 28514b99-4cfd-4482-80aa-e11778a385f7\\nItems: Espresso x1, Latte x1\\nNotes: \"}"}
+{"@timestamp":"2025-09-29T01:10:33.2337766+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_executed\", \"print_job_id\":\"4f0ca7a9-d904-429c-b3fe-1c1bd46b2585\", \"printer_id\":\"52026c59-d6ad-4b78-b6f6-ced9bc89c019\", \"printer_name\":\"Receipt Printer\", \"component\":\"print-job-service\", \"output\":\"RECEIPT\\nOrder: 28514b99-4cfd-4482-80aa-e11778a385f7\\nTotal: $6.00\\nThank you!\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2414388+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"d43f2e87-105f-4754-84c3-25c4c875a2a8\", \"status\":\"completed\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2414388+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"1bfaf2f0-8054-44bc-bbe7-1697ecd251f2\", \"status\":\"completed\", \"component\":\"print-job-service\"}"}
+{"@timestamp":"2025-09-29T01:10:33.2424434+02:00","@version":"1","logger_name":"com.possable.service.PrintJobService","thread_name":"","message":"{\"message\":\"print_job_status_updated\", \"print_job_id\":\"4f0ca7a9-d904-429c-b3fe-1c1bd46b2585\", \"status\":\"completed\", \"component\":\"print-job-service\"}"}

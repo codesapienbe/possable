@@ -92,6 +92,14 @@
       <artifactId>vaadin-spring-boot-starter</artifactId>
       <version>24.1.12</version>
     </dependency>
+
+    <!-- Spring Boot DevTools for hot reload during development (runtime-only, optional) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
   <build>
@@ -210,6 +218,24 @@
             <buildArg>--no-fallback</buildArg>
             <buildArg>--enable-url-protocols=http,https</buildArg>
           </buildArgs>
+        </configuration>
+      </plugin>
+
+      <!-- Vaadin Maven Plugin: ensures frontend is prepared and enables the dev server in development -->
+      <plugin>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-maven-plugin</artifactId>
+        <version>24.1.12</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-frontend</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <productionMode>false</productionMode>
+          <enableDevServerByDefault>true</enableDevServerByDefault>
         </configuration>
       </plugin>
     </plugins>

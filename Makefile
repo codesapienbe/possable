@@ -28,8 +28,12 @@ build:
 	docker build -f $(DOCKERFILE) -t $(IMAGE_NAME) .
 
 dev:
-	@echo "Running application locally (foreground)"
-	mvn -Pnative -DskipTests spring-boot:run
+	@echo "Running application locally (background, logs -> .dev.log)"
+ifeq ($(OS),Windows_NT)
+	@pwsh -NoProfile -Command "Start-Process -FilePath 'cmd.exe' -ArgumentList '/c mvn spring-boot:run > .dev.log 2>&1' -WindowStyle Hidden"
+else
+	@nohup mvn -DskipTests spring-boot:run > .dev.log 2>&1 &
+endif
 
 run:
 	@echo "Running docker image $(IMAGE_NAME)"
