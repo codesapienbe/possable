@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.possable.service.ItemService;
 import com.possable.service.OrderService;
-import com.possable.service.PrinterService;
 import com.possable.service.PrintJobService;
 import com.possable.service.PrintTemplateService;
+import com.possable.service.PrinterService;
 
 @Component
 public class RoleDashboardFactory {
@@ -26,7 +26,7 @@ public class RoleDashboardFactory {
 	}
 
 	public ItemListComponent createItemListComponent() {
-		return new ItemListComponent(itemService);
+		return new ItemListComponent(itemService, orderService);
 	}
 
 	public OrdersComponent createOrdersComponent() {
