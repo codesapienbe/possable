@@ -62,7 +62,7 @@ public class EntryPointView extends VerticalLayout {
 		cards.add(createRoleCard(VaadinIcon.USERS, "SERVICE", () -> openPinDialog("service")));
 		cards.add(createRoleCard(VaadinIcon.CUTLERY, "KITCHEN", () -> openPinDialog("kitchen")));
 			cards.add(createRoleCard(VaadinIcon.COG, "MANAGEMENT", () -> openPinDialog("management")));
-			cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> UI.getCurrent().navigate("customer")));
+			cards.add(createRoleCard(VaadinIcon.SHOP, "CUSTOMER", () -> openCustomerPincodeDialog()));
 			// future: capture drawing-based unlock input via client and pass to openPinDialog as drawing parameter
 
 		add(cards);
@@ -322,5 +322,45 @@ public class EntryPointView extends VerticalLayout {
 		animThread.start();
 		// clear pattern after use
 		if (pattern != null) pattern.clear();
+	}
+
+	private void openCustomerPincodeDialog() {
+		Dialog dialog = new Dialog();
+		dialog.setWidth("420px");
+		VerticalLayout content = new VerticalLayout();
+		content.setPadding(true);
+		content.setSpacing(true);
+		content.setAlignItems(FlexComponent.Alignment.CENTER);
+		content.add(new H1("Customer - Enter PIN"));
+		TextField table = new TextField("Table (optional)");
+		table.setWidth("220px");
+		TextField pin = new TextField("PIN");
+		pin.setPlaceholder("4-digit PIN");
+		pin.getElement().setAttribute("inputmode", "numeric");
+		pin.getElement().setAttribute("maxlength", "6");
+		pin.setWidth("220px");
+
+		Button submit = new Button("Enter", evt -> {
+			String p = pin.getValue();
+			String t = table.getValue();
+			if (p == null || !p.matches("\\d{4,6}")) {
+				Notification.show("Please enter a 4-6 digit PIN");
+				return;
+			}
+			try {
+				String url = "/pincode-login?pincode=" + java.net.URLEncoder.encode(p, "UTF-8");
+				if (t != null && !t.isBlank()) url += "&table=" + java.net.URLEncoder.encode(t, "UTF-8");
+				url += "&redirect=/customer";
+				UI.getCurrent().getPage().open(url, "_self");
+			} catch (Exception ex) {
+				Notification.show("Failed to initiate login");
+			}
+		});
+		Button cancel = new Button("Cancel", e -> dialog.close());
+		submit.addClassName("pos-button-large");
+		cancel.addClassName("pos-button-large");
+		content.add(table, pin, new HorizontalLayout(submit, cancel));
+		dialog.add(content);
+		dialog.open();
 	}
 } 
