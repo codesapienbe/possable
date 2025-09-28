@@ -7,6 +7,7 @@ import com.possable.service.OrderService;
 import com.possable.service.PrintJobService;
 import com.possable.service.PrintTemplateService;
 import com.possable.service.PrinterService;
+import com.possable.service.PaymentService;
 
 @Component
 public class RoleDashboardFactory {
@@ -16,13 +17,15 @@ public class RoleDashboardFactory {
 	private final PrinterService printerService;
 	private final PrintJobService printJobService;
 	private final PrintTemplateService templateService;
+	private final PaymentService paymentService;
 
-	public RoleDashboardFactory(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
+	public RoleDashboardFactory(ItemService itemService, OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService, PaymentService paymentService) {
 		this.itemService = itemService;
 		this.orderService = orderService;
 		this.printerService = printerService;
 		this.printJobService = printJobService;
 		this.templateService = templateService;
+		this.paymentService = paymentService;
 	}
 
 	public ItemListComponent createItemListComponent() {
@@ -30,7 +33,7 @@ public class RoleDashboardFactory {
 	}
 
 	public OrdersComponent createOrdersComponent() {
-		return new OrdersComponent(orderService, printerService, printJobService, templateService);
+		return new OrdersComponent(orderService, printerService, printJobService, templateService, itemService, paymentService);
 	}
 
 	public PrintersComponent createPrintersComponent() {

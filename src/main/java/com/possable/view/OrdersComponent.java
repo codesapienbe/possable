@@ -4,6 +4,8 @@ import com.possable.service.OrderService;
 import com.possable.service.PrintJobService;
 import com.possable.service.PrintTemplateService;
 import com.possable.service.PrinterService;
+import com.possable.service.ItemService;
+import com.possable.service.PaymentService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -13,9 +15,9 @@ public class OrdersComponent extends VerticalLayout {
 	private final Grid<com.possable.controller.OrderController.OrderDto> grid = new Grid<>(com.possable.controller.OrderController.OrderDto.class, false);
 	private final OrdersDetailComponent details;
 
-	public OrdersComponent(OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService) {
+	public OrdersComponent(OrderService orderService, PrinterService printerService, PrintJobService printJobService, PrintTemplateService templateService, ItemService itemService, PaymentService paymentService) {
 		this.orderService = orderService;
-		this.details = new OrdersDetailComponent(orderService, printerService, printJobService, templateService);
+		this.details = new OrdersDetailComponent(orderService, printerService, printJobService, templateService, itemService, paymentService);
 		setPadding(false);
 		setSpacing(false);
 		setWidthFull();
