@@ -33,6 +33,7 @@ public class UserService {
         users.putIfAbsent("service", new UserRecord(encoded, "", Set.of("SERVICE")));
         users.putIfAbsent("kitchen", new UserRecord(encoded, "", Set.of("KITCHEN")));
         users.putIfAbsent("management", new UserRecord(encoded, "", Set.of("MANAGEMENT")));
+        users.putIfAbsent("cashier", new UserRecord(encoded, "", Set.of("CASHIER")));
     }
 
     public boolean addUser(String username, String rawPincode, String rawDrawing, Set<String> roles) {
