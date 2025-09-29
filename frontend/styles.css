@@ -705,29 +705,30 @@ body.light-mode .toggle-label { color: #0b1220; }
 
 /* Light mode overrides: apply when body has class 'light-mode' */
 body.light-mode {
-	--pos-bg: #f7fafc; /* very light */
+	--pos-bg: #f7fbff; /* very light with subtle blue tint for more life */
 	--pos-panel: #ffffff;
-	--pos-accent: #0ea5a4; /* keep teal accent */
+	--pos-accent: #0b84ff; /* vibrant blue primary accent */
+	--pos-accent-2: #0ea5a4; /* teal secondary accent for variety */
 	--pos-muted: #475569; /* slate for muted text */
-	--pos-card: #ffffff;
+	--pos-card: linear-gradient(180deg, #ffffff, #f8fbff); /* soft card gradient */
 	--pos-gap: 24px;
-	--glass-bg: rgba(2,6,23,0.03);
-	--glass-border: rgba(2,6,23,0.06);
-	--glass-blur: 6px;
-	--pattern-hover-color: rgba(14,165,164,0.98);
-	--pattern-stroke-color: rgba(14,165,164,0.98);
-	--pattern-dot-color: #0ea5a4;
-	--pattern-dot-bg: rgba(2,6,23,0.06);
-	background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+	--glass-bg: rgba(11,132,255,0.04);
+	--glass-border: rgba(11,132,255,0.12);
+	--glass-blur: 10px;
+	--pattern-hover-color: rgba(11,132,255,0.98);
+	--pattern-stroke-color: rgba(11,132,255,0.98);
+	--pattern-dot-color: #0b84ff;
+	--pattern-dot-bg: rgba(11,132,255,0.06);
+	background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
 	color: #0b1220;
 }
 
 /* Ensure pattern-lock inherits and contrasts in light mode */
 body.light-mode pattern-lock, body.light-mode .pattern-lock {
-	--pattern-hover-color: rgba(14,165,164,0.98);
-	--pattern-stroke-color: rgba(14,165,164,0.98);
-	--pattern-dot-color: #0ea5a4;
-	--pattern-dot-bg: rgba(2,6,23,0.06);
+	--pattern-hover-color: rgba(11,132,255,0.98);
+	--pattern-stroke-color: rgba(11,132,255,0.98);
+	--pattern-dot-color: #0b84ff;
+	--pattern-dot-bg: rgba(11,132,255,0.06);
 }
 
 /* Light-mode specific adjustments for glass panels and buttons */
@@ -735,12 +736,14 @@ body.light-mode .pos-card, body.light-mode .pos-stat, body.light-mode .pos-detai
 	background: var(--pos-card);
 	border: 1px solid var(--glass-border);
 	color: #0b1220;
+	box-shadow: 0 10px 30px rgba(11,132,255,0.04);
 }
 body.light-mode .v-button, body.light-mode vaadin-button, body.light-mode .v-button {
-	/* keep accent buttons readable on light background */
-	background: var(--pos-accent);
+	/* brighter, two-tone accent for more color on light background */
+	background: linear-gradient(90deg, var(--pos-accent), var(--pos-accent-2));
 	color: #ffffff;
-	border: 1px solid rgba(0,0,0,0.06);
+	border: 1px solid rgba(11,132,255,0.12);
+	box-shadow: 0 6px 18px rgba(11,132,255,0.06);
 }
 
 /* make PIN dots and pattern canvas clearly visible on light backgrounds */
@@ -764,24 +767,24 @@ body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-sha
 
 /* Role-specific styling for main role buttons (pos-card) */
 .pos-card.role-service {
-    background: linear-gradient(135deg, #0ea5a4 0%, #059c9a 100%);
+    background: linear-gradient(135deg, #0b84ff 0%, #0ea5ff 100%);
     color: #061017;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
 }
 .pos-card.role-kitchen {
-    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6a00 100%);
     color: #061017;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
 }
 .pos-card.role-management {
     background: linear-gradient(135deg, #06b6d4 0%, #0ea5ea 100%);
     color: #061017;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
 }
 .pos-card.role-customer {
-    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     color: #061017;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
 }
 .pos-card .role-icon, .pos-card svg, .pos-card vaadin-icon {
     color: inherit;
@@ -794,3 +797,46 @@ body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-sha
     .pos-card { width: calc(100% - 48px); min-width: unset; max-width: 420px; }
     .pos-card .role-icon, .pos-card svg { font-size: 28px; width: 56px; height: 56px; }
 }
+
+/* Split layout for list / details views: left list and right detail pane */
+.pos-split {
+	display: flex;
+	gap: 12px;
+	align-items: stretch;
+	width: 100%;
+	height: 100%;
+}
+.pos-split .left {
+	width: 60%;
+	min-width: 280px;
+	height: 100%;
+}
+.pos-split .right {
+	width: 40%;
+	min-width: 240px;
+	height: 100%;
+}
+
+/* Mobile: stack vertically (left on top, details below) */
+@media (max-width: 800px) {
+	.pos-split { flex-direction: column; }
+	.pos-split .left, .pos-split .right { width: 100%; min-width: unset; }
+}
+
+/* Item list and thumbnails in details panel */
+.items-list { display: flex; flex-direction: column; gap: 10px; padding: 8px 0; }
+.item-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01)); }
+.item-avatar { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:8px; background: linear-gradient(135deg, var(--pos-accent) 0%, var(--pos-accent-2, #0ea5a4) 100%); color: white; font-weight:800; }
+.item-line-price { margin-left: auto; font-weight: 800; }
+.order-total { font-size: 1.15rem; font-weight: 800; margin-top: 8px; }
+
+/* Payment CTA sizing and mobile behavior */
+.payment-cta { padding: 12px 18px; border-radius: 10px; font-weight: 800; }
+@media (max-width: 800px) {
+	.payment-cta { width: 100%; min-height: 56px; font-size: 1.05rem; }
+	.pos-split { flex-direction: column; }
+	.pos-split .left, .pos-split .right { width: 100%; }
+}
+
+/* Skeleton row presentation for loading states */
+.grid-skeleton-row { height: 48px; margin: 6px 0; border-radius: 8px; background: linear-gradient(90deg, rgba(0,0,0,0.04) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.04) 100%); }

@@ -1,5 +1,7 @@
 package com.possable.view;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.possable.service.ItemService;
 import com.possable.service.OrderService;
 import com.possable.service.PaymentService;
@@ -12,8 +14,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @Route(value = "cashier", layout = MainLayout.class)
 @PageTitle("Cashier")
@@ -33,12 +33,15 @@ public class CashierView extends HorizontalLayout {
 		setWidthFull();
 		setHeightFull();
 		addClassName("pos-root");
+		addClassName("pos-split");
 
 		// header
 		VerticalLayout leftColumn = new VerticalLayout();
 		leftColumn.setPadding(false);
 		leftColumn.setSpacing(false);
 		leftColumn.setWidthFull();
+		leftColumn.setHeightFull();
+		leftColumn.addClassName("left");
 		leftColumn.add(new H1("Cashier - Orders"));
 
 		// configure grid (compact for cashier workflow)
@@ -47,10 +50,12 @@ public class CashierView extends HorizontalLayout {
 		grid.addColumn(o -> Integer.toString(o.getItems() == null ? 0 : o.getItems().size())).setHeader("Items");
 		grid.setItems(orderService.listOrders());
 		grid.setWidthFull();
+		grid.setHeightFull();
 		grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 		grid.addSelectionListener(e -> e.getFirstSelectedItem().ifPresent(d -> details.showOrder(d)));
 
 		leftColumn.add(grid);
+		leftColumn.expand(grid);
 
 		// layout split: orders (left) and details/payment (right)
 		this.setWidthFull();
@@ -58,6 +63,8 @@ public class CashierView extends HorizontalLayout {
 		// left takes priority
 		leftColumn.setWidth("60%");
 		details.setWidth("40%");
+		details.setHeightFull();
+		details.addClassName("right");
 
 		add(leftColumn, details);
 		// expand the left column so the grid gets available space
