@@ -12,5 +12,4 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.Module(name = "order")
 package com.possable.order; 

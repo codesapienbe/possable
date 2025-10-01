@@ -13,5 +13,4 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.Module(name = "customer")
 package com.possable.customer; 

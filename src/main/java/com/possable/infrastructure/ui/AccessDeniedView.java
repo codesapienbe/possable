@@ -8,7 +8,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "access-denied", layout = MainLayout.class)
+@Route(value = "access-denied", layout = com.possable.infrastructure.ui.MainLayout.class)
 @PageTitle("Access Denied")
 public class AccessDeniedView extends VerticalLayout {
 

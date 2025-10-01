@@ -1,4 +1,4 @@
-package com.possable.controller;
+package com.possable.infrastructure.controller;
 
 import java.io.IOException;
 import java.util.List;

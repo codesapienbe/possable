@@ -19,7 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "dashboard", layout = MainLayout.class)
+@Route(value = "dashboard", layout = com.possable.user.UserMainLayout.class)
 @PageTitle("POS Dashboard")
 public class DashboardView extends VerticalLayout {
 

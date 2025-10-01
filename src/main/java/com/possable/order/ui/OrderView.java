@@ -2,6 +2,7 @@ package com.possable.order.ui;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -9,7 +10,7 @@ import com.possable.order.OrderFacade;
 import com.possable.print.PrintFacade;
 import com.possable.inventory.InventoryFacade;
 import com.possable.checkout.CheckoutFacade;
-import com.possable.infrastructure.ui.MainLayout;
+import com.possable.order.OrderMainLayout;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -26,7 +27,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
-@Route(value = "orders", layout = MainLayout.class)
+@Route(value = "orders", layout = OrderMainLayout.class)
 @PageTitle("Orders")
 public class OrderView extends VerticalLayout {
 

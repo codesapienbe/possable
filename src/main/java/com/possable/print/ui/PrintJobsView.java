@@ -16,10 +16,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.possable.service.Broadcaster;
-import com.possable.infrastructure.ui.MainLayout;
+import com.possable.infrastructure.Broadcaster;
+import com.possable.print.PrintMainLayout;
 
-@Route(value = "print-jobs-ui", layout = MainLayout.class)
+@Route(value = "print-jobs-ui", layout = PrintMainLayout.class)
 @PageTitle("Print Jobs")
 public class PrintJobsView extends VerticalLayout {
 

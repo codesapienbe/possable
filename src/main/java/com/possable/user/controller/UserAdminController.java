@@ -1,4 +1,4 @@
-package com.possable.controller;
+package com.possable.user.controller;
 
 import java.util.Map;
 import java.util.Set;

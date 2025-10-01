@@ -19,7 +19,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-@Route(value = "admin/users", layout = MainLayout.class)
+@Route(value = "admin/users", layout = com.possable.user.UserMainLayout.class)
 @PageTitle("User Admin")
 public class UserAdminView extends VerticalLayout implements BeforeEnterObserver {
 

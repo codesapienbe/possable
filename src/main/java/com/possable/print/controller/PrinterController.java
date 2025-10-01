@@ -1,4 +1,4 @@
-package com.possable.controller;
+package com.possable.print.controller;
 
 import java.time.Instant;
 import java.util.List;

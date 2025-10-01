@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.possable.order.OrderCreatedEvent;
 import com.possable.print.PrintJobRequestedEvent;
-import com.possable.service.Broadcaster;
+import com.possable.infrastructure.Broadcaster;
 
 /**
  * Internal service for print module.
@@ -52,7 +52,7 @@ public class PrintModuleService {
     public org.springframework.web.servlet.mvc.method.annotation.SseEmitter createEmitterForTopics(String topicCsv) {
         final org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter = new org.springframework.web.servlet.mvc.method.annotation.SseEmitter(0L);
         // Register listener that forwards broadcast messages to this emitter
-        var registration = com.possable.service.Broadcaster.register(msg -> {
+        var registration = com.possable.infrastructure.Broadcaster.register(msg -> {
             try {
                 emitter.send(msg);
                 totalSent.incrementAndGet();

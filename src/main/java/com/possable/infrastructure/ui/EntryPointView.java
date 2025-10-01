@@ -7,7 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.user.UserService;
+import com.possable.user.UserFacade;
+import com.possable.user.ui.PatternLockComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -24,17 +25,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "", layout = com.possable.infrastructure.ui.MainLayout.class)
 @PageTitle("Entry")
 public class EntryPointView extends VerticalLayout {
 
-	private final UserService userService;
+	private final UserFacade userFacade;
 	private final Div unlockOverlay;
 	private final Div unlockLock;
 
 	@Autowired
-	public EntryPointView(UserService userService) {
-		this.userService = userService;
+	public EntryPointView(UserFacade userFacade) {
+		this.userFacade = userFacade;
 		this.unlockOverlay = new Div();
 		this.unlockLock = new Div();
 		setPadding(true);
@@ -209,7 +210,7 @@ public class EntryPointView extends VerticalLayout {
 			String cleaned = patternJson.replaceAll("[^0-9,]", "");
 			String[] parts = cleaned.isEmpty() ? new String[0] : cleaned.split(",");
 			if (parts.length < 4) return; // require at least 4 nodes to consider a pattern
-			boolean ok = userService.authenticate(username, patternJson, null);
+			boolean ok = userFacade.authenticate(username, patternJson, null);
 			if (ok) {
 				completeLogin(username, dialog, pattern);
 			} else {
@@ -227,7 +228,7 @@ public class EntryPointView extends VerticalLayout {
 				}
 				// first try drawing-based auth using pattern lock
 				String drawing = pattern.getPattern();
-				boolean ok = userService.authenticate(username, drawing != null && !drawing.isBlank() ? drawing : null, value);
+				boolean ok = userFacade.authenticate(username, drawing != null && !drawing.isBlank() ? drawing : null, value);
 				if (ok) {
 					completeLogin(username, dialog, pattern);
 				} else {
@@ -304,12 +305,12 @@ public class EntryPointView extends VerticalLayout {
 		unlockLock.add(roleIcon, roleLabel);
 
 		// set security context with username and mapped roles
-		var roles = userService.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
+		var roles = userFacade.getRoles(username).stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
 		var token = new UsernamePasswordAuthenticationToken(username, null, roles);
 		SecurityContextHolder.getContext().setAuthentication(token);
 		dialog.close();
 		// notify layout(s) that user changed so profile and header can update
-		com.possable.service.Broadcaster.broadcast(username);
+		com.possable.infrastructure.Broadcaster.broadcast(username);
 		Notification.show("Welcome " + username);
 		// show unlock animation overlay and delay navigation until finished
 		unlockOverlay.setVisible(true);

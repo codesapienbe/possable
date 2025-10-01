@@ -7,12 +7,12 @@ import com.vaadin.flow.router.Route;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-@Route(value = "customer", layout = MainLayout.class)
+@Route(value = "customer", layout = com.possable.customer.CustomerMainLayout.class)
 @PageTitle("Customer")
 @PreAuthorize("permitAll()")
 public class CustomerView extends VerticalLayout {
 
-	public CustomerView(com.possable.infrastructure.ui.RoleDashboardFactory factory) {
+	public CustomerView(com.possable.management.ManagementDashboardFactory factory) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();

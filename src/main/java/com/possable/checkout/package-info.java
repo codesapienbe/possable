@@ -15,5 +15,4 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.Module(name = "checkout")
 package com.possable.checkout; 

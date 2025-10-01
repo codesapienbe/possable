@@ -13,13 +13,15 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.possable.management.ManagementDashboardFactory;
+import com.possable.management.ui.LogViewerComponent;
 
-@Route(value = "management", layout = MainLayout.class)
+@Route(value = "management", layout = com.possable.user.UserMainLayout.class)
 @PageTitle("Management")
 @PreAuthorize("hasRole('MANAGEMENT')")
 public class ManagementView extends VerticalLayout {
 
-	public ManagementView(RoleDashboardFactory factory) {
+	public ManagementView(ManagementDashboardFactory factory) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();

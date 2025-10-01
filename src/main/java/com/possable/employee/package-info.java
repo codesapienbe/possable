@@ -9,5 +9,4 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.Module(name = "employee")
 package com.possable.employee; 

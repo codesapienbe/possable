@@ -14,12 +14,12 @@ import com.vaadin.flow.router.Route;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-@Route(value = "service", layout = MainLayout.class)
+@Route(value = "service", layout = com.possable.infrastructure.ui.MainLayout.class)
 @PageTitle("Service")
 @PreAuthorize("hasAnyRole('SERVICE','MANAGEMENT')")
 public class ServiceView extends VerticalLayout {
 
-	public ServiceView(RoleDashboardFactory factory) {
+	public ServiceView(com.possable.management.ManagementDashboardFactory factory) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();

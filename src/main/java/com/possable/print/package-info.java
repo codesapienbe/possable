@@ -12,5 +12,4 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.Module(name = "print")
 package com.possable.print; 

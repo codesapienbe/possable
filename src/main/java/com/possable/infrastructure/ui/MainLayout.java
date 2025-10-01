@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.service.DemoNotificationService;
-import com.possable.service.Broadcaster;
+import com.possable.notification.NotificationFacade;
+import com.possable.infrastructure.Broadcaster;
 import com.possable.infrastructure.ui.EntryPointView;
 import com.possable.user.ui.ProfileView;
 import com.vaadin.flow.component.ClientCallable;
@@ -33,7 +33,7 @@ public class MainLayout extends AppLayout {
 
 	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
 
-	private final DemoNotificationService demoNotificationService;
+	private final NotificationFacade notificationFacade;
 
 	@Value("${app.auth.inactivity-timeout-ms:300000}")
 	private long inactivityTimeoutMs; // milliseconds
@@ -45,8 +45,8 @@ public class MainLayout extends AppLayout {
 	private ScheduledFuture<?> inactivityFuture;
 	private Registration broadcasterRegistration;
 
-	public MainLayout(DemoNotificationService demoNotificationService) {
-		this.demoNotificationService = demoNotificationService;
+	public MainLayout(NotificationFacade notificationFacade) {
+		this.notificationFacade = notificationFacade;
 
 		H1 title = new H1("Possable POS");
 		title.getStyle().set("margin", "0").set("font-size", "18px");
@@ -104,7 +104,7 @@ public class MainLayout extends AppLayout {
 
 		addAttachListener(evt -> {
 			// show startup message if present
-			String msg = this.demoNotificationService.consumeStartupMessage();
+			String msg = this.notificationFacade.consumeStartupMessage();
 			if (msg != null && !msg.isBlank()) {
 				Notification.show(msg, 5000, Notification.Position.TOP_END);
 			}

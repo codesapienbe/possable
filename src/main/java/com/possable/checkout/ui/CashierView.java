@@ -3,7 +3,7 @@ package com.possable.checkout.ui;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.possable.order.OrderFacade;
-import com.possable.infrastructure.ui.MainLayout;
+import com.possable.checkout.CashierMainLayout;
 import com.possable.inventory.InventoryFacade;
 import com.possable.print.PrintFacade;
 import com.possable.checkout.CheckoutFacade;
@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "cashier", layout = MainLayout.class)
+@Route(value = "cashier", layout = CashierMainLayout.class)
 @PageTitle("Cashier")
 @PreAuthorize("hasAnyRole('CASHIER','MANAGEMENT')")
 public class CashierView extends HorizontalLayout {

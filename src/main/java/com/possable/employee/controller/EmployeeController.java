@@ -1,4 +1,4 @@
-package com.possable.controller;
+package com.possable.employee.controller;
 
 import java.net.URI;
 import java.time.Instant;

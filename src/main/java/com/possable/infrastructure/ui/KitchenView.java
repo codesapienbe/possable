@@ -9,13 +9,14 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.possable.management.ManagementDashboardFactory;
 
-@Route(value = "kitchen", layout = MainLayout.class)
+@Route(value = "kitchen", layout = com.possable.order.OrderMainLayout.class)
 @PageTitle("Kitchen")
 @PreAuthorize("hasAnyRole('KITCHEN','MANAGEMENT')")
 public class KitchenView extends VerticalLayout {
 
-	public KitchenView(RoleDashboardFactory factory) {
+	public KitchenView(ManagementDashboardFactory factory) {
 		setPadding(true);
 		setSpacing(true);
 		setWidthFull();
