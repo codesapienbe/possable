@@ -6,3 +6,6 @@ node_modules
 src/main/dev-bundle
 .log
 .log.*
+
+frontend/generated
+application.log
