@@ -1,4 +1,4 @@
-package com.possable.user.model;
+package com.possable.user.internal;
 
 import java.time.Instant;
 

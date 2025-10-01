@@ -55,38 +55,14 @@ public class ItemController {
         public void setAvailable(Boolean available) { this.available = available; }
     }
 
-    public static class ItemDto {
-        private String id;
-        private String name;
-        private String description;
-        private double price;
-        private boolean available;
-        private Instant createdAt;
-        
-        public ItemDto() {}
-        public ItemDto(String id, String name, String description, double price, boolean available, Instant createdAt) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-            this.price = price;
-            this.available = available;
-            this.createdAt = createdAt;
-        }
-        
-        public String getId() { return id; }
-        public String getName() { return name; }
-        public String getDescription() { return description; }
-        public double getPrice() { return price; }
-        public boolean isAvailable() { return available; }
-        public Instant getCreatedAt() { return createdAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String name() { return name; }
-        public String description() { return description; }
-        public double price() { return price; }
-        public boolean available() { return available; }
-        public Instant createdAt() { return createdAt; }
+    public static record ItemDto(String id, String name, String description, double price, boolean available, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getName() { return name(); }
+        public String getDescription() { return description(); }
+        public double getPrice() { return price(); }
+        public boolean isAvailable() { return available(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 
     @GetMapping

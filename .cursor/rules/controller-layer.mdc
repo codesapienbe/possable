@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "REST controller implementation rules"
+globs: ["**/controller/**"]
+alwaysApply: false
+---
+
+# Controller Layer Rules
+
+## Controller Structure
+- Controllers must be in controller/ subdirectory
+- Use @RestController and @RequestMapping annotations
+- Controllers should only coordinate between facade and HTTP layer
+- No business logic in controllers, delegate to facades
+
+## HTTP Mapping
+- Use appropriate HTTP methods (GET, POST, PUT, DELETE)
+- Include proper @PathVariable and @RequestParam annotations
+- Return ResponseEntity with appropriate HTTP status codes
+- Use consistent URL patterns across modules
+
+## Validation and Error Handling
+- Validate input using Bean Validation annotations
+- Handle exceptions with proper HTTP status codes
+- Return consistent error response format
+- Include proper CORS configuration if needed
+
+## Documentation
+- Use @Operation annotations for OpenAPI documentation
+- Include example request/response bodies
+- Document all parameters and return types
+- Specify possible error scenarios
+

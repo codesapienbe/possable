@@ -10,7 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.possable.user.UserService;
-import com.possable.user.Broadcaster;
+import com.possable.service.Broadcaster;
+import com.possable.infrastructure.ui.MainLayout;
+import com.possable.infrastructure.ui.EntryPointView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;

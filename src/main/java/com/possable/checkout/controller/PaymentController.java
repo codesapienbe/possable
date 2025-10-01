@@ -48,38 +48,14 @@ public class PaymentController {
         public void setMethod(String method) { this.method = method; }
     }
 
-    public static class PaymentDto {
-        private String id;
-        private String orderId;
-        private double amount;
-        private String method;
-        private String status;
-        private Instant paidAt;
-        
-        public PaymentDto() {}
-        public PaymentDto(String id, String orderId, double amount, String method, String status, Instant paidAt) {
-            this.id = id;
-            this.orderId = orderId;
-            this.amount = amount;
-            this.method = method;
-            this.status = status;
-            this.paidAt = paidAt;
-        }
-        
-        public String getId() { return id; }
-        public String getOrderId() { return orderId; }
-        public double getAmount() { return amount; }
-        public String getMethod() { return method; }
-        public String getStatus() { return status; }
-        public Instant getPaidAt() { return paidAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String orderId() { return orderId; }
-        public double amount() { return amount; }
-        public String method() { return method; }
-        public String status() { return status; }
-        public Instant paidAt() { return paidAt; }
+    public static record PaymentDto(String id, String orderId, double amount, String method, String status, Instant paidAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getOrderId() { return orderId(); }
+        public double getAmount() { return amount(); }
+        public String getMethod() { return method(); }
+        public String getStatus() { return status(); }
+        public Instant getPaidAt() { return paidAt(); }
     }
 
     @PostMapping

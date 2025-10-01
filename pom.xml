@@ -260,12 +260,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <!-- Build for production by default when running Maven lifecycle (package) -->
-          <productionMode>true</productionMode>
-          <!-- Disable dev server to avoid dev-mode Vite builds on CI or package -->
-          <enableDevServerByDefault>false</enableDevServerByDefault>
-        </configuration>
       </plugin>
     </plugins>
   </build>

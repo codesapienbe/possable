@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.possable.order.OrderCreatedEvent;
 import com.possable.print.PrintJobRequestedEvent;
-import com.possable.user.Broadcaster;
+import com.possable.service.Broadcaster;
 
 /**
  * Internal service for print module.
@@ -37,9 +37,45 @@ public class PrintModuleService {
     private final PrinterRepository printerRepository;
     private final PrintTemplateRepository templateRepository;
 
+    // Simple metrics for SSE and emitter tracking
+    private final java.util.concurrent.atomic.AtomicLong collapsedEvents = new java.util.concurrent.atomic.AtomicLong(0);
+    private final java.util.concurrent.atomic.AtomicLong droppedEmitters = new java.util.concurrent.atomic.AtomicLong(0);
+    private final java.util.concurrent.atomic.AtomicLong totalSent = new java.util.concurrent.atomic.AtomicLong(0);
+
     public record PrintJob(String id, String orderId, String printerId, String templateId, String status, Instant createdAt) {}
     public record Printer(String id, String name, String category, String description, Instant createdAt) {}
     public record Template(String id, String printerCategory, String templateName, String content, Instant createdAt) {}
+
+    /**
+     * Create an SseEmitter for the given topic CSV. Registers a listener on the Broadcaster.
+     */
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter createEmitterForTopics(String topicCsv) {
+        final org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter = new org.springframework.web.servlet.mvc.method.annotation.SseEmitter(0L);
+        // Register listener that forwards broadcast messages to this emitter
+        var registration = com.possable.service.Broadcaster.register(msg -> {
+            try {
+                emitter.send(msg);
+                totalSent.incrementAndGet();
+            } catch (Exception ex) {
+                // track failed sends
+                droppedEmitters.incrementAndGet();
+            }
+        });
+
+        emitter.onCompletion(() -> {
+            try { registration.remove(); } catch (Exception ignored) {}
+        });
+        emitter.onTimeout(() -> {
+            try { registration.remove(); } catch (Exception ignored) {}
+        });
+        emitter.onError(e -> { try { registration.remove(); } catch (Exception ignored) {} });
+
+        return emitter;
+    }
+
+    public double getCollapsedEvents() { return collapsedEvents.doubleValue(); }
+    public double getDroppedEmitters() { return droppedEmitters.doubleValue(); }
+    public double getTotalSent() { return totalSent.doubleValue(); }
 
     public PrintModuleService(
             TaskExecutor taskExecutor,

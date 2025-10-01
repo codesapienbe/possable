@@ -85,21 +85,11 @@ public class OrderController {
         public void setNotes(String notes) { this.notes = notes; }
     }
 
-    public static class OrderDto {
-        private String id;
-        private List<String> items;
-        private String status;
-        private Instant createdAt;
-        public OrderDto() {}
-        public OrderDto(String id, List<String> items, String status, Instant createdAt) { this.id = id; this.items = items; this.status = status; this.createdAt = createdAt; }
-        public String getId() { return id; }
-        public List<String> getItems() { return items; }
-        public String getStatus() { return status; }
-        public Instant getCreatedAt() { return createdAt; }
-        // Backwards-compatible record-style accessors used across the codebase/tests
-        public String id() { return getId(); }
-        public List<String> items() { return getItems(); }
-        public String status() { return getStatus(); }
-        public Instant createdAt() { return getCreatedAt(); }
+    public static record OrderDto(String id, List<String> items, String status, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public List<String> getItems() { return items(); }
+        public String getStatus() { return status(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 } 

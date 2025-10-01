@@ -16,7 +16,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.possable.user.Broadcaster;
+import com.possable.service.Broadcaster;
+import com.possable.infrastructure.ui.MainLayout;
 
 @Route(value = "print-jobs-ui", layout = MainLayout.class)
 @PageTitle("Print Jobs")

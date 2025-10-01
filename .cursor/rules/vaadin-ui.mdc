@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Vaadin UI component and view rules"
+globs: ["**/ui/**"]
+alwaysApply: false
+---
+
+# Vaadin UI Rules
+
+## View Structure
+- Views must be in ui/ subdirectory
+- Use @Route annotation for navigation
+- Implement proper view lifecycle methods
+- Inject facades, never internal services directly
+
+## Component Organization
+- Create reusable components for common UI patterns
+- Use composition over inheritance for component design
+- Keep components focused on single responsibility
+- Implement proper event handling and data binding
+
+## Layout and Navigation
+- Use appropriate Vaadin layout components
+- Implement responsive design principles
+- Include proper loading and error states
+- Handle navigation and routing consistently
+
+## Data Integration
+- Use facades for all data operations
+- Implement proper data refresh mechanisms
+- Handle asynchronous operations appropriately
+- Include proper validation feedback
+

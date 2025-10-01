@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.user.DemoNotificationService;
-import com.possable.user.Broadcaster;
+import com.possable.service.DemoNotificationService;
+import com.possable.service.Broadcaster;
+import com.possable.infrastructure.ui.EntryPointView;
+import com.possable.user.ui.ProfileView;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -68,7 +70,7 @@ public class MainLayout extends AppLayout {
 				Broadcaster.broadcast("");
 				confirm.close();
 				getUI().ifPresent(ui -> {
-					ui.navigate(com.possable.view.EntryPointView.class);
+					ui.navigate(EntryPointView.class);
 					ui.getPage().reload();
 				});
 			});
@@ -81,7 +83,7 @@ public class MainLayout extends AppLayout {
 		logout.getElement().setAttribute("title", "Logout");
 		logout.addClassName("pos-button-icon");
 
-		Button home = new Button(VaadinIcon.HOME.create(), e -> getUI().ifPresent(ui -> ui.navigate(com.possable.view.EntryPointView.class)));
+		Button home = new Button(VaadinIcon.HOME.create(), e -> getUI().ifPresent(ui -> ui.navigate(EntryPointView.class)));
 		home.addClassName("pos-button-large");
 
 		Button themeToggle = new Button("🌙");
@@ -150,7 +152,7 @@ public class MainLayout extends AppLayout {
 						SecurityContextHolder.clearContext();
 						Broadcaster.broadcast("");
 						Notification.show("Logged out due to inactivity", 3000, Notification.Position.TOP_END);
-						ui.navigate(com.possable.view.EntryPointView.class);
+						ui.navigate(EntryPointView.class);
 						ui.getPage().reload();
 					}
 				});

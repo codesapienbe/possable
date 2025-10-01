@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Package documentation and module definition rules"
+globs: ["**/package-info.java"]
+alwaysApply: false
+---
+
+# Package Documentation Rules
+
+## Module Annotation
+- Every module must have @Module annotation on package-info.java
+- Include descriptive module name in annotation
+- Document module purpose and responsibilities clearly
+- Specify dependencies and constraints
+
+## Documentation Content
+- Document public API (facade class)  
+- List all events published by module
+- Specify module dependencies clearly
+- Include usage examples where helpful
+
+## Event Documentation
+- Document all domain events published
+- Specify event payload and timing
+- Include event handling examples
+- Document event ordering and dependencies
+
+## API Documentation
+- Reference facade class as public API entry point
+- Document main use cases and workflows
+- Include integration patterns with other modules
+- Specify module's role in overall architecture
+

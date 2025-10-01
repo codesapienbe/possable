@@ -3,6 +3,7 @@ package com.possable.checkout.ui;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.possable.order.OrderFacade;
+import com.possable.infrastructure.ui.MainLayout;
 import com.possable.inventory.InventoryFacade;
 import com.possable.print.PrintFacade;
 import com.possable.checkout.CheckoutFacade;

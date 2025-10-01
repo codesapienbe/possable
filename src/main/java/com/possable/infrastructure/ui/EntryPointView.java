@@ -309,7 +309,7 @@ public class EntryPointView extends VerticalLayout {
 		SecurityContextHolder.getContext().setAuthentication(token);
 		dialog.close();
 		// notify layout(s) that user changed so profile and header can update
-		com.possable.user.Broadcaster.broadcast(username);
+		com.possable.service.Broadcaster.broadcast(username);
 		Notification.show("Welcome " + username);
 		// show unlock animation overlay and delay navigation until finished
 		unlockOverlay.setVisible(true);

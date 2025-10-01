@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Spring Modulith compliance and testing rules"
+alwaysApply: true
+---
+
+# Spring Modulith Compliance Rules
+
+## Module Boundaries
+- Verify module structure follows Spring Modulith conventions
+- Ensure only facade classes are publicly accessible
+- Validate that internal packages remain encapsulated
+- Use ApplicationModuleTest for boundary verification
+
+## Event-Driven Architecture
+- Use Spring Application Events for inter-module communication
+- Implement proper event publishing and listening
+- Include transactional event handling where appropriate
+- Document event contracts between modules
+
+## Testing Requirements
+- Include @ApplicationModuleTest for each module
+- Test module boundaries and encapsulation
+- Verify event publishing and handling works correctly
+- Include integration tests for facade operations
+
+## JDK 21 Features
+- Leverage virtual threads for I/O operations
+- Use modern Java features (records, pattern matching, text blocks)
+- Apply structured concurrency patterns where beneficial
+- Optimize for performance with contemporary JVM features
+

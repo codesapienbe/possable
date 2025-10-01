@@ -1,4 +1,4 @@
-package com.possable.user;
+package com.possable.service;
 
 import org.springframework.stereotype.Service;
 

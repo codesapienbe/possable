@@ -58,6 +58,9 @@ public class PrintJobController {
 
         public List<JobItem> getJobs() { return jobs; }
         public void setJobs(List<JobItem> jobs) { this.jobs = jobs; }
+        // Record-style accessors for compatibility
+        public String orderId() { return getOrderId(); }
+        public List<JobItem> jobs() { return getJobs(); }
 
         public static class JobItem {
             @NotBlank
@@ -78,48 +81,27 @@ public class PrintJobController {
 
             public String getTemplateId() { return templateId; }
             public void setTemplateId(String templateId) { this.templateId = templateId; }
+            // Record-style accessors for compatibility
+            public String printerId() { return getPrinterId(); }
+            public String templateId() { return getTemplateId(); }
         }
     }
 
-    public static class PrintJobDto {
-        private String id;
-        private String orderId;
-        private String printerId;
-        private String templateId;
-        private String status;
-        private Instant createdAt;
-        
-        public PrintJobDto() {}
-        public PrintJobDto(String id, String orderId, String printerId, String templateId, String status, Instant createdAt) {
-            this.id = id;
-            this.orderId = orderId;
-            this.printerId = printerId;
-            this.templateId = templateId;
-            this.status = status;
-            this.createdAt = createdAt;
-        }
-        
-        public String getId() { return id; }
-        public String getOrderId() { return orderId; }
-        public String getPrinterId() { return printerId; }
-        public String getTemplateId() { return templateId; }
-        public String getStatus() { return status; }
-        public Instant getCreatedAt() { return createdAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String orderId() { return orderId; }
-        public String printerId() { return printerId; }
-        public String templateId() { return templateId; }
-        public String status() { return status; }
-        public Instant createdAt() { return createdAt; }
+    public static record PrintJobDto(String id, String orderId, String printerId, String templateId, String status, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getOrderId() { return orderId(); }
+        public String getPrinterId() { return printerId(); }
+        public String getTemplateId() { return templateId(); }
+        public String getStatus() { return status(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 
     @PostMapping
     public ResponseEntity<List<PrintJobDto>> createPrintJobs(@Valid @RequestBody CreatePrintJobsRequest req) {
-        var created = req.getJobs().stream()
+        var created = req.jobs().stream()
                 .map(j -> {
-                    var job = printFacade.createJob(req.getOrderId(), j.getPrinterId(), j.getTemplateId());
+                    var job = printFacade.createJob(req.orderId(), j.printerId(), j.templateId());
                     return new PrintJobDto(job.id(), job.orderId(), job.printerId(), job.templateId(), job.status(), job.createdAt());
                 })
                 .collect(Collectors.toList());
@@ -177,11 +159,13 @@ public class PrintJobController {
 
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
+        // Record-style accessor for compatibility
+        public String status() { return getStatus(); }
     }
 
     @PutMapping("/{printJobId}")
     public ResponseEntity<Map<String, String>> updateStatus(@PathVariable String printJobId, @Valid @RequestBody UpdateStatusRequest req) {
-        printFacade.updateStatus(printJobId, req.getStatus());
-        return ResponseEntity.ok(Map.of("id", printJobId, "status", req.getStatus()));
+        printFacade.updateStatus(printJobId, req.status());
+        return ResponseEntity.ok(Map.of("id", printJobId, "status", req.status()));
     }
 } 

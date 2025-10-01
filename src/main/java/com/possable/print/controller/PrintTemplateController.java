@@ -50,34 +50,13 @@ public class PrintTemplateController {
         public void setContent(String content) { this.content = content; }
     }
 
-    public static class TemplateDto {
-        private String id;
-        private String printerCategory;
-        private String templateName;
-        private String content;
-        private Instant createdAt;
-        
-        public TemplateDto() {}
-        public TemplateDto(String id, String printerCategory, String templateName, String content, Instant createdAt) {
-            this.id = id;
-            this.printerCategory = printerCategory;
-            this.templateName = templateName;
-            this.content = content;
-            this.createdAt = createdAt;
-        }
-        
-        public String getId() { return id; }
-        public String getPrinterCategory() { return printerCategory; }
-        public String getTemplateName() { return templateName; }
-        public String getContent() { return content; }
-        public Instant getCreatedAt() { return createdAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String printerCategory() { return printerCategory; }
-        public String templateName() { return templateName; }
-        public String content() { return content; }
-        public Instant createdAt() { return createdAt; }
+    public static record TemplateDto(String id, String printerCategory, String templateName, String content, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getPrinterCategory() { return printerCategory(); }
+        public String getTemplateName() { return templateName(); }
+        public String getContent() { return content(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 
     @GetMapping

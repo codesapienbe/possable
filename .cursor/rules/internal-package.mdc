@@ -1,0 +1,38 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Internal package structure and access rules"
+globs: ["**/internal/**"]
+alwaysApply: false
+---
+
+# Internal Package Rules
+
+## Package Access
+- Classes in internal package must be package-private or protected
+- Never use public access modifiers in internal package
+- Internal classes only accessible within same module
+- Use @Component, @Service, @Repository annotations appropriately
+
+## Entity Rules  
+- JPA entities must be in internal package
+- Use proper JPA annotations (@Entity, @Id, @GeneratedValue)
+- Include audit fields (createdAt, updatedAt) where appropriate
+- Keep entities focused on data structure, minimal business logic
+
+## Service Rules
+- Internal services handle all business logic
+- Services should be transactional where appropriate
+- Return internal DTOs that facades convert to public records
+- Handle domain events and validation logic
+
+## Repository Rules
+- Extend appropriate Spring Data repository interfaces
+- Use JPA derived queries when possible
+- Custom queries should use @Query annotation
+- Focus on data access only, no business logic
+
+

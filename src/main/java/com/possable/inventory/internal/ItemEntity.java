@@ -61,7 +61,7 @@ class ItemEntity {
     public String description() { return getDescription(); }
 
     public BigDecimal getPrice() { return price; }
-    public void setPrice(String price) { this.price = price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
     public BigDecimal price() { return getPrice(); }
 
     public boolean isAvailable() { return available; }

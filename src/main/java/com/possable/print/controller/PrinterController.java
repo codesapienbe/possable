@@ -50,34 +50,13 @@ public class PrinterController {
         public void setDescription(String description) { this.description = description; }
     }
 
-    public static class PrinterDto {
-        private String id;
-        private String name;
-        private String category;
-        private String description;
-        private Instant createdAt;
-        
-        public PrinterDto() {}
-        public PrinterDto(String id, String name, String category, String description, Instant createdAt) {
-            this.id = id;
-            this.name = name;
-            this.category = category;
-            this.description = description;
-            this.createdAt = createdAt;
-        }
-        
-        public String getId() { return id; }
-        public String getName() { return name; }
-        public String getCategory() { return category; }
-        public String getDescription() { return description; }
-        public Instant getCreatedAt() { return createdAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String name() { return name; }
-        public String category() { return category; }
-        public String description() { return description; }
-        public Instant createdAt() { return createdAt; }
+    public static record PrinterDto(String id, String name, String category, String description, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getName() { return name(); }
+        public String getCategory() { return category(); }
+        public String getDescription() { return description(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 
     @GetMapping

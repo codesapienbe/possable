@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Spring Modulith module structure and organization rules"
+globs: ["src/main/java/com/possable/**"]
+alwaysApply: true
+---
+
+# Module Structure Rules
+
+## Directory Organization
+- Each module must have exactly these subdirectories: controller/, internal/, ui/
+- Place REST API endpoints only in controller/ subdirectory
+- Place Entity, Service, Repository, and DTOs only in internal/ subdirectory  
+- Place Vaadin views and custom components only in ui/ subdirectory
+- Create MyModuleFacade.java at module root level as public API
+- Include package-info.java with @Module annotation and documentation
+
+## Module Boundaries
+- Only MyModuleFacade.java should be public API for other modules
+- Internal package classes must not be accessed from other modules
+- All inter-module communication through facades or events only
+- Never import from other modules' internal packages
+
+## File Naming Conventions
+- Facade classes: [ModuleName]Facade.java
+- Controllers: [ModuleName]Controller.java  
+- Services: [ModuleName]ModuleService.java (internal only)
+- Entities: [DomainName].java
+- Repositories: [DomainName]Repository.java
+- Views: [ModuleName]View.java
+- Components: [ComponentName]Component.java
+

@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Module facade implementation rules"
+globs: ["**/*Facade.java"]
+alwaysApply: false
+---
+
+# Facade Pattern Rules
+
+## Facade Structure
+- Facade classes must be annotated with @Service
+- Place all public record DTOs inside facade class
+- Facade should only delegate to internal module service
+- Convert internal DTOs to public facade records in all methods
+- Never expose internal domain objects directly
+
+## Method Signatures
+- All public methods return facade record types or primitives
+- Accept only primitive types, String, or facade records as parameters
+- Never accept or return internal domain entities
+- Include proper null handling and validation
+
+## Documentation
+- Document all facade methods with JavaDoc
+- Specify which events are published by operations
+- Include parameter validation requirements
+- Document return value meanings and null conditions
+

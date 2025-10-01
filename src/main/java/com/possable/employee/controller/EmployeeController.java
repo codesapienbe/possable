@@ -48,34 +48,13 @@ public class EmployeeController {
         public void setActive(Boolean active) { this.active = active; }
     }
 
-    public static class EmployeeDto {
-        private String id;
-        private String name;
-        private String role;
-        private boolean active;
-        private Instant createdAt;
-        
-        public EmployeeDto() {}
-        public EmployeeDto(String id, String name, String role, boolean active, Instant createdAt) {
-            this.id = id;
-            this.name = name;
-            this.role = role;
-            this.active = active;
-            this.createdAt = createdAt;
-        }
-        
-        public String getId() { return id; }
-        public String getName() { return name; }
-        public String getRole() { return role; }
-        public boolean isActive() { return active; }
-        public Instant getCreatedAt() { return createdAt; }
-        
-        // Record-style accessors for backwards compatibility
-        public String id() { return id; }
-        public String name() { return name; }
-        public String role() { return role; }
-        public boolean active() { return active; }
-        public Instant createdAt() { return createdAt; }
+    public static record EmployeeDto(String id, String name, String role, boolean active, Instant createdAt) {
+        // Backwards-compatible bean-style getters
+        public String getId() { return id(); }
+        public String getName() { return name(); }
+        public String getRole() { return role(); }
+        public boolean isActive() { return active(); }
+        public Instant getCreatedAt() { return createdAt(); }
     }
 
     @GetMapping

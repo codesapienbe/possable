@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.possable.user.internal.UserProfileEntity;
-import com.possable.user.internal.UserCredentialEntity;
-import com.possable.user.internal.ApiKeyEntity;
-import com.possable.user.internal.UserRoleEntity;
 import com.possable.user.internal.UserProfileRepository;
+import com.possable.user.internal.UserRoleEntity;
 import com.possable.user.internal.UserCredentialRepository;
+import com.possable.user.internal.UserProfileEntity;
+import com.possable.user.internal.ApiKeyEntity;
 import com.possable.user.internal.ApiKeyRepository;
+import com.possable.user.internal.UserCredentialEntity;
 import com.possable.user.internal.UserRoleRepository;
 
 @Service

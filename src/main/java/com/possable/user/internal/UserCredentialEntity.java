@@ -1,4 +1,4 @@
-package com.possable.user.model;
+package com.possable.user.internal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

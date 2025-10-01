@@ -1,4 +1,4 @@
-package com.possable.user;
+package com.possable.service;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
