@@ -19,9 +19,29 @@
   <properties>
     <java.version>21</java.version>
     <spring.boot.version>3.2.0</spring.boot.version>
+    <spring-modulith.version>1.1.0</spring-modulith.version>
   </properties>
 
   <dependencies>
+    <!-- Spring Modulith for modular architecture -->
+    <dependency>
+      <groupId>org.springframework.modulith</groupId>
+      <artifactId>spring-modulith-starter-core</artifactId>
+      <version>${spring-modulith.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.modulith</groupId>
+      <artifactId>spring-modulith-events-api</artifactId>
+      <version>${spring-modulith.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.modulith</groupId>
+      <artifactId>spring-modulith-events-jpa</artifactId>
+      <version>${spring-modulith.version}</version>
+    </dependency>
+
     <!-- Actuator and Micrometer for metrics -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

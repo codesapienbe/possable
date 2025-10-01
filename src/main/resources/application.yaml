@@ -4,6 +4,14 @@ server:
 spring:
   profiles:
     active: prod
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
 
 vaadin:
   productionMode: true

@@ -11,14 +11,10 @@ public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        // Force Vaadin into production mode to prevent dev-mode/Vite dev server from starting inside the JVM
         System.setProperty("vaadin.productionMode", "true");
-        // Best-effort additional flag some Vaadin integrations honor to skip dev server
         System.setProperty("vaadin.disableDevServer", "true");
-
         log.info("Starting application with vaadin.productionMode={} vaadin.disableDevServer={}",
                 System.getProperty("vaadin.productionMode"), System.getProperty("vaadin.disableDevServer"));
-
         SpringApplication.run(Application.class, args);
     }
 } 
