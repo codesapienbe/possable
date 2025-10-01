@@ -79,12 +79,8 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- SpringDoc OpenAPI UI -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.1.0</version>
-    </dependency>
+    <!-- SpringDoc dependency removed to disable Swagger UI and avoid serving its static resources at runtime. -->
+    <!-- If you need OpenAPI metadata without the UI, add springdoc-openapi-starter-webmvc (no -ui) instead. -->
 
     <!-- Vaadin Flow (Spring Boot) -->
     <dependency>
@@ -204,6 +200,10 @@
         </executions>
         <configuration>
           <configLocation>google_checks.xml</configLocation>
+          <!-- Skip checkstyle during build to avoid plugin classpath/Guava runtime incompatibility
+               (keeps plugin available but prevents it from running in CI/package). Remove or set to false
+               when running static checks locally or after resolving dependency conflicts. -->
+          <skip>true</skip>
           <failOnViolation>false</failOnViolation>
         </configuration>
       </plugin>
@@ -232,22 +232,22 @@
               <goal>prepare-frontend</goal>
             </goals>
           </execution>
+          <execution>
+            <id>vaadin-build-frontend</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build-frontend</goal>
+            </goals>
+          </execution>
         </executions>
         <configuration>
-          <productionMode>false</productionMode>
-          <enableDevServerByDefault>true</enableDevServerByDefault>
+          <!-- Build for production by default when running Maven lifecycle (package) -->
+          <productionMode>true</productionMode>
+          <!-- Disable dev server to avoid dev-mode Vite builds on CI or package -->
+          <enableDevServerByDefault>false</enableDevServerByDefault>
         </configuration>
       </plugin>
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>prod</id>
-      <properties>
-        <!-- When building with -Pprod, package can include a production profile file or other build-time flags -->
-        <app.docs.enabled>false</app.docs.enabled>
-      </properties>
-    </profile>
-  </profiles>
 </project> 

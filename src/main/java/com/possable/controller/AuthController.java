@@ -21,16 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.UserService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Auth", description = "Authentication endpoints")
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger("application.log");
@@ -47,10 +41,6 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Login user (PIN or drawing)", responses = {
-        @ApiResponse(responseCode = "200", description = "Login successful", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")
-    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         String username = (String) body.get("username");
@@ -82,7 +72,6 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("ok", true, "roles", roles));
     }
 
-    @Operation(summary = "Register a new user (management only)")
     @PostMapping("/register")
     @PreAuthorize("hasRole('MANAGEMENT')")
     public ResponseEntity<?> register(@RequestBody Map<String, Object> body) {

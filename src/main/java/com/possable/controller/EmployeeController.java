@@ -13,18 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.EmployeeService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-@Tag(name = "Employees", description = "Operations for employee management")
 @RestController
-@SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/employees")
 public class EmployeeController {
 
@@ -51,14 +43,10 @@ public class EmployeeController {
         public void setActive(Boolean active) { this.active = active; }
     }
 
-    @Operation(summary = "List employees", responses = {@ApiResponse(responseCode = "200", description = "List of employees", content = @Content(schema = @Schema(implementation = EmployeeService.Employee.class)))})
-    @GetMapping
     public ResponseEntity<List<EmployeeService.Employee>> listEmployees(@RequestParam(defaultValue = "20") int limit) {
         return ResponseEntity.ok(employeeService.listEmployees(limit));
     }
 
-    @Operation(summary = "Add a new employee")
-    @PostMapping
     public ResponseEntity<EmployeeService.Employee> addEmployee(@Valid @RequestBody CreateEmployeeRequest req) {
         boolean active = req.getActive() == null ? true : req.getActive();
         var e = employeeService.addEmployee(req.getName(), req.getRole(), active);

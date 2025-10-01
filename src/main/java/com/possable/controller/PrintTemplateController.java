@@ -11,18 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.PrintTemplateService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-@Tag(name = "Print Templates", description = "Manage print templates")
 @RestController
-@SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/print-templates")
 public class PrintTemplateController {
 
@@ -32,7 +24,6 @@ public class PrintTemplateController {
         this.templateService = templateService;
     }
 
-    @Operation(summary = "List print templates", responses = {@ApiResponse(responseCode = "200", description = "List of templates", content = @Content(schema = @Schema(implementation = PrintTemplateService.Template.class)))})
     @GetMapping
     public ResponseEntity<List<PrintTemplateService.Template>> listTemplates() {
         return ResponseEntity.ok(templateService.listTemplates());
@@ -55,7 +46,6 @@ public class PrintTemplateController {
         public void setContent(String content) { this.content = content; }
     }
 
-    @Operation(summary = "Create a new print template")
     @PostMapping
     public ResponseEntity<PrintTemplateService.Template> createTemplate(@Valid @RequestBody CreateTemplateRequest req) {
         var t = templateService.createTemplate(req.getPrinterCategory(), req.getTemplateName(), req.getContent());

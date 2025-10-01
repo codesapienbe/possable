@@ -1,4 +1,0 @@
-{
-  "requestInterceptor": "function(request){ const url = new URL(window.location.href); const apiKey = url.searchParams.get('api_key'); if(apiKey){ request.headers['X-API-KEY'] = apiKey; } return request; }",
-  "urls": null
-} 

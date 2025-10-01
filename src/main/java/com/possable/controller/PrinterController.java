@@ -12,18 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.PrinterService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-@Tag(name = "Printers", description = "Manage printers")
 @RestController
-@SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/printers")
 public class PrinterController {
 
@@ -33,7 +25,6 @@ public class PrinterController {
         this.printerService = printerService;
     }
 
-    @Operation(summary = "List all printers", responses = {@ApiResponse(responseCode = "200", description = "List of printers", content = @Content(schema = @Schema(implementation = PrinterService.Printer.class)))})
     @GetMapping
     public ResponseEntity<List<PrinterService.Printer>> listPrinters() {
         return ResponseEntity.ok(printerService.listPrinters());
@@ -55,7 +46,6 @@ public class PrinterController {
         public void setDescription(String description) { this.description = description; }
     }
 
-    @Operation(summary = "Register a new printer")
     @PostMapping
     public ResponseEntity<Map<String, Object>> registerPrinter(@Valid @RequestBody RegisterPrinterRequest req) {
         var p = printerService.registerPrinter(req.getName(), req.getCategory(), req.getDescription());

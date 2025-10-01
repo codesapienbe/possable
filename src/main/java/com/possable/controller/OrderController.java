@@ -15,21 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.OrderService;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-@Tag(name = "Orders", description = "Operations for order creation and retrieval")
 @RestController
-@SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/orders")
 public class OrderController {
 
@@ -45,13 +36,10 @@ public class OrderController {
         return ResponseEntity.created(URI.create("/orders/" + order.getId())).body(order);
     }
 
-    @Operation(summary = "List recent orders", description = "Get a paged list of recent orders.", responses = {
-        @ApiResponse(responseCode = "200", description = "Paged list of orders", content = @Content(schema = @Schema(ref = "#/components/schemas/PagedOrder")))
-    })
     @GetMapping
     public ResponseEntity<java.util.Map<String,Object>> listOrders(
-            @Parameter(description = "Page index (0-based)") @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
-            @Parameter(description = "Max number of items per page") @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int limit) {
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int limit) {
         var filters = new java.util.HashMap<String, String>();
         if (page != null) filters.put("page", Integer.toString(Math.max(0, page)));
         if (limit > 0) filters.put("limit", Integer.toString(Math.max(1, Math.min(100, limit))));

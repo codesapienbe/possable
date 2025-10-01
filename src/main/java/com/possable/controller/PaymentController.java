@@ -12,19 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.possable.service.PaymentService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@Tag(name = "Payments", description = "Payment operations")
 @RestController
-@SecurityRequirement(name = "ApiKeyAuth")
 @RequestMapping("/payments")
 public class PaymentController {
 
@@ -51,15 +43,11 @@ public class PaymentController {
         public void setMethod(String method) { this.method = method; }
     }
 
-    @Operation(summary = "Record a payment", responses = {@ApiResponse(responseCode = "201", description = "Payment recorded", content = @Content(schema = @Schema(implementation = PaymentService.Payment.class)))})
-    @PostMapping
     public ResponseEntity<PaymentService.Payment> createPayment(@Valid @RequestBody CreatePaymentRequest req) {
         var p = paymentService.createPayment(req.getOrderId(), req.getAmount(), req.getMethod());
         return ResponseEntity.created(URI.create("/payments/" + p.id())).body(p);
     }
 
-    @Operation(summary = "Get payment details")
-    @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentService.Payment> getPayment(@PathVariable String paymentId) {
         var p = paymentService.findById(paymentId);
         if (p == null) return ResponseEntity.notFound().build();
