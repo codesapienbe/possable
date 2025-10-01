@@ -7,7 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.service.UserService;
+import com.possable.user.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -309,7 +309,7 @@ public class EntryPointView extends VerticalLayout {
 		SecurityContextHolder.getContext().setAuthentication(token);
 		dialog.close();
 		// notify layout(s) that user changed so profile and header can update
-		com.possable.service.Broadcaster.broadcast(username);
+		com.possable.user.Broadcaster.broadcast(username);
 		Notification.show("Welcome " + username);
 		// show unlock animation overlay and delay navigation until finished
 		unlockOverlay.setVisible(true);

@@ -10,8 +10,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Inventory Management",
-    allowedDependencies = {}
-)
+@org.springframework.modulith.Module(name = "inventory")
 package com.possable.inventory; 

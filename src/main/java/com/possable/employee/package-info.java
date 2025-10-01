@@ -9,8 +9,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Employee Management",
-    allowedDependencies = {}
-)
+@org.springframework.modulith.Module(name = "employee")
 package com.possable.employee; 

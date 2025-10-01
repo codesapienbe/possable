@@ -21,7 +21,7 @@ public class CashierView extends HorizontalLayout {
 
 	private final OrderFacade orderService;
 	private final OrdersDetailComponent details;
-	private final Grid<com.possable.controller.OrderController.OrderDto> grid = new Grid<>(com.possable.controller.OrderController.OrderDto.class, false);
+	private final Grid<com.possable.order.OrderFacade.OrderInfo> grid = new Grid<>(com.possable.order.OrderFacade.OrderInfo.class, false);
 
 	public CashierView(OrderFacade orderService, PrintFacade printFacade, InventoryFacade inventoryFacade, CheckoutFacade checkoutFacade) {
 		this.orderService = orderService;
@@ -44,7 +44,7 @@ public class CashierView extends HorizontalLayout {
 		leftColumn.add(new H1("Cashier - Orders"));
 
 		// configure grid (compact for cashier workflow)
-		grid.addColumn(com.possable.controller.OrderController.OrderDto::getId).setHeader("ID");
+		grid.addColumn(com.possable.order.OrderFacade.OrderInfo::getId).setHeader("ID");
 		grid.addColumn(o -> o.getStatus() == null ? "" : o.getStatus()).setHeader("Status");
 		grid.addColumn(o -> Integer.toString(o.getItems() == null ? 0 : o.getItems().size())).setHeader("Items");
 		grid.setItems(orderService.listOrders());

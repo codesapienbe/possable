@@ -1,4 +1,4 @@
-package com.possable.controller;
+package com.possable.user.controller;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.service.UserService;
+import com.possable.user.UserService;
 
 @RestController
 @RequestMapping("/api/me")

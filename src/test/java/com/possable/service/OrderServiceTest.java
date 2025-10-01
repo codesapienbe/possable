@@ -49,7 +49,7 @@ public class OrderServiceTest {
         OrderService svc = new OrderService(syncExecutor);
         var order = svc.createOrder(List.of("a"), "notes");
 
-        Method m = OrderService.class.getDeclaredMethod("processOrder", com.possable.controller.OrderController.OrderDto.class, String.class);
+        Method m = OrderService.class.getDeclaredMethod("processOrder", com.possable.order.OrderFacade.OrderInfo.class, String.class);
         m.setAccessible(true);
 
         // invoke with null notes to run through process method (should not throw)

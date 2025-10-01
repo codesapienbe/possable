@@ -1,9 +1,10 @@
-package com.possable.repository;
+package com.possable.user.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.possable.model.UserRoleEntity;
+
+import com.possable.user.model.UserRoleEntity;
 
 public interface UserRoleRepository extends JpaRepository<UserRoleEntity, java.io.Serializable> {
     List<UserRoleEntity> findByUsername(String username);

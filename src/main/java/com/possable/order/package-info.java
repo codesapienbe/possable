@@ -12,8 +12,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Order Management",
-    allowedDependencies = {}
-)
+@org.springframework.modulith.Module(name = "order")
 package com.possable.order; 

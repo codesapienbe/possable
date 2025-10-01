@@ -2,7 +2,7 @@ package com.possable.infrastructure.ui;
 
 import java.util.Set;
 
-import com.possable.service.UserService;
+import com.possable.user.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;

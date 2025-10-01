@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.possable.print.PrintFacade;
-import com.possable.service.Broadcaster;
+import com.possable.user.Broadcaster;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;

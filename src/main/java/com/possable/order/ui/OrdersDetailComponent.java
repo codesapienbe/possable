@@ -40,7 +40,7 @@ public class OrdersDetailComponent extends VerticalLayout {
 	}
 
 	@SuppressWarnings("unused")
-	public void showOrder(com.possable.controller.OrderController.OrderDto order) {
+	public void showOrder(com.possable.order.OrderFacade.OrderInfo order) {
 		removeAll();
 		if (order == null) return;
 		add(new H1("Order " + order.getId()));

@@ -15,8 +15,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Checkout & Payment",
-    allowedDependencies = {"order"}
-)
+@org.springframework.modulith.Module(name = "checkout")
 package com.possable.checkout; 

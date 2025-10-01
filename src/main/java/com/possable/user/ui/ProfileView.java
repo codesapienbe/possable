@@ -1,4 +1,4 @@
-package com.possable.view;
+package com.possable.user.ui;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.service.UserService;
-import com.possable.service.Broadcaster;
+import com.possable.user.UserService;
+import com.possable.user.Broadcaster;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;

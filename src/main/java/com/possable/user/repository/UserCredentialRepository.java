@@ -1,7 +1,8 @@
-package com.possable.repository;
+package com.possable.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.possable.model.UserCredentialEntity;
+
+import com.possable.user.model.UserCredentialEntity;
 
 public interface UserCredentialRepository extends JpaRepository<UserCredentialEntity, String> {
 } 

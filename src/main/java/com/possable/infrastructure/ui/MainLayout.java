@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.possable.service.DemoNotificationService;
-import com.possable.service.Broadcaster;
+import com.possable.user.DemoNotificationService;
+import com.possable.user.Broadcaster;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;

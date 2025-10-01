@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.possable.order.OrderCreatedEvent;
 import com.possable.print.PrintJobRequestedEvent;
-import com.possable.service.Broadcaster;
+import com.possable.user.Broadcaster;
 
 /**
  * Internal service for print module.

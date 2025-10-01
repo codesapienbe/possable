@@ -12,8 +12,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Print Management",
-    allowedDependencies = {"order"}
-)
+@org.springframework.modulith.Module(name = "print")
 package com.possable.print; 

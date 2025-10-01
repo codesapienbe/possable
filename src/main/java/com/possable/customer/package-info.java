@@ -13,8 +13,5 @@
  * 
  * @see org.springframework.modulith.ApplicationModule
  */
-@org.springframework.modulith.ApplicationModule(
-    displayName = "Customer Management",
-    allowedDependencies = {"order", "checkout"}
-)
+@org.springframework.modulith.Module(name = "customer")
 package com.possable.customer; 

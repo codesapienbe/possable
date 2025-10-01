@@ -1,4 +1,4 @@
-package com.possable.model;
+package com.possable.user.model;
 
 import java.io.Serializable;
 
