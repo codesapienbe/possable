@@ -51,18 +51,23 @@ class OrderEntity {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String id() { return getId(); }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String status() { return getStatus(); }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public String notes() { return getNotes(); }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant createdAt() { return getCreatedAt(); }
 
     public List<OrderItemEntity> getItems() { return items; }
     public void setItems(List<OrderItemEntity> items) { this.items = items; }
+    public List<OrderItemEntity> items() { return getItems(); }
 
     public void addItem(OrderItemEntity item) {
         item.setOrder(this);

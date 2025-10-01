@@ -47,16 +47,21 @@ class PrintTemplateEntity {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String id() { return getId(); }
 
     public String getPrinterCategory() { return printerCategory; }
     public void setPrinterCategory(String printerCategory) { this.printerCategory = printerCategory; }
+    public String printerCategory() { return getPrinterCategory(); }
 
     public String getTemplateName() { return templateName; }
     public void setTemplateName(String templateName) { this.templateName = templateName; }
+    public String templateName() { return getTemplateName(); }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+    public String content() { return getContent(); }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant createdAt() { return getCreatedAt(); }
 } 

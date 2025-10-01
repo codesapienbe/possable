@@ -43,10 +43,10 @@ public class OrdersDetailComponent extends VerticalLayout {
 	public void showOrder(com.possable.order.OrderFacade.OrderInfo order) {
 		removeAll();
 		if (order == null) return;
-		add(new H1("Order " + order.getId()));
+		add(new H1("Order " + order.id()));
 
 		// status + meta
-		add(new Pre("Status: " + order.getStatus()));
+		add(new Pre("Status: " + order.status()));
 
 		// items list with thumbnail, modifiers (if any) and qty controls
 		VerticalLayout itemsLayout = new VerticalLayout();
@@ -55,8 +55,8 @@ public class OrdersDetailComponent extends VerticalLayout {
 		Span totalLabel = new Span("Total: $0.00");
 		totalLabel.addClassName("order-total");
 
-		if (order.getItems() != null && !order.getItems().isEmpty()) {
-			for (String itemId : order.getItems()) {
+		if (order.items() != null && !order.items().isEmpty()) {
+			for (String itemId : order.items()) {
 				var it = inventoryFacade == null ? null : inventoryFacade.findById(itemId);
 				String title = it == null ? ("Item " + itemId) : it.name();
 				double price = it == null ? 0.0 : it.price();
@@ -126,7 +126,7 @@ public class OrdersDetailComponent extends VerticalLayout {
 				Notification.show("Payment service unavailable");
 				return;
 			}
-			checkoutFacade.createPayment(order.getId(), amount, paymentMethods.getValue());
+			checkoutFacade.createPayment(order.id(), amount, paymentMethods.getValue());
 			Notification.show("Payment requested for $" + String.format("%.2f", amount));
 		});
 
@@ -136,7 +136,7 @@ public class OrdersDetailComponent extends VerticalLayout {
 				Notification.show("Payment service unavailable");
 				return;
 			}
-			checkoutFacade.createPayment(order.getId(), amount, paymentMethods.getValue());
+			checkoutFacade.createPayment(order.id(), amount, paymentMethods.getValue());
 			Notification.show("Payment started for $" + String.format("%.2f", amount));
 		});
 
@@ -146,12 +146,12 @@ public class OrdersDetailComponent extends VerticalLayout {
 		// action buttons (send/ready) with optimistic undo
 		send = new Button("Send to Kitchen", evt -> {
 			if (order == null) return;
-			String prev = order.getStatus();
-			orderFacade.updateStatus(order.getId(), "IN_PREPARATION");
+			String prev = order.status();
+			orderFacade.updateStatus(order.id(), "IN_PREPARATION");
 			Notification n = new Notification();
 			n.setDuration(8000);
 			Button undo = new Button("Undo", e -> {
-				orderFacade.updateStatus(order.getId(), prev);
+				orderFacade.updateStatus(order.id(), prev);
 				n.close();
 			});
 			HorizontalLayout content = new HorizontalLayout(new Span("Sent to kitchen"), undo);
@@ -161,12 +161,12 @@ public class OrdersDetailComponent extends VerticalLayout {
 
 		ready = new Button("Mark Ready", evt -> {
 			if (order == null) return;
-			String prev = order.getStatus();
-			orderFacade.updateStatus(order.getId(), "READY");
+			String prev = order.status();
+			orderFacade.updateStatus(order.id(), "READY");
 			Notification n = new Notification();
 			n.setDuration(8000);
 			Button undo = new Button("Undo", e -> {
-				orderFacade.updateStatus(order.getId(), prev);
+				orderFacade.updateStatus(order.id(), prev);
 				n.close();
 			});
 			HorizontalLayout content = new HorizontalLayout(new Span("Order marked READY"), undo);

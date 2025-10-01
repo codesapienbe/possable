@@ -104,7 +104,7 @@ public class ItemController {
         boolean available = req.getAvailable() == null ? true : req.getAvailable();
         var item = inventoryFacade.createItem(req.getName(), req.getDescription(), req.getPrice(), available);
         var dto = new ItemDto(item.id(), item.name(), item.description(), item.price(), item.available(), item.createdAt());
-        return ResponseEntity.created(URI.create("/items/" + dto.getId())).body(dto);
+        return ResponseEntity.created(URI.create("/items/" + dto.id())).body(dto);
     }
 
     @GetMapping("/{itemId}")

@@ -34,7 +34,7 @@ public class OrderController {
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody CreateOrderRequest request) {
         var order = orderFacade.createOrder(request.getItems(), request.getNotes());
         var dto = new OrderDto(order.id(), order.items(), order.status(), order.createdAt());
-        return ResponseEntity.created(URI.create("/orders/" + dto.getId())).body(dto);
+        return ResponseEntity.created(URI.create("/orders/" + dto.id())).body(dto);
     }
 
     @GetMapping

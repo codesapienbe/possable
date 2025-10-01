@@ -44,9 +44,9 @@ public class CashierView extends HorizontalLayout {
 		leftColumn.add(new H1("Cashier - Orders"));
 
 		// configure grid (compact for cashier workflow)
-		grid.addColumn(com.possable.order.OrderFacade.OrderInfo::getId).setHeader("ID");
-		grid.addColumn(o -> o.getStatus() == null ? "" : o.getStatus()).setHeader("Status");
-		grid.addColumn(o -> Integer.toString(o.getItems() == null ? 0 : o.getItems().size())).setHeader("Items");
+		grid.addColumn(com.possable.order.OrderFacade.OrderInfo::id).setHeader("ID");
+		grid.addColumn(o -> o.status() == null ? "" : o.status()).setHeader("Status");
+		grid.addColumn(o -> Integer.toString(o.items() == null ? 0 : o.items().size())).setHeader("Items");
 		grid.setItems(orderService.listOrders());
 		grid.setWidthFull();
 		grid.setHeightFull();

@@ -61,25 +61,25 @@ public class OrderModuleService {
             
             OrderEntity saved = orderRepository.save(order);
             log.info("{\"message\":\"order_created\", \"order_id\":\"{}\", \"items_count\":{}, \"component\":\"order-module\", \"timestamp\":\"{}\"}", 
-                saved.getId(), items.size(), Instant.now());
+                saved.id(), items.size(), Instant.now());
             
             OrderDto dto = new OrderDto(
-                saved.getId(),
-                saved.getItems().stream().map(OrderItemEntity::getItemId).collect(Collectors.toList()),
-                saved.getStatus(),
+                saved.id(),
+                saved.items().stream().map(OrderItemEntity::itemId).collect(Collectors.toList()),
+                saved.status(),
                 saved.getCreatedAt()
             );
             
             // Publish domain event for other modules
             OrderCreatedEvent event = new OrderCreatedEvent(
-                saved.getId(),
+                saved.id(),
                 items,
                 notes,
-                saved.getStatus(),
+                saved.status(),
                 saved.getCreatedAt()
             );
             eventPublisher.publishEvent(event);
-            log.debug("{\"message\":\"order_created_event_published\", \"order_id\":\"{}\", \"component\":\"order-module\"}", saved.getId());
+            log.debug("{\"message\":\"order_created_event_published\", \"order_id\":\"{}\", \"component\":\"order-module\"}", saved.id());
             
             return dto;
         }
@@ -101,9 +101,9 @@ public class OrderModuleService {
         if (orderRepository != null) {
             List<OrderDto> out = new ArrayList<>();
             for (OrderEntity e : orderRepository.findAll()) {
-                List<String> itemIds = e.getItems() == null ? List.of() 
-                    : e.getItems().stream().map(OrderItemEntity::getItemId).collect(Collectors.toList());
-                out.add(new OrderDto(e.getId(), itemIds, e.getStatus(), e.getCreatedAt()));
+                List<String> itemIds = e.items() == null ? List.of() 
+                    : e.items().stream().map(OrderItemEntity::itemId).collect(Collectors.toList());
+                out.add(new OrderDto(e.id(), itemIds, e.status(), e.getCreatedAt()));
             }
             return out;
         }
@@ -117,10 +117,10 @@ public class OrderModuleService {
         if (orderRepository != null) {
             return orderRepository.findById(id)
                 .map(e -> new OrderDto(
-                    e.getId(),
-                    e.getItems() == null ? List.of() 
-                        : e.getItems().stream().map(OrderItemEntity::getItemId).collect(Collectors.toList()),
-                    e.getStatus(),
+                    e.id(),
+                    e.items() == null ? List.of() 
+                        : e.items().stream().map(OrderItemEntity::itemId).collect(Collectors.toList()),
+                    e.status(),
                     e.getCreatedAt()
                 ))
                 .orElse(null);
@@ -139,7 +139,7 @@ public class OrderModuleService {
             var opt = orderRepository.findById(id);
             if (opt.isPresent()) {
                 OrderEntity e = opt.get();
-                String oldStatus = e.getStatus();
+                String oldStatus = e.status();
                 e.setStatus(status);
                 OrderEntity saved = orderRepository.save(e);
                 
@@ -154,10 +154,10 @@ public class OrderModuleService {
                 }
                 
                 return new OrderDto(
-                    saved.getId(),
-                    saved.getItems() == null ? List.of() 
-                        : saved.getItems().stream().map(OrderItemEntity::getItemId).collect(Collectors.toList()),
-                    saved.getStatus(),
+                    saved.id(),
+                    saved.items() == null ? List.of() 
+                        : saved.items().stream().map(OrderItemEntity::itemId).collect(Collectors.toList()),
+                    saved.status(),
                     saved.getCreatedAt()
                 );
             }
@@ -208,10 +208,10 @@ public class OrderModuleService {
             org.springframework.data.domain.Page<OrderEntity> pageRes = orderRepository.findAll(pageable);
             List<OrderDto> items = pageRes.stream()
                 .map(e -> new OrderDto(
-                    e.getId(),
-                    e.getItems() == null ? List.of() 
-                        : e.getItems().stream().map(OrderItemEntity::getItemId).collect(Collectors.toList()),
-                    e.getStatus(),
+                    e.id(),
+                    e.items() == null ? List.of() 
+                        : e.items().stream().map(OrderItemEntity::itemId).collect(Collectors.toList()),
+                    e.status(),
                     e.getCreatedAt()
                 ))
                 .collect(Collectors.toList());

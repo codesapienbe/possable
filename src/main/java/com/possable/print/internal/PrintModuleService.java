@@ -106,8 +106,8 @@ public class PrintModuleService {
             e.setCreatedAt(Instant.now());
             
             PrintJobEntity saved = printJobRepository.save(e);
-            PrintJob job = new PrintJob(saved.getId(), saved.getOrderId(), saved.getPrinterId(), 
-                saved.getTemplateId(), saved.getStatus(), saved.getCreatedAt());
+            PrintJob job = new PrintJob(saved.id(), saved.orderId(), saved.printerId(), 
+                saved.templateId(), saved.status(), saved.createdAt());
             
             log.info("{\"message\":\"print_job_created\", \"print_job_id\":\"{}\", \"order_id\":\"{}\", \"printer_id\":\"{}\", \"component\":\"print-module\", \"timestamp\":\"{}\"}", 
                 job.id(), orderId, printerId, Instant.now());
@@ -187,7 +187,7 @@ public class PrintModuleService {
             var opt = printJobRepository.findById(jobId);
             if (opt.isPresent()) {
                 var e = opt.get();
-                job = new PrintJob(e.getId(), e.getOrderId(), e.getPrinterId(), e.getTemplateId(), e.getStatus(), e.getCreatedAt());
+                job = new PrintJob(e.id(), e.orderId(), e.printerId(), e.templateId(), e.status(), e.createdAt());
             }
         } else {
             synchronized (inMemoryJobs) {
@@ -267,7 +267,7 @@ public class PrintModuleService {
             }
             
             return pageRes.stream()
-                .map(e -> new PrintJob(e.getId(), e.getOrderId(), e.getPrinterId(), e.getTemplateId(), e.getStatus(), e.getCreatedAt()))
+                .map(e -> new PrintJob(e.id(), e.orderId(), e.printerId(), e.templateId(), e.status(), e.createdAt()))
                 .collect(Collectors.toList());
         }
         
@@ -300,9 +300,9 @@ public class PrintModuleService {
             
             PrinterEntity saved = printerRepository.save(e);
             log.info("{\"message\":\"printer_registered\", \"printer_id\":\"{}\", \"name\":\"{}\", \"category\":\"{}\", \"component\":\"print-module\", \"timestamp\":\"{}\"}", 
-                saved.getId(), sanitize(name), sanitize(category), Instant.now());
+                saved.id(), sanitize(name), sanitize(category), Instant.now());
             
-            return new Printer(saved.getId(), saved.getName(), saved.getCategory(), saved.getDescription(), saved.getCreatedAt());
+            return new Printer(saved.id(), saved.name(), saved.category(), saved.description(), saved.createdAt());
         }
         
         String id = UUID.randomUUID().toString();
@@ -321,11 +321,11 @@ public class PrintModuleService {
             String category = filters != null ? filters.get("category") : null;
             if (category != null && !category.isBlank()) {
                 return printerRepository.findByCategory(category).stream()
-                    .map(e -> new Printer(e.getId(), e.getName(), e.getCategory(), e.getDescription(), e.getCreatedAt()))
+                    .map(e -> new Printer(e.id(), e.name(), e.category(), e.description(), e.createdAt()))
                     .collect(Collectors.toList());
             }
             return printerRepository.findAll().stream()
-                .map(e -> new Printer(e.getId(), e.getName(), e.getCategory(), e.getDescription(), e.getCreatedAt()))
+                .map(e -> new Printer(e.id(), e.name(), e.category(), e.description(), e.createdAt()))
                 .collect(Collectors.toList());
         }
         
@@ -344,7 +344,7 @@ public class PrintModuleService {
     public Printer findPrinterById(String id) {
         if (printerRepository != null) {
             return printerRepository.findById(id)
-                .map(e -> new Printer(e.getId(), e.getName(), e.getCategory(), e.getDescription(), e.getCreatedAt()))
+                .map(e -> new Printer(e.id(), e.name(), e.category(), e.description(), e.createdAt()))
                 .orElse(null);
         }
         
@@ -379,9 +379,9 @@ public class PrintModuleService {
             
             PrintTemplateEntity saved = templateRepository.save(e);
             log.info("{\"message\":\"print_template_created\", \"template_id\":\"{}\", \"name\":\"{}\", \"category\":\"{}\", \"component\":\"print-module\", \"timestamp\":\"{}\"}", 
-                saved.getId(), sanitize(templateName), sanitize(printerCategory), Instant.now());
+                saved.id(), sanitize(templateName), sanitize(printerCategory), Instant.now());
             
-            return new Template(saved.getId(), saved.getPrinterCategory(), saved.getTemplateName(), saved.getContent(), saved.getCreatedAt());
+            return new Template(saved.id(), saved.printerCategory(), saved.templateName(), saved.content(), saved.createdAt());
         }
         
         String id = UUID.randomUUID().toString();
@@ -400,11 +400,11 @@ public class PrintModuleService {
             String category = filters != null ? filters.get("category") : null;
             if (category != null && !category.isBlank()) {
                 return templateRepository.findByPrinterCategory(category).stream()
-                    .map(e -> new Template(e.getId(), e.getPrinterCategory(), e.getTemplateName(), e.getContent(), e.getCreatedAt()))
+                    .map(e -> new Template(e.id(), e.printerCategory(), e.templateName(), e.content(), e.createdAt()))
                     .collect(Collectors.toList());
             }
             return templateRepository.findAll().stream()
-                .map(e -> new Template(e.getId(), e.getPrinterCategory(), e.getTemplateName(), e.getContent(), e.getCreatedAt()))
+                .map(e -> new Template(e.id(), e.printerCategory(), e.templateName(), e.content(), e.createdAt()))
                 .collect(Collectors.toList());
         }
         
@@ -423,7 +423,7 @@ public class PrintModuleService {
     public Template findTemplateById(String id) {
         if (templateRepository != null) {
             return templateRepository.findById(id)
-                .map(e -> new Template(e.getId(), e.getPrinterCategory(), e.getTemplateName(), e.getContent(), e.getCreatedAt()))
+                .map(e -> new Template(e.id(), e.printerCategory(), e.templateName(), e.content(), e.createdAt()))
                 .orElse(null);
         }
         

@@ -44,13 +44,17 @@ class OrderItemEntity {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String id() { return getId(); }
 
     public OrderEntity getOrder() { return order; }
     public void setOrder(OrderEntity order) { this.order = order; }
+    public OrderEntity order() { return getOrder(); }
 
     public String getItemId() { return itemId; }
     public void setItemId(String itemId) { this.itemId = itemId; }
+    public String itemId() { return getItemId(); }
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+    public int quantity() { return getQuantity(); }
 } 

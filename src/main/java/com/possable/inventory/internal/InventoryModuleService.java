@@ -50,10 +50,10 @@ public class InventoryModuleService {
             ItemEntity saved = itemRepository.save(e);
             
             log.info("{\"message\":\"item_created\", \"item_id\":\"{}\", \"name\":\"{}\", \"price\":{}, \"component\":\"inventory-module\", \"timestamp\":\"{}\"}", 
-                saved.getId(), sanitize(name), price, Instant.now());
+                saved.id(), sanitize(name), price, Instant.now());
             
-            return new Item(saved.getId(), saved.getName(), saved.getDescription(), 
-                saved.getPrice().doubleValue(), saved.isAvailable(), saved.getCreatedAt());
+            return new Item(saved.id(), saved.name(), saved.description(), 
+                saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt());
         }
 
         String id = UUID.randomUUID().toString();
@@ -72,9 +72,9 @@ public class InventoryModuleService {
             List<Item> out = new ArrayList<>();
             List<ItemEntity> ents = itemRepository.findAll();
             for (ItemEntity e : ents) {
-                out.add(new Item(e.getId(), e.getName(), e.getDescription(), 
-                    e.getPrice() == null ? 0.0 : e.getPrice().doubleValue(), 
-                    e.isAvailable(), e.getCreatedAt()));
+                out.add(new Item(e.id(), e.name(), e.description(), 
+                    e.price() == null ? 0.0 : e.price().doubleValue(), 
+                    e.isAvailable(), e.createdAt()));
             }
             return out.size() <= limit ? out : out.subList(0, Math.max(0, Math.min(limit, out.size())));
         }
@@ -92,9 +92,9 @@ public class InventoryModuleService {
             Optional<ItemEntity> opt = itemRepository.findById(id);
             if (opt.isPresent()) {
                 ItemEntity e = opt.get();
-                return new Item(e.getId(), e.getName(), e.getDescription(), 
-                    e.getPrice() == null ? 0.0 : e.getPrice().doubleValue(), 
-                    e.isAvailable(), e.getCreatedAt());
+                return new Item(e.id(), e.name(), e.description(), 
+                    e.price() == null ? 0.0 : e.price().doubleValue(), 
+                    e.isAvailable(), e.createdAt());
             }
             return null;
         }
@@ -122,8 +122,8 @@ public class InventoryModuleService {
                 log.info("{\"message\":\"item_updated\", \"item_id\":\"{}\", \"component\":\"inventory-module\", \"timestamp\":\"{}\"}", 
                     id, Instant.now());
                 
-                return new Item(saved.getId(), saved.getName(), saved.getDescription(), 
-                    saved.getPrice().doubleValue(), saved.isAvailable(), saved.getCreatedAt());
+                return new Item(saved.id(), saved.name(), saved.description(), 
+                    saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt());
             }
             return null;
         }
@@ -188,9 +188,9 @@ public class InventoryModuleService {
             var pageable = org.springframework.data.domain.PageRequest.of(page, size);
             org.springframework.data.domain.Page<ItemEntity> pageRes = itemRepository.findAll(pageable);
             List<Item> items = pageRes.stream()
-                .map(e -> new Item(e.getId(), e.getName(), e.getDescription(), 
-                    e.getPrice() == null ? 0.0 : e.getPrice().doubleValue(), 
-                    e.isAvailable(), e.getCreatedAt()))
+                .map(e -> new Item(e.id(), e.name(), e.description(), 
+                    e.price() == null ? 0.0 : e.price().doubleValue(), 
+                    e.isAvailable(), e.createdAt()))
                 .collect(Collectors.toList());
                 
             java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();

@@ -52,19 +52,25 @@ class PrintJobEntity {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String id() { return getId(); }
 
     public String getOrderId() { return orderId; }
     public void setOrderId(String orderId) { this.orderId = orderId; }
+    public String orderId() { return getOrderId(); }
 
     public String getPrinterId() { return printerId; }
     public void setPrinterId(String printerId) { this.printerId = printerId; }
+    public String printerId() { return getPrinterId(); }
 
     public String getTemplateId() { return templateId; }
     public void setTemplateId(String templateId) { this.templateId = templateId; }
+    public String templateId() { return getTemplateId(); }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String status() { return getStatus(); }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant createdAt() { return getCreatedAt(); }
 } 

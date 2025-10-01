@@ -91,6 +91,6 @@ public class EmployeeController {
         boolean active = req.getActive() == null ? true : req.getActive();
         var employee = employeeFacade.addEmployee(req.getName(), req.getRole(), active);
         var dto = new EmployeeDto(employee.id(), employee.name(), employee.role(), employee.active(), employee.createdAt());
-        return ResponseEntity.created(URI.create("/employees/" + dto.getId())).body(dto);
+        return ResponseEntity.created(URI.create("/employees/" + dto.id())).body(dto);
     }
 } 

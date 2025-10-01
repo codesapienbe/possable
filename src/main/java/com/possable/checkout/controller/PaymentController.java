@@ -87,7 +87,7 @@ public class PaymentController {
         var payment = checkoutFacade.createPayment(req.getOrderId(), req.getAmount(), req.getMethod());
         var dto = new PaymentDto(payment.id(), payment.orderId(), payment.amount(), 
             payment.method(), payment.status(), payment.paidAt());
-        return ResponseEntity.created(URI.create("/payments/" + dto.getId())).body(dto);
+        return ResponseEntity.created(URI.create("/payments/" + dto.id())).body(dto);
     }
 
     @GetMapping("/{paymentId}")
