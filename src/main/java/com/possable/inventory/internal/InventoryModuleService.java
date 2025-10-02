@@ -27,7 +27,7 @@ public class InventoryModuleService {
     private final ItemRepository itemRepository;
     private final List<Item> inMemoryItems = Collections.synchronizedList(new ArrayList<>());
 
-    public record Item(String id, String name, String description, double price, boolean available, Instant createdAt) {}
+    public record Item(String id, String name, String description, double price, boolean available, Instant createdAt, String category, String tagsCsv) {}
 
     @Autowired
     public InventoryModuleService(ItemRepository itemRepository) {
@@ -47,17 +47,18 @@ public class InventoryModuleService {
             e.setPrice(BigDecimal.valueOf(price));
             e.setAvailable(available);
             e.setCreatedAt(Instant.now());
+            // category/tags left null by default; can be updated via updateMetadata
             ItemEntity saved = itemRepository.save(e);
             
             log.info("{\"message\":\"item_created\", \"item_id\":\"{}\", \"name\":\"{}\", \"price\":{}, \"component\":\"inventory-module\", \"timestamp\":\"{}\"}", 
                 saved.id(), sanitize(name), price, Instant.now());
             
             return new Item(saved.id(), saved.name(), saved.description(), 
-                saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt());
+                saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt(), saved.category(), saved.tagsCsv());
         }
 
         String id = UUID.randomUUID().toString();
-        Item it = new Item(id, name, description, price, available, Instant.now());
+        Item it = new Item(id, name, description, price, available, Instant.now(), null, null);
         inMemoryItems.add(it);
         
         log.info("{\"message\":\"item_created\", \"item_id\":\"{}\", \"name\":\"{}\", \"component\":\"inventory-module\", \"timestamp\":\"{}\"}", 
@@ -74,7 +75,7 @@ public class InventoryModuleService {
             for (ItemEntity e : ents) {
                 out.add(new Item(e.id(), e.name(), e.description(), 
                     e.price() == null ? 0.0 : e.price().doubleValue(), 
-                    e.isAvailable(), e.createdAt()));
+                    e.isAvailable(), e.createdAt(), e.getCategory(), e.getTagsCsv()));
             }
             return out.size() <= limit ? out : out.subList(0, Math.max(0, Math.min(limit, out.size())));
         }
@@ -94,7 +95,7 @@ public class InventoryModuleService {
                 ItemEntity e = opt.get();
                 return new Item(e.id(), e.name(), e.description(), 
                     e.price() == null ? 0.0 : e.price().doubleValue(), 
-                    e.isAvailable(), e.createdAt());
+                    e.isAvailable(), e.createdAt(), e.getCategory(), e.getTagsCsv());
             }
             return null;
         }
@@ -123,7 +124,7 @@ public class InventoryModuleService {
                     id, Instant.now());
                 
                 return new Item(saved.id(), saved.name(), saved.description(), 
-                    saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt());
+                    saved.price() == null ? 0.0 : saved.price().doubleValue(), saved.isAvailable(), saved.createdAt(), saved.getCategory(), saved.getTagsCsv());
             }
             return null;
         }
@@ -132,7 +133,7 @@ public class InventoryModuleService {
             for (int i = 0; i < inMemoryItems.size(); i++) {
                 var it = inMemoryItems.get(i);
                 if (it.id().equals(id)) {
-                    Item updated = new Item(id, name, description, price, available, it.createdAt());
+                    Item updated = new Item(id, name, description, price, available, it.createdAt(), it.category(), it.tagsCsv());
                     inMemoryItems.set(i, updated);
                     
                     log.info("{\"message\":\"item_updated\", \"item_id\":\"{}\", \"component\":\"inventory-module\", \"timestamp\":\"{}\"}", 
@@ -184,13 +185,20 @@ public class InventoryModuleService {
             } catch (Exception ignored) {}
         }
         
+        String category = filters != null ? filters.get("category") : null;
+        
         if (itemRepository != null) {
             var pageable = org.springframework.data.domain.PageRequest.of(page, size);
-            org.springframework.data.domain.Page<ItemEntity> pageRes = itemRepository.findAll(pageable);
+            org.springframework.data.domain.Page<ItemEntity> pageRes;
+            if (category != null && !category.isBlank()) {
+                pageRes = itemRepository.findByCategory(category, pageable);
+            } else {
+                pageRes = itemRepository.findAll(pageable);
+            }
             List<Item> items = pageRes.stream()
                 .map(e -> new Item(e.id(), e.name(), e.description(), 
                     e.price() == null ? 0.0 : e.price().doubleValue(), 
-                    e.isAvailable(), e.createdAt()))
+                    e.isAvailable(), e.createdAt(), e.getCategory(), e.getTagsCsv()))
                 .collect(Collectors.toList());
                 
             java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
@@ -206,6 +214,9 @@ public class InventoryModuleService {
         synchronized (inMemoryItems) {
             all = List.copyOf(inMemoryItems);
         }
+        if (category != null && !category.isBlank()) {
+            all = all.stream().filter(i -> category.equalsIgnoreCase(i.category() == null ? "" : i.category())).toList();
+        }
         long totalElements = all.size();
         int from = Math.min(all.size(), page * size);
         int to = Math.min(all.size(), from + size);
@@ -218,6 +229,32 @@ public class InventoryModuleService {
         out.put("totalElements", totalElements);
         out.put("totalPages", (int) Math.ceil((double) totalElements / size));
         return out;
+    }
+
+    @Transactional
+    public void updateMetadata(String id, String category, String tagsCsv) {
+        if (itemRepository != null) {
+            var opt = itemRepository.findById(id);
+            if (opt.isPresent()) {
+                var e = opt.get();
+                e.setCategory(category);
+                e.setTagsCsv(tagsCsv);
+                itemRepository.save(e);
+                log.info("{\"message\":\"item_metadata_updated\", \"item_id\":\"{}\", \"component\":\"inventory-module\"}", id);
+            }
+            return;
+        }
+        synchronized (inMemoryItems) {
+            for (int i = 0; i < inMemoryItems.size(); i++) {
+                var it = inMemoryItems.get(i);
+                if (it.id().equals(id)) {
+                    Item updated = new Item(it.id(), it.name(), it.description(), it.price(), it.available(), it.createdAt(), category, tagsCsv);
+                    inMemoryItems.set(i, updated);
+                    log.info("{\"message\":\"item_metadata_updated\", \"item_id\":\"{}\", \"component\":\"inventory-module\"}", id);
+                    return;
+                }
+            }
+        }
     }
 
     private String sanitize(String input) {

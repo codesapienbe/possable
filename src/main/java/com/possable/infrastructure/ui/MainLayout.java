@@ -62,45 +62,42 @@ public class MainLayout extends AppLayout {
 		// hide profile by default; will be made visible when user is authenticated
 		profile.setVisible(false);
 
-		Button logout = new Button(VaadinIcon.SIGN_OUT.create(), evt -> {
-			Dialog confirm = new Dialog();
-			confirm.add(new Span("Are you sure you want to logout?"));
-			Button yes = new Button("Logout", e -> {
-				SecurityContextHolder.clearContext();
-				Broadcaster.broadcast("");
-				confirm.close();
-				getUI().ifPresent(ui -> {
-					ui.navigate(EntryPointView.class);
-					ui.getPage().reload();
-				});
-			});
-			Button no = new Button("Cancel", e -> confirm.close());
-			yes.addClassName("pos-button-large");
-			no.addClassName("pos-button-large");
-			confirm.add(new HorizontalLayout(yes, no));
-			confirm.open();
-		});
-		logout.getElement().setAttribute("title", "Logout");
-		logout.addClassName("pos-button-icon");
-
 		Button home = new Button(VaadinIcon.HOME.create(), e -> getUI().ifPresent(ui -> ui.navigate(EntryPointView.class)));
 		home.addClassName("pos-button-large");
 
-		Button themeToggle = new Button("🌙");
-		themeToggle.addClassName("pos-button-icon");
-		themeToggle.getElement().setAttribute("id", "theme-toggle");
-		themeToggle.getElement().setAttribute("title", "Toggle theme");
-		themeToggle.addClickListener(evt -> getUI().ifPresent(ui -> ui.getPage().executeJs(
-			"((btn)=>{const key='possable-theme';const cur=localStorage.getItem(key)||(document.body.classList.contains('light-mode')?'light':'dark');const next=cur==='light'?'dark':'light';if(next==='light'){document.body.classList.add('light-mode')}else{document.body.classList.remove('light-mode')}localStorage.setItem(key,next);const isLight=next==='light';btn.textContent=(isLight?'🌞':'🌙');})(arguments[0])",
-			themeToggle.getElement())));
-
-		HorizontalLayout header = new HorizontalLayout(title, status, profile, themeToggle, home, logout);
+		HorizontalLayout header = new HorizontalLayout(title, status, profile, home);
 		header.setWidthFull();
 		header.setAlignItems(Alignment.CENTER);
 		header.addClassName("pos-header");
 		status.addClassName("pos-status");
 		addClassName("pos-app");
 		addToNavbar(header);
+
+		// Left drawer menu (sticky main menu) - create router links safely
+		com.vaadin.flow.component.orderedlayout.VerticalLayout drawer = new com.vaadin.flow.component.orderedlayout.VerticalLayout();
+		drawer.getStyle().set("padding", "12px").set("min-width", "180px");
+		drawer.addClassName("pos-drawer");
+		try {
+			Class.forName("com.possable.seating.SeatingView");
+			drawer.add(new com.vaadin.flow.router.RouterLink("Seating", com.possable.seating.SeatingView.class));
+		} catch (ClassNotFoundException ignore) {}
+		try {
+			Class.forName("com.possable.menu.MenuView");
+			drawer.add(new com.vaadin.flow.router.RouterLink("Menu", com.possable.menu.MenuView.class));
+		} catch (ClassNotFoundException ignore) {}
+		try {
+			Class.forName("com.possable.checkout.ui.CashierView");
+			drawer.add(new com.vaadin.flow.router.RouterLink("Payment", com.possable.checkout.ui.CashierView.class));
+		} catch (ClassNotFoundException ignore) {}
+		try {
+			Class.forName("com.possable.order.ui.OrderView");
+			drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.ui.OrderView.class));
+		} catch (ClassNotFoundException ignore) {}
+		try {
+			Class.forName("com.possable.settings.SettingsView");
+			drawer.add(new com.vaadin.flow.router.RouterLink("Settings", com.possable.settings.SettingsView.class));
+		} catch (ClassNotFoundException ignore) {}
+		addToDrawer(drawer);
 
 		addAttachListener(evt -> {
 			// show startup message if present

@@ -32,6 +32,7 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.component.dialog.Dialog;
 
 @Route(value = "profile", layout = UserMainLayout.class)
 @PageTitle("Profile")
@@ -133,6 +134,28 @@ public class ProfileView extends VerticalLayout {
         apiKeysContainer.getStyle().set("margin-top", "18px");
         add(new H2("API Keys"));
         add(apiKeysContainer);
+
+		// Logout button moved here from header
+		Button logoutBtn = new Button("Logout", evt -> {
+			Dialog confirm = new Dialog();
+			confirm.add(new Span("Are you sure you want to logout?"));
+			Button yes = new Button("Logout", e -> {
+				SecurityContextHolder.clearContext();
+				Broadcaster.broadcast("");
+				confirm.close();
+				getUI().ifPresent(ui -> {
+					ui.navigate(EntryPointView.class);
+					ui.getPage().reload();
+				});
+			});
+			Button no = new Button("Cancel", e -> confirm.close());
+			yes.addClassName("pos-button-large");
+			no.addClassName("pos-button-large");
+			confirm.add(new HorizontalLayout(yes, no));
+			confirm.open();
+		});
+		logoutBtn.addClassName("pos-button-large");
+		add(logoutBtn);
 
         addAttachListener(evt -> loadProfileAndRender());
     }

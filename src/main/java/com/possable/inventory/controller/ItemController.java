@@ -37,6 +37,8 @@ public class ItemController {
         @NotNull
         private Double price;
         private Boolean available;
+        private String category;
+        private String tagsCsv;
 
         public CreateItemRequest() {}
         public CreateItemRequest(String name, String description, Double price, Boolean available) { 
@@ -53,6 +55,10 @@ public class ItemController {
         public void setPrice(Double price) { this.price = price; }
         public Boolean getAvailable() { return available; }
         public void setAvailable(Boolean available) { this.available = available; }
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        public String getTagsCsv() { return tagsCsv; }
+        public void setTagsCsv(String tagsCsv) { this.tagsCsv = tagsCsv; }
     }
 
     public static record ItemDto(String id, String name, String description, double price, boolean available, Instant createdAt) {
@@ -79,6 +85,12 @@ public class ItemController {
     public ResponseEntity<ItemDto> createItem(@Valid @RequestBody CreateItemRequest req) {
         boolean available = req.getAvailable() == null ? true : req.getAvailable();
         var item = inventoryFacade.createItem(req.getName(), req.getDescription(), req.getPrice(), available);
+        // set optional metadata via updateMetadata if provided
+        try {
+            if (req.getCategory() != null || req.getTagsCsv() != null) {
+                inventoryFacade.updateMetadata(item.id(), req.getCategory(), req.getTagsCsv());
+            }
+        } catch (Exception ignored) {}
         var dto = new ItemDto(item.id(), item.name(), item.description(), item.price(), item.available(), item.createdAt());
         return ResponseEntity.created(URI.create("/items/" + dto.id())).body(dto);
     }
@@ -96,6 +108,11 @@ public class ItemController {
         boolean available = req.getAvailable() == null ? true : req.getAvailable();
         var item = inventoryFacade.updateItem(itemId, req.getName(), req.getDescription(), req.getPrice(), available);
         if (item == null) return ResponseEntity.notFound().build();
+        try {
+            if (req.getCategory() != null || req.getTagsCsv() != null) {
+                inventoryFacade.updateMetadata(itemId, req.getCategory(), req.getTagsCsv());
+            }
+        } catch (Exception ignored) {}
         var dto = new ItemDto(item.id(), item.name(), item.description(), item.price(), item.available(), item.createdAt());
         return ResponseEntity.ok(dto);
     }

@@ -31,6 +31,13 @@ class ItemEntity {
 
     private Instant createdAt;
 
+    // New fields to support menu metadata
+    @Column(length = 128)
+    private String category;
+
+    @Column(length = 2000)
+    private String tagsCsv; // comma-separated tags
+
     public ItemEntity() {}
 
     public ItemEntity(String id, String name, String description, BigDecimal price, boolean available, Instant createdAt) {
@@ -71,4 +78,12 @@ class ItemEntity {
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant createdAt() { return getCreatedAt(); }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String category() { return getCategory(); }
+
+    public String getTagsCsv() { return tagsCsv; }
+    public void setTagsCsv(String tagsCsv) { this.tagsCsv = tagsCsv; }
+    public String tagsCsv() { return getTagsCsv(); }
 } 
