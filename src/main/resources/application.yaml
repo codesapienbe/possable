@@ -31,6 +31,15 @@ app:
     inactivity-timeout-ms: 300000
   docs:
     enabled: false
+  seed:
+    user:
+      enable: true
+    inventory:
+      enable: true
+    print:
+      enable: true
+    order:
+      enable: true
 
 # Management/Actuator settings for Prometheus
 management:

@@ -3,9 +3,20 @@
 	--pos-bg: #0f1724; /* dark slate */
 	--pos-panel: #0b1220;
 	--pos-accent: #0ea5a4; /* teal */
+	--pos-accent-2: #0ea5a4;
 	--pos-muted: #94a3b8;
 	--pos-card: #0b1622;
+	--pos-card-default: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 	--pos-gap: 24px;
+
+	/* Button & header variables (use for consistent theming across components) */
+	--pos-btn-bg: var(--pos-accent);
+	--pos-btn-text: #ffffff;
+	--pos-btn-border: rgba(255,255,255,0.08);
+
+	--pos-header-btn-bg: transparent;
+	--pos-header-btn-text: inherit;
+	--pos-header-btn-border: rgba(255,255,255,0.04);
 }
 
 body {
@@ -128,17 +139,16 @@ body {
 	margin-right: 12px;
 }
 
-/* Buttons */
+/* Buttons - consolidated: use variables declared at :root for consistent light/dark behaviour */
 .v-button, vaadin-button, .v-button {
 	border-radius: 8px;
 	padding: 8px 12px;
 	font-weight: 700;
-	/* make primary button text high-contrast and reduce heavy shadows */
-	background: var(--pos-accent);
-	color: #ffffff;
-	border: 1px solid rgba(255,255,255,0.08);
+	background: var(--pos-btn-bg);
+	color: var(--pos-btn-text);
+	border: 1px solid var(--pos-btn-border);
 	box-shadow: 0 2px 6px rgba(2,6,23,0.28);
-	text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+	text-shadow: 0 1px 0 rgba(0,0,0,0.12);
 }
 
 /* Larger POS-friendly buttons */
@@ -167,12 +177,16 @@ body {
 /* Header buttons: make header icon and small buttons uniform height without affecting role cards */
 .pos-header .pos-button-icon,
 .pos-header .pos-button-large {
-    height: 40px;
-    min-height: 40px;
-    padding: 6px 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+	height: 40px;
+	min-height: 40px;
+	padding: 6px 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	/* header buttons should use shared header palette tokens */
+	background: var(--pos-header-btn-bg, transparent);
+	color: var(--pos-header-btn-text, inherit);
+	border: 1px solid var(--pos-header-btn-border, rgba(255,255,255,0.04));
 }
 
 /* Ensure icon-only header buttons keep a square shape */
@@ -597,15 +611,8 @@ pattern-lock canvas, .pattern-lock canvas {
 	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
 }
 
-/* Make primary buttons high-contrast */
-.v-button, vaadin-button, .v-button {
-	background: var(--pos-accent);
-	color: #ffffff;
-	border: 1px solid rgba(255,255,255,0.08);
-	box-shadow: 0 2px 6px rgba(2,6,23,0.28);
-	border-radius: 8px;
-	font-weight: 700;
-}
+/* Button defaults: primary button styles use palette variables declared at :root */
+/* primary button block intentionally consolidated earlier to ensure consistent variables */
 .v-button[theme~="secondary"], vaadin-button[theme~="secondary"] {
 	background: transparent;
 	color: var(--pos-accent);
@@ -732,17 +739,20 @@ body.light-mode pattern-lock, body.light-mode .pattern-lock {
 }
 
 /* Light-mode specific adjustments for glass panels and buttons */
-body.light-mode .pos-card, body.light-mode .pos-stat, body.light-mode .pos-details, body.light-mode .pos-cart {
+/* Do not override role-specific backgrounds in light mode — only apply the neutral card background
+   to cards that are not role-specific so role gradients remain intact. */
+body.light-mode .pos-card:not(.role-service):not(.role-kitchen):not(.role-management):not(.role-customer), body.light-mode .pos-stat, body.light-mode .pos-details, body.light-mode .pos-cart {
 	background: var(--pos-card);
 	border: 1px solid var(--glass-border);
 	color: #0b1220;
 	box-shadow: 0 10px 30px rgba(11,132,255,0.04);
 }
+
 body.light-mode .v-button, body.light-mode vaadin-button, body.light-mode .v-button {
-	/* brighter, two-tone accent for more color on light background */
-	background: linear-gradient(90deg, var(--pos-accent), var(--pos-accent-2));
-	color: #ffffff;
-	border: 1px solid rgba(11,132,255,0.12);
+	/* brighter, two-tone accent for more color on light background - set palette tokens */
+	--pos-btn-bg: linear-gradient(90deg, var(--pos-accent), var(--pos-accent-2));
+	--pos-btn-text: #ffffff;
+	--pos-btn-border: rgba(11,132,255,0.12);
 	box-shadow: 0 6px 18px rgba(11,132,255,0.06);
 }
 
