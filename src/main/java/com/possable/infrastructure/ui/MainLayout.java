@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.possable.notification.NotificationFacade;
 import com.possable.infrastructure.Broadcaster;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.possable.infrastructure.ui.EntryPointView;
 import com.possable.user.ui.ProfileView;
 import com.vaadin.flow.component.ClientCallable;
@@ -28,6 +29,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
+import java.util.HashSet;
+import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
+import java.util.Map;
 
 public class MainLayout extends AppLayout {
 
@@ -73,37 +78,68 @@ public class MainLayout extends AppLayout {
 		addClassName("pos-app");
 		addToNavbar(header);
 
-		// Left drawer menu (sticky main menu) - create router links safely
+		// Left drawer menu (role-aware)
 		com.vaadin.flow.component.orderedlayout.VerticalLayout drawer = new com.vaadin.flow.component.orderedlayout.VerticalLayout();
 		drawer.getStyle().set("padding", "12px").set("min-width", "180px");
 		drawer.addClassName("pos-drawer");
-		try {
-			Class.forName("com.possable.seating.SeatingView");
-			drawer.add(new com.vaadin.flow.router.RouterLink("Seating", com.possable.seating.SeatingView.class));
-		} catch (ClassNotFoundException ignore) {}
-		try {
-			Class.forName("com.possable.menu.MenuView");
-			drawer.add(new com.vaadin.flow.router.RouterLink("Menu", com.possable.menu.MenuView.class));
-		} catch (ClassNotFoundException ignore) {}
-		try {
-			Class.forName("com.possable.checkout.ui.CashierView");
-			drawer.add(new com.vaadin.flow.router.RouterLink("Payment", com.possable.checkout.ui.CashierView.class));
-		} catch (ClassNotFoundException ignore) {}
-		try {
-			Class.forName("com.possable.order.ui.OrderView");
-			drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.ui.OrderView.class));
-		} catch (ClassNotFoundException ignore) {}
-		try {
-			Class.forName("com.possable.settings.SettingsView");
-			drawer.add(new com.vaadin.flow.router.RouterLink("Settings", com.possable.settings.SettingsView.class));
-		} catch (ClassNotFoundException ignore) {}
+
+		Authentication authNow = SecurityContextHolder.getContext().getAuthentication();
+		boolean unauthenticated = (authNow == null || !authNow.isAuthenticated());
+		Set<String> roleNames = new HashSet<>();
+		if (!unauthenticated) {
+			for (GrantedAuthority ga : authNow.getAuthorities()) {
+				String a = ga.getAuthority();
+				if (a != null) {
+					if (a.startsWith("ROLE_")) a = a.substring(5);
+					roleNames.add(a.toUpperCase());
+				}
+			}
+		}
+
+		// Unauthenticated (customer) sees Menu if available
+		if (unauthenticated) {
+			try { Class.forName("com.possable.menu.MenuView"); drawer.add(new com.vaadin.flow.router.RouterLink("Menu", com.possable.menu.MenuView.class)); } catch (ClassNotFoundException ignore) {}
+		} else {
+			boolean isService = roleNames.contains("SERVICE");
+			boolean isKitchen = roleNames.contains("KITCHEN");
+			boolean isManagement = roleNames.contains("MANAGEMENT");
+			boolean isCashier = roleNames.contains("CASHIER");
+
+			// Seating for service & management
+			if (isService || isManagement) { try { Class.forName("com.possable.seating.SeatingView"); drawer.add(new com.vaadin.flow.router.RouterLink("Seating", com.possable.seating.SeatingView.class)); } catch (ClassNotFoundException ignore) {} }
+			// Menu for service, management, cashier
+			if (isService || isManagement || isCashier) { try { Class.forName("com.possable.menu.MenuView"); drawer.add(new com.vaadin.flow.router.RouterLink("Menu", com.possable.menu.MenuView.class)); } catch (ClassNotFoundException ignore) {} }
+			// Orders link tailored per role: prefer specific views if available
+			if (isKitchen) {
+				try { Class.forName("com.possable.order.kitchen.KitchenOrderView"); drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.kitchen.KitchenOrderView.class)); } catch (ClassNotFoundException ignore) {}
+			} else if (isService) {
+				try { Class.forName("com.possable.order.service.ServiceOrderView"); drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.service.ServiceOrderView.class)); } catch (ClassNotFoundException ignore) {}
+			} else if (isCashier) {
+				try { Class.forName("com.possable.order.cashier.CashierOrderView"); drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.cashier.CashierOrderView.class)); } catch (ClassNotFoundException ignore) {}
+			} else {
+				try { Class.forName("com.possable.order.ui.OrderView"); drawer.add(new com.vaadin.flow.router.RouterLink("Orders", com.possable.order.ui.OrderView.class)); } catch (ClassNotFoundException ignore) {}
+			}
+			// Payment for cashier & management
+			if (isCashier || isManagement) { try { Class.forName("com.possable.checkout.ui.CashierView"); drawer.add(new com.vaadin.flow.router.RouterLink("Payment", com.possable.checkout.ui.CashierView.class)); } catch (ClassNotFoundException ignore) {} }
+			// Settings & Reports for management
+			if (isManagement) {
+				try { Class.forName("com.possable.settings.SettingsView"); drawer.add(new com.vaadin.flow.router.RouterLink("Settings", com.possable.settings.SettingsView.class)); } catch (ClassNotFoundException ignore) {}
+				try {
+					Class<?> reportsCls = Class.forName("com.possable.reports.ReportsView");
+					@SuppressWarnings("unchecked")
+					Class<? extends com.vaadin.flow.component.Component> reportsTarget = (Class<? extends com.vaadin.flow.component.Component>) reportsCls;
+					drawer.add(new com.vaadin.flow.router.RouterLink("Reports", reportsTarget));
+				} catch (ClassNotFoundException ignore) {}
+			}
+		}
+
 		addToDrawer(drawer);
 
 		addAttachListener(evt -> {
 			// show startup message if present
-			String msg = this.notificationFacade.consumeStartupMessage();
-			if (msg != null && !msg.isBlank()) {
-				Notification.show(msg, 5000, Notification.Position.TOP_END);
+			String startupMsg = this.notificationFacade.consumeStartupMessage();
+			if (startupMsg != null && !startupMsg.isBlank()) {
+				Notification.show(startupMsg, 5000, Notification.Position.TOP_END);
 			}
 
 			// update profile button tooltip from security context
@@ -118,14 +154,29 @@ public class MainLayout extends AppLayout {
 			}
 
 			// listen for user switch events
-			broadcasterRegistration = Broadcaster.register(name -> ui.access(() -> {
-				if (name == null || name.isBlank()) {
+			broadcasterRegistration = Broadcaster.register(payload -> ui.access(() -> {
+				if (payload == null || payload.isBlank()) {
 					profile.getElement().setAttribute("title", "Not signed in");
 					profile.setVisible(false);
-				} else {
-					profile.getElement().setAttribute("title", name);
-					profile.setVisible(true);
+					return;
 				}
+				// support two formats: plain username or JSON message payloads
+				String trimmed = payload.trim();
+				if (trimmed.startsWith("{")) {
+					try {
+						Map<?,?> m = new ObjectMapper().readValue(trimmed, Map.class);
+						Object type = m.get("type");
+						if ("access_denied".equals(String.valueOf(type))) {
+							Object raw = m.get("message");
+							String text = raw == null ? "Access denied" : String.valueOf(raw);
+							com.vaadin.flow.component.notification.Notification.show(text, 4000, com.vaadin.flow.component.notification.Notification.Position.TOP_END);
+							return;
+						}
+					} catch (Exception ignore) {}
+				}
+				// fallback: treat as username
+				profile.getElement().setAttribute("title", payload);
+				profile.setVisible(true);
 			}));
 
 			// register client-side listeners to report activity to server

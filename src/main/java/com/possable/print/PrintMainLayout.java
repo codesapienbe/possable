@@ -8,5 +8,4 @@ public class PrintMainLayout extends MainLayout {
 	public PrintMainLayout(NotificationFacade notificationFacade) {
 		super(notificationFacade);
 	}
-
 } 

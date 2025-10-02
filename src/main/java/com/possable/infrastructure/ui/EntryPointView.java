@@ -1,5 +1,6 @@
 package com.possable.infrastructure.ui;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.possable.user.UserFacade;
-import com.possable.user.ui.PatternLockComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -108,28 +108,25 @@ public class EntryPointView extends VerticalLayout {
 	private void openPinDialog(String username) {
 		Dialog dialog = new Dialog();
 		dialog.setWidth("420px");
-		// keep dialog height constrained on small viewports to avoid full-page scroll
 		dialog.getElement().getStyle().set("max-height", "80vh");
-		// add a helper classname for targeted styling
 		dialog.addClassName("pin-dialog");
+
 		VerticalLayout content = new VerticalLayout();
 		content.setPadding(true);
 		content.setSpacing(true);
 		content.setAlignItems(FlexComponent.Alignment.CENTER);
 		content.add(new H1("Enter PIN"));
+
 		TextField pin = new TextField("PIN");
 		pin.setPlaceholder("4-digit PIN");
-		// use a fixed width so the numeric keypad and dots align nicely
-		pin.setWidth("220px");
 		pin.getElement().setAttribute("inputmode", "numeric");
-		pin.getElement().setAttribute("maxlength", "4");
-		pin.setValue("");
-		pin.setReadOnly(true); // force using on-screen keypad
+		pin.getElement().setAttribute("maxlength", "6");
+		pin.setWidth("220px");
+		pin.setReadOnly(true);
 
-		// visual PIN indicator (four dots)
 		HorizontalLayout pinDots = new HorizontalLayout();
 		pinDots.getStyle().set("gap", "8px");
-		java.util.List<com.vaadin.flow.component.html.Span> dotSpans = new java.util.ArrayList<>();
+		List<com.vaadin.flow.component.html.Span> dotSpans = new java.util.ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			com.vaadin.flow.component.html.Span s = new com.vaadin.flow.component.html.Span();
 			s.addClassName("pin-dot");
@@ -137,143 +134,66 @@ public class EntryPointView extends VerticalLayout {
 			pinDots.add(s);
 		}
 
-		java.lang.Runnable refreshDots = () -> {
+		Runnable refreshDots = () -> {
 			String v = pin.getValue() == null ? "" : pin.getValue();
 			for (int i = 0; i < dotSpans.size(); i++) {
-				if (i < v.length()) {
-					dotSpans.get(i).getElement().getClassList().add("filled");
-				} else {
-					dotSpans.get(i).getElement().getClassList().remove("filled");
-				}
+				if (i < v.length()) dotSpans.get(i).getElement().getClassList().add("filled"); else dotSpans.get(i).getElement().getClassList().remove("filled");
 			}
 		};
-		// pattern lock component (small square)
-		// choose hover color by role to provide visual context
-		String hoverColor = "rgba(255,255,255,0.6)";
-		switch (username) {
-			case "kitchen" -> hoverColor = "rgba(245,158,11,0.9)";
-			case "management" -> hoverColor = "rgba(6,182,212,0.9)";
-			case "service" -> hoverColor = "rgba(14,165,164,0.9)";
-			default -> hoverColor = "rgba(167,139,250,0.9)";
-		}
-		PatternLockComponent pattern = new PatternLockComponent(260, hoverColor, 14);
-		content.add(pattern);
-		// declare numpad early so the toggle can control its visibility
-		HorizontalLayout numpad = new HorizontalLayout();
-		numpad.addClassName("pin-numpad");
-		numpad.setVisible(false);
-
-		// hide PIN elements by default — drawing is primary login method
-		pin.setVisible(false);
-		pinDots.setVisible(false);
-
-		// toggle switch between pattern (default) and PIN
-		Button usePinToggle = new Button();
-		usePinToggle.addClassName("toggle-switch");
-		usePinToggle.getElement().setProperty("aria-pressed", "false");
-		// initial state: off (pattern visible)
-		usePinToggle.getElement().getClassList().remove("on");
-		usePinToggle.addClickListener(e -> {
-			boolean isOn = usePinToggle.getElement().getClassList().contains("on");
-			if (isOn) {
-				// switch to pattern
-				usePinToggle.getElement().getClassList().remove("on");
-				usePinToggle.getElement().setProperty("aria-pressed", "false");
-				pattern.setVisible(true);
-				pin.setVisible(false);
-				pinDots.setVisible(false);
-				numpad.setVisible(false);
-			} else {
-				// switch to PIN input
-				usePinToggle.getElement().getClassList().add("on");
-				usePinToggle.getElement().setProperty("aria-pressed", "true");
-				pattern.setVisible(false);
-				pin.setVisible(true);
-				pinDots.setVisible(true);
-				numpad.setVisible(true);
-			}
-		});
-		// visible label for the toggle (helps when button visuals blend with background)
-		Span usePinLabel = new Span("Use PIN");
-		usePinLabel.addClassName("toggle-label");
-		// wrapper to align toggle and label
-		HorizontalLayout toggleRow = new HorizontalLayout(usePinToggle, usePinLabel);
-		toggleRow.setAlignItems(FlexComponent.Alignment.CENTER);
-		toggleRow.addClassName("toggle-row");
-		content.add(toggleRow);
-
-		// listen for pattern changes from client component and attempt login when pattern length >= 4
-		pattern.getElement().addEventListener("pattern-changed", ev -> {
-			String patternJson = ev.getEventData().getString("event.detail.pattern");
-			if (patternJson == null || patternJson.isBlank()) return;
-			// count indices in the JSON array
-			String cleaned = patternJson.replaceAll("[^0-9,]", "");
-			String[] parts = cleaned.isEmpty() ? new String[0] : cleaned.split(",");
-			if (parts.length < 4) return; // require at least 4 nodes to consider a pattern
-			boolean ok = userFacade.authenticate(username, patternJson, null);
-			if (ok) {
-				completeLogin(username, dialog, pattern);
-			} else {
-				Notification.show("Invalid pattern");
-				pattern.clear();
-			}
-		}).addEventData("event.detail.pattern");
 
 		Button submit = new Button("Enter", evt -> {
 			String value = pin.getValue();
 			try {
-				if (value == null || !value.matches("\\d{4,6}")) {
-					Notification.show("Please enter a 4-6 digit PIN");
-					return;
-				}
-				// first try drawing-based auth using pattern lock
-				String drawing = pattern.getPattern();
-				boolean ok = userFacade.authenticate(username, drawing != null && !drawing.isBlank() ? drawing : null, value);
+				if (value == null || !value.matches("\\d{4,6}")) { Notification.show("Please enter a 4-6 digit PIN"); return; }
+				boolean ok = userFacade.authenticate(username, null, value);
 				if (ok) {
-					completeLogin(username, dialog, pattern);
+					completeLogin(username, dialog);
 				} else {
 					Notification.show("Invalid PIN");
 				}
-			} catch (Exception ex) {
-				Notification.show("Invalid PIN");
-			}
+			} catch (Exception ex) { Notification.show("Invalid PIN"); }
 		});
+
 		Button cancel = new Button("Cancel", evt -> dialog.close());
-		submit.addClassName("pos-button-large");
-		cancel.addClassName("pos-button-large");
-		// numeric keypad
+		submit.addClassName("pos-button-large"); cancel.addClassName("pos-button-large");
+
+		HorizontalLayout numpad = new HorizontalLayout();
+		numpad.addClassName("pin-numpad");
 		numpad.getStyle().set("flex-wrap", "wrap").set("gap", "8px").set("max-width", "260px");
-		// center keypad buttons and make it addressable from CSS
 		numpad.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
 		for (int i = 1; i <= 9; i++) {
 			int digit = i;
-			Button d = new Button(Integer.toString(digit), e -> {
+			Button d = new Button(Integer.toString(digit));
+			d.addClickListener(e -> {
 				String v = pin.getValue();
-				if (v.length() < 4) {
-					pin.setValue(v + digit);
-					refreshDots.run();
-					if (pin.getValue().length() == 4) submit.click();
-				}
+				if (v.length() < 6) { pin.setValue(v + digit); refreshDots.run(); if (pin.getValue().length() >= 4) submit.focus(); }
+				d.addClassName("press-anim");
+				// remove animation class after animation duration
+				new Thread(() -> { try { Thread.sleep(160); UI.getCurrent().access(() -> d.removeClassName("press-anim")); } catch (Exception ignored) {} }).start();
 			});
-			d.addClassName("pos-button-large");
-			d.addClassName("pin-key");
-			d.getStyle().set("width", "64px");
-			numpad.add(d);
+			d.addClassName("pos-button-large"); d.addClassName("pin-key"); d.getStyle().set("width", "64px"); numpad.add(d);
 		}
-		Button zero = new Button("0", e -> { String v = pin.getValue(); if (v.length() < 4) { pin.setValue(v + "0"); refreshDots.run(); if (pin.getValue().length() == 4) submit.click(); } });
+		Button zero = new Button("0");
+		zero.addClickListener(e -> {
+			String v = pin.getValue(); if (v.length() < 6) { pin.setValue(v + "0"); refreshDots.run(); if (pin.getValue().length() >= 4) submit.focus(); }
+			zero.addClassName("press-anim"); new Thread(() -> { try { Thread.sleep(160); UI.getCurrent().access(() -> zero.removeClassName("press-anim")); } catch (Exception ignored) {} }).start();
+		});
 		zero.addClassName("pos-button-large"); zero.addClassName("pin-key"); zero.getStyle().set("width", "64px");
-		Button back = new Button("⌫", e -> { String v = pin.getValue(); if (!v.isEmpty()) { pin.setValue(v.substring(0, v.length() - 1)); refreshDots.run(); } });
+		Button back = new Button("⌫");
+		back.addClickListener(e -> { String v = pin.getValue(); if (!v.isEmpty()) { pin.setValue(v.substring(0, v.length() - 1)); refreshDots.run(); } back.addClassName("press-anim"); new Thread(() -> { try { Thread.sleep(160); UI.getCurrent().access(() -> back.removeClassName("press-anim")); } catch (Exception ignored) {} }).start(); });
 		back.addClassName("pos-button-large"); back.addClassName("pin-key"); back.getStyle().set("width", "64px");
-		Button clearBtn = new Button("Clear", e -> { pin.setValue(""); refreshDots.run(); });
+		Button clearBtn = new Button("Clear");
+		clearBtn.addClickListener(e -> { pin.setValue(""); refreshDots.run(); clearBtn.addClassName("press-anim"); new Thread(() -> { try { Thread.sleep(160); UI.getCurrent().access(() -> clearBtn.removeClassName("press-anim")); } catch (Exception ignored) {} }).start(); });
 		clearBtn.addClassName("pos-button-large"); clearBtn.addClassName("pin-key"); clearBtn.getStyle().set("width", "64px");
 		numpad.add(zero, back, clearBtn);
-		// add numpad to content (it may be hidden initially)
+
 		content.add(pinDots, pin, numpad, new HorizontalLayout(submit, cancel));
 		dialog.add(content);
 		dialog.open();
 	}
 
-	private void completeLogin(String username, Dialog dialog, PatternLockComponent pattern) {
+	private void completeLogin(String username, Dialog dialog) {
 		// prepare role-specific unlock display
 		unlockLock.getElement().getClassList().remove("role-service");
 		unlockLock.getElement().getClassList().remove("role-kitchen");
@@ -330,8 +250,7 @@ public class EntryPointView extends VerticalLayout {
 		});
 		animThread.setDaemon(true);
 		animThread.start();
-		// clear pattern after use
-		if (pattern != null) pattern.clear();
+		// no pattern component used any more
 	}
 
 	private void openCustomerPincodeDialog() {
@@ -366,10 +285,36 @@ public class EntryPointView extends VerticalLayout {
 				Notification.show("Failed to initiate login");
 			}
 		});
+		Button guest = new Button("Continue as Guest", evt -> {
+			String t = table.getValue();
+			try {
+				// store seat/table in VaadinSession for unauthenticated customer flows
+				com.vaadin.flow.server.VaadinSession vs = com.vaadin.flow.server.VaadinSession.getCurrent();
+				if (vs != null) {
+					vs.setAttribute("customer_seat", (t == null || t.isBlank()) ? null : t.trim());
+				}
+				dialog.close();
+				// navigate to menu and include seat query param for deep-linking
+				try {
+					if (t == null || t.isBlank()) {
+						UI.getCurrent().navigate("menu");
+					} else {
+						String q = java.net.URLEncoder.encode(t.trim(), "UTF-8");
+						UI.getCurrent().navigate("menu?seat=" + q);
+					}
+				} catch (Exception ex2) {
+					// fallback to simple navigate
+					UI.getCurrent().navigate("menu");
+				}
+			} catch (Exception ex) {
+				Notification.show("Failed to continue as guest");
+			}
+		});
 		Button cancel = new Button("Cancel", e -> dialog.close());
 		submit.addClassName("pos-button-large");
+		guest.addClassName("pos-button-large");
 		cancel.addClassName("pos-button-large");
-		content.add(table, pin, new HorizontalLayout(submit, cancel));
+		content.add(table, pin, new HorizontalLayout(submit, guest, cancel));
 		dialog.add(content);
 		dialog.open();
 	}

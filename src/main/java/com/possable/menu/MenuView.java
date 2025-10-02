@@ -41,7 +41,21 @@ public class MenuView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
-        H2 header = new H2("HOME PAGE");
+        // prefer seat from URL param if provided for deep-linking
+        String seat = null;
+        try {
+            var qp = UI.getCurrent().getInternals().getActiveViewLocation().getQueryParameters().getParameters();
+            if (qp != null && qp.containsKey("seat") && !qp.get("seat").isEmpty()) {
+                seat = qp.get("seat").get(0);
+                // persist in session for later navigation
+                com.vaadin.flow.server.VaadinSession vs = com.vaadin.flow.server.VaadinSession.getCurrent();
+                if (vs != null) vs.setAttribute("customer_seat", seat);
+            } else {
+                com.vaadin.flow.server.VaadinSession vs = com.vaadin.flow.server.VaadinSession.getCurrent();
+                if (vs != null) seat = (String) vs.getAttribute("customer_seat");
+            }
+        } catch (Exception ignore) {}
+        H2 header = seat == null || seat.isBlank() ? new H2("HOME PAGE") : new H2("HOME PAGE — Seat " + seat);
         header.getStyle().set("color", "#1f2937"); // dark slate for better contrast
         header.getStyle().set("margin", "0 0 12px 0");
         add(header);
