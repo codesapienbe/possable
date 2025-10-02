@@ -850,3 +850,29 @@ body.light-mode .pos-root canvas, body.light-mode .pattern-lock canvas { box-sha
 
 /* Skeleton row presentation for loading states */
 .grid-skeleton-row { height: 48px; margin: 6px 0; border-radius: 8px; background: linear-gradient(90deg, rgba(0,0,0,0.04) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.04) 100%); }
+
+/* Menu UI placeholder styles */
+.menu-item-image {
+	width: 100%;
+	height: 160px;
+	background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
+	background-size: cover;
+	background-position: center;
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+
+.menu-item-card {
+	width: 240px;
+	border-radius: 12px;
+	overflow: hidden;
+	background: var(--pos-card);
+	box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+	padding: 0;
+}
+
+.menu-item-body {
+	padding: 12px;
+}
+
+.menu-tag { display: inline-block; padding: 4px 8px; border-radius: 12px; background: rgba(0,0,0,0.06); font-weight:700; margin-right:6px; }

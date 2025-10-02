@@ -1,7 +1,6 @@
 package com.possable.inventory;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -23,7 +22,7 @@ public class InventorySeeder {
 
     private static final Logger log = LoggerFactory.getLogger(InventorySeeder.class);
     private final InventoryFacade inventory;
-    private final Random rnd = new Random();
+    private final Random rnd = new Random(12345);
 
     public InventorySeeder(InventoryFacade inventory) {
         this.inventory = inventory;
@@ -38,13 +37,27 @@ public class InventorySeeder {
                 return;
             }
 
-            List<String> sampleNames = Arrays.asList("Margherita Pizza", "Pepperoni Pizza", "Caesar Salad", "Cheeseburger", "Fries", "Cappuccino", "Espresso", "Sushi Roll", "Tacos", "Pancakes", "Omelette", "Grilled Salmon", "Steak Sandwich", "Veggie Bowl", "Chicken Wings", "Onion Rings", "Chocolate Cake", "Ice Cream Scoop", "Smoothie", "Lemonade");
-            for (int i = 0; i < Math.min(sampleNames.size(), 20); i++) {
-                String name = sampleNames.get(i);
-                String desc = name + " - handcrafted food item";
-                double price = 2.5 + rnd.nextInt(200) / 10.0;
-                inventory.createItem(name, desc, price, true);
-                log.info("{\"message\":\"inventory_item_seeded\", \"name\":\"{}\", \"price\":{} }", name, price);
+            // realistic menu samples with categories and tags
+            record Sample(String name, String category, String tagsCsv, double basePrice) {}
+            List<Sample> samples = List.of(
+                new Sample("Chicken Wings", "starter", "spicy,share", 8.0),
+                new Sample("French Fries", "starter", "vegan,snack", 4.5),
+                new Sample("Summer Salad", "starter", "vegetarian,light", 6.5),
+                new Sample("Beef Burger", "main", "grill,hearty", 12.0),
+                new Sample("Grilled Salmon", "main", "seafood,chef-special", 15.0),
+                new Sample("Pancakes", "dessert", "sweet,vegetarian", 6.0),
+                new Sample("Chocolate Cake", "dessert", "sweet,share", 7.0),
+                new Sample("Cappuccino", "drinks", "hot,coffee", 3.0),
+                new Sample("Smoothie", "drinks", "cold,fruit", 4.0),
+                new Sample("Tacos", "main", "spicy,street-food", 9.0)
+            );
+
+            for (Sample s : samples) {
+                String desc = s.name() + " - handcrafted and fresh";
+                double price = s.basePrice + (rnd.nextInt(50) / 10.0);
+                var created = inventory.createItem(s.name(), desc, price, true);
+                try { inventory.updateMetadata(created.id(), s.category(), s.tagsCsv()); } catch (Exception ignore) {}
+                log.info("{\"message\":\"inventory_item_seeded\", \"name\":\"{}\", \"category\":\"{}\", \"tags\":\"{}\", \"price\":{} }", s.name(), s.category(), s.tagsCsv(), price);
             }
 
             log.info("{\"message\":\"inventory_seeder_completed\", \"timestamp\":\"{}\"}", Instant.now());
