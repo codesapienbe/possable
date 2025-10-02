@@ -15,6 +15,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.possable.order.OrderCreatedEvent;
 import com.possable.print.PrintJobRequestedEvent;
@@ -151,13 +153,28 @@ public class PrintModuleService {
             String createdEvent = "{\"id\":\"" + job.id() + "\", \"status\":\"pending\"}";
             Broadcaster.broadcast(createdEvent);
 
-            CompletableFuture.runAsync(() -> processJob(job.id()), taskExecutor::execute)
-                .exceptionally(ex -> {
-                    log.error("{\"message\":\"print_job_processing_failed\", \"print_job_id\":\"{}\", \"component\":\"print-module\", \"error\":\"{}\"}", 
-                        job.id(), sanitize(ex.getMessage()), ex);
-                    return null;
+            // Schedule processing after transaction commit to ensure the saved entity is visible
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        CompletableFuture.runAsync(() -> processJob(job.id()), taskExecutor::execute)
+                            .exceptionally(ex -> {
+                                log.error("{\"message\":\"print_job_processing_failed\", \"print_job_id\":\"{}\", \"component\":\"print-module\", \"error\":\"{}\"}", 
+                                    job.id(), sanitize(ex.getMessage()), ex);
+                                return null;
+                            });
+                    }
                 });
-            
+            } else {
+                CompletableFuture.runAsync(() -> processJob(job.id()), taskExecutor::execute)
+                    .exceptionally(ex -> {
+                        log.error("{\"message\":\"print_job_processing_failed\", \"print_job_id\":\"{}\", \"component\":\"print-module\", \"error\":\"{}\"}", 
+                            job.id(), sanitize(ex.getMessage()), ex);
+                        return null;
+                    });
+            }
+
             return job;
         }
 
